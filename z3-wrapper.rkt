@@ -39,8 +39,7 @@
 
 (defz3 parse-smtlib2-string :
   _z3-context
-  _string
-  _uint
+  _string  _uint
   (_or-null (_ptr i _z3-symbol))
   (_or-null (_ptr i _z3-sort))
   _uint
@@ -49,4 +48,9 @@
 
 ;; -> string functions
 (defz3 context-to-string : _z3-context -> _string)
-(defz3 ast-to-string : _z3-ast -> _string)
+(defz3 ast-to-string : _z3-context _z3-ast -> _string)
+(defz3 model-to-string : _z3-context _z3-model -> _string)
+
+(defz3 assert-cnstr : _z3-context _z3-ast -> _void)
+(defz3 check : _z3-context -> _int)
+(defz3 check-and-get-model : _z3-context (model : (_ptr o _z3-model)) -> (rv : _int) -> (values rv model))
