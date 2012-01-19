@@ -1,0 +1,9 @@
+~$
+\.pyc$
+\.aux$
+\.log$
+\.out$
+\.snm$
+\.toc$
+\.nav$
+^z3/
