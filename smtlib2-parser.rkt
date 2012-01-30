@@ -14,6 +14,25 @@
 
 (struct z3-context-info (context namespace))
 
+;; Wraps a binary function so that arguments are processed
+;; in a right-associative manner.
+(define (rassoc fn)
+  (lambda args
+    (foldr fn (last args) (drop-right args 1))))
+
+(define (flip fn) (lambda (x y) (fn y x)))
+
+;; Wraps a binary function so that arguments are processed
+;; in a left-associative manner. Note that foldl calls functions
+;; in their reverse order, so we flip the arguments to fix that.
+(define (lassoc fn)
+  (lambda (fst . rst)
+    (foldl (flip fn) fst rst)))
+
+(define (chainable fn)
+  (lambda (fst . rst)
+    (apply z3:mk-and (foldl (flip fn) fst rst))))
+
 (define (new-context-info model?)
   (define ctx (z3:mk-context (make-config #:model? model?)))
   (define ns (make-base-namespace))
@@ -22,7 +41,31 @@
             `([Bool ,(z3:mk-bool-sort ctx)]
               [Int ,(z3:mk-int-sort ctx)]
               [Real ,(z3:mk-real-sort ctx)]
-              [BitVec ,(lambda (size) (z3:mk-bv-sort ctx size))]))
+              [BitVec ,(z3:mk-bv-sort ctx)]
+              [true ,(z3:mk-true ctx)]
+              [false ,(z3:mk-false ctx)]
+              [= ,(chainable (z3:mk-eq ctx))]
+              [not ,(z3:mk-not ctx)]
+              [ite ,(z3:mk-ite ctx)]
+              [iff ,(z3:mk-iff ctx)]
+              [=> ,(rassoc (z3:mk-implies ctx))]
+              [xor ,(lassoc (z3:mk-xor ctx))]
+              [and ,(lassoc (z3:mk-and ctx))]
+              [or ,(lassoc (z3:mk-or ctx))]
+              ; These functions already accept an arbitrary number of arguments
+              [+ ,(z3:mk-add ctx)]
+              [* ,(z3:mk-mul ctx)]
+              [- ,(z3:mk-sub ctx)]
+              ; These don't
+              [/ ,(lassoc (z3:mk-div ctx))]
+              [div ,(lassoc (z3:mk-div ctx))]
+              [mod ,(lassoc (z3:mk-mod ctx))]
+              [rem ,(lassoc (z3:mk-rem ctx))]
+              ; Comparisons are chainable (i.e. (< a b c) == (and (< a b) (< b c)))
+              [< ,(chainable (z3:mk-lt ctx))]
+              [<= ,(chainable (z3:mk-le ctx))]
+              [> ,(chainable (z3:mk-gt ctx))]
+              [> ,(chainable (z3:mk-ge ctx))]))
   (z3-context-info ctx ns))
 
 (define-syntax-rule (with-context info body ...)
@@ -64,7 +107,6 @@
              [ret (sort-expr->z3-sort #'retsort)])
          (set-value 'fn (z3:mk-func-decl (ctx) (make-symbol 'fn) args ret))
          (void))]))
-
 
 (provide current-context
          with-context

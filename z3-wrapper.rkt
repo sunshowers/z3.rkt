@@ -2,7 +2,6 @@
 
 (require mzlib/foreign) (unsafe!)
 (require racket/runtime-path)
-(require ffi/cvector)
 
 ; We need this because libz3 is stupid and doesn't mention a dependence on
 ; libgomp. Loading this causes libz3 to pick up libgomp and thus not error out.
@@ -15,8 +14,38 @@
 (define-cpointer-type _z3-context)
 (define-cpointer-type _z3-symbol)
 (define-cpointer-type _z3-ast)
-(define-cpointer-type _z3-sort)
+
+; We distinguish between different kinds of asts here to add a bit of
+; type checking
+(define-cpointer-type _z3-bool-ast _z3-ast)
+(define-cpointer-type _z3-int-ast _z3-ast)
+(define-cpointer-type _z3-real-ast _z3-ast)
+(define-cpointer-type _z3-bv-ast _z3-ast)
+(define-cpointer-type _z3-app-ast _z3-ast)
+(define-cpointer-type _z3-var-ast _z3-ast)
+(define-cpointer-type _z3-quantifier-ast _z3-ast)
+
+; XXX this should probably be separated out somehow
+(define-cpointer-type _z3-int-or-real-ast _z3-int-ast #f
+  (lambda (ptr) (cpointer-push-tag! ptr 'z3-real-ast)))
+
+; We distinguish between the different kinds of sorts here to add a bit of
+; type checking. Note that _z3-bool-sort is NOT _z3-bool-ast, etc.
+; _z3-bool-sort is the bool type while _z3-bool-ast is a variable or
+; expression of that type.
+(define-cpointer-type _z3-uninterpreted-sort _z3-ast)
+(define-cpointer-type _z3-bool-sort _z3-ast)
+(define-cpointer-type _z3-int-sort _z3-ast)
+(define-cpointer-type _z3-real-sort _z3-ast)
+(define-cpointer-type _z3-bv-sort _z3-ast)
+(define-cpointer-type _z3-array-sort _z3-ast)
+(define-cpointer-type _z3-datatype-sort _z3-ast)
+(define-cpointer-type _z3-relation-sort _z3-ast)
+(define-cpointer-type _z3-finite-domain-sort _z3-ast)
+(define-cpointer-type _z3-unknown-sort _z3-ast)
+
 (define-cpointer-type _z3-app)
+
 (define-cpointer-type _z3-pattern)
 (define-cpointer-type _z3-model)
 (define-cpointer-type _z3-func-decl)
@@ -36,10 +65,11 @@
     [(_ name : type ...)
      (begin
        (define name
-         (get-ffi-obj (regexp-replaces 'name '((#rx"-" "_")
-                                               (#rx"^" "Z3_")
-                                               (#rx"!$" "")))
-                      libz3 (_fun type ...)))
+         ; Turns out currying's really useful!
+         (curry (get-ffi-obj (regexp-replaces 'name '((#rx"-" "_")
+                                                      (#rx"^" "Z3_")
+                                                      (#rx"!$" "")))
+                             libz3 (_fun type ...))))
        (provide name))]))
 
 (defz3 mk-config : -> _z3-config)
@@ -49,11 +79,15 @@
 (defz3 set-logic : _z3-context _string -> _bool)
 
 (defz3 mk-string-symbol : _z3-context _string -> _z3-symbol)
-(defz3 mk-uninterpreted-sort : _z3-context _z3-symbol -> _z3-sort)
-(defz3 mk-bool-sort : _z3-context -> _z3-sort)
-(defz3 mk-int-sort : _z3-context -> _z3-sort)
-(defz3 mk-real-sort : _z3-context -> _z3-sort)
-(defz3 mk-bv-sort : _z3-context _uint -> _z3-sort)
+(defz3 mk-uninterpreted-sort : _z3-context _z3-symbol -> _z3-uninterpreted-sort)
+(defz3 mk-bool-sort : _z3-context -> _z3-bool-sort)
+(defz3 mk-int-sort : _z3-context -> _z3-int-sort)
+(defz3 mk-real-sort : _z3-context -> _z3-real-sort)
+(defz3 mk-bv-sort : _z3-context _uint -> _z3-bv-sort)
+
+(defz3 mk-true : _z3-context -> _z3-bool-ast)
+(defz3 mk-false : _z3-context -> _z3-bool-ast)
+(defz3 mk-eq : _z3-context _z3-ast -> _z3-bool-ast)
 
 (defz3 mk-func-decl :
   (ctx s domain range) ::
