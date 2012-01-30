@@ -41,14 +41,14 @@
          (z3:set-logic (ctx) (symbol->string logic))])
     (when (not rv) (handle-next-error))))
 
-;; Helper function to make a symbol with the given name (syntax object)
+;; Helper function to make a symbol with the given name (Racket symbol)
 (define (make-symbol symbol-name)
-  (z3:mk-string-symbol (ctx) (symbol->string (syntax-e symbol-name))))
+  (z3:mk-string-symbol (ctx) (symbol->string symbol-name)))
    
 ;; Declare a new sort. num-params is currently ignored.
 (define-syntax-rule (declare-sort sort num-params)
-  (set-value (syntax-e #'sort)
-             (z3:mk-uninterpreted-sort (ctx) (make-symbol #'sort))))
+  (set-value 'sort
+             (z3:mk-uninterpreted-sort (ctx) (make-symbol 'sort))))
 
 ;; sort-exprs are either sort ids or (id sort-expr*).
 (define (sort-expr->z3-sort expr)
@@ -62,7 +62,7 @@
     [(declare-fun fn (argsort ...) retsort)
      #'(let ([args (vector (sort-expr->z3-sort #'argsort) ...)]
              [ret (sort-expr->z3-sort #'retsort)])
-         (set-value 'fn (z3:mk-func-decl (ctx) (make-symbol #'fn) args ret))
+         (set-value 'fn (z3:mk-func-decl (ctx) (make-symbol 'fn) args ret))
          (void))]))
 
 
