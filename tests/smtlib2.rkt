@@ -5,8 +5,7 @@
 (define ctx (make-model-context))
 
 (define ast (parse-smtlib2 ctx '((declare-fun a () (_ BitVec 8))
-                                 (assert (bvuge a \#x10))
-                                 (assert (bvule a \#x20)))))
+                                 )))
 
 (displayln (z3:ast-to-string ctx ast))
 (define smtlib2-tests
