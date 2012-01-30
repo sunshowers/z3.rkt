@@ -45,6 +45,7 @@
               [true ,(z3:mk-true ctx)]
               [false ,(z3:mk-false ctx)]
               [= ,(chainable (z3:mk-eq ctx))]
+              [distinct ,(z3:mk-distinct ctx)]
               [not ,(z3:mk-not ctx)]
               [ite ,(z3:mk-ite ctx)]
               [iff ,(z3:mk-iff ctx)]
