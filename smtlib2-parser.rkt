@@ -3,37 +3,32 @@
 (require "api.rkt")
 
 ; This must be parameterized every time any syntax is used
-(define current-context (make-parameter #f))
-(define-syntax-rule (ctx) (current-context))
+(define ctx (make-parameter #f))
+(define (current-context) (ctx))
 (define current-symbol-table (make-parameter #f))
 
-(struct z3-context-info (context symbol-table builtins))
+(struct z3-context-info (context symbol-table))
 
 (define (new-context-info model?)
   (define ctx (z3:mk-context (make-config #:model? model?)))
   (define st (make-hash))
-  (define builtins '([Bool (z3:mk-bool-sort ctx)]
-                     [Int (z3:mk-int-sort ctx)]
-                     [Real (z3:mk-real-sort ctx)]
-                     [BitVec (lambda (size) (z3:mk-bv-sort ctx size))]))
-  (z3-context-info ctx st builtins))
+  (z3-context-info ctx st))
 
-;(define-for-syntax (new-binding id stx)
-;   (id (datum->syntax stx-obj (syntax->datum #'id))))
+(define-syntax-rule (make-with-context fn ((builtin-name builtin-expr) ...))
+  (define-syntax (fn stx)
+    (syntax-case stx ()
+      [(_ z3-context-info body (... ...))
+       (with-syntax ([builtin-name (datum->syntax stx 'builtin-name)] ...)
+         #'(parameterize ([ctx (z3-context-info-context z3-context-info)]
+                          [current-symbol-table (z3-context-info-symbol-table z3-context-info)])
+           (let ([builtin-name (builtin-expr (ctx))] ...)
+             body (... ...))))])))
 
-(define-syntax (make-with-context stx)
-  (syntax-case stx ()
-    [(op 
-(define-syntax (with-context stx)
-  (syntax-case stx ()
-    [(with-context z3-context-info body ...)
-     (with-syntax ([Bool (datum->syntax stx 'Bool)]
-                   [BitVec (datum->syntax stx 'BitVec)])
-       #'(parameterize ([current-context (z3-context-info-context z3-context-info)]
-                        [current-symbol-table (z3-context-info-symbol-table z3-context-info)])
-           (let ([Bool (z3:mk-bool-sort (ctx))]
-                 [BitVec (lambda (size) (z3:mk-bv-sort (ctx) size))])
-             body ...)))]))
+(make-with-context with-context
+                   ([Bool z3:mk-bool-sort]
+                    [Int z3:mk-int-sort]
+                    [Real z3:mk-int-sort]
+                    [BitVec (lambda (ctx2) (lambda (size) (z3:mk-bv-sort ctx2 size)))]))
 
 ;; Handle the next error.
 (define (handle-next-error)
@@ -68,7 +63,8 @@
     [(declare-fun fn (argsort ...) retsort)
      #'(let ([args (vector (sort-expr->z3-sort argsort) ...)]
              [ret (sort-expr->z3-sort retsort)])
-         (define fn (z3:mk-func-decl (ctx) (make-symbol #'fn) args ret)))]))
+         (define fn (z3:mk-func-decl (ctx) (make-symbol #'fn) args ret))
+         (void))]))
 
 
 (provide current-context
