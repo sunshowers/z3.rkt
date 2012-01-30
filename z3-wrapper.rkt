@@ -33,6 +33,7 @@
 ; type checking. Note that _z3-bool-sort is NOT _z3-bool-ast, etc.
 ; _z3-bool-sort is the bool type while _z3-bool-ast is a variable or
 ; expression of that type.
+(define-cpointer-type _z3-sort _z3-ast)
 (define-cpointer-type _z3-uninterpreted-sort _z3-ast)
 (define-cpointer-type _z3-bool-sort _z3-ast)
 (define-cpointer-type _z3-int-sort _z3-ast)
@@ -87,7 +88,41 @@
 
 (defz3 mk-true : _z3-context -> _z3-bool-ast)
 (defz3 mk-false : _z3-context -> _z3-bool-ast)
-(defz3 mk-eq : _z3-context _z3-ast -> _z3-bool-ast)
+(defz3 mk-eq : _z3-context _z3-ast _z3-ast -> _z3-bool-ast)
+
+; Helper macro to define n-ary AST functions
+(define-syntax define-nary
+  (syntax-rules (: ->)
+    [(_ fn : argtype -> rettype)
+     (defz3 fn : (ctx . args) ::
+       (ctx : _z3-context)
+       (_uint = (length args))
+       (args : (_list i argtype)) -> rettype)]))
+
+(define-nary mk-distinct : _z3-ast -> _z3-bool-ast)
+
+; Boolean operations
+(defz3 mk-not : _z3-context _z3-bool-ast -> _z3-bool-ast)
+(defz3 mk-ite : _z3-context _z3-bool-ast _z3-ast _z3-ast -> _z3-ast)
+(defz3 mk-iff : _z3-context _z3-ast _z3-bool-ast -> _z3-ast)
+(defz3 mk-implies : _z3-context _z3-bool-ast _z3-bool-ast -> _z3-bool-ast)
+(defz3 mk-xor : _z3-context _z3-bool-ast _z3-bool-ast -> _z3-bool-ast)
+(define-nary mk-and : _z3-bool-ast -> _z3-bool-ast)
+(define-nary mk-or : _z3-bool-ast -> _z3-bool-ast)
+
+; Arithmetic operations
+(define-nary mk-add : _z3-int-or-real-ast -> _z3-int-or-real-ast)
+(define-nary mk-mul : _z3-int-or-real-ast -> _z3-int-or-real-ast)
+(define-nary mk-sub : _z3-int-or-real-ast -> _z3-int-or-real-ast)
+(defz3 mk-div : _z3-context _z3-int-or-real-ast _z3-int-or-real-ast -> _z3-int-or-real-ast)
+(defz3 mk-mod : _z3-context _z3-int-ast _z3-int-ast -> _z3-int-ast)
+(defz3 mk-rem : _z3-context _z3-int-ast _z3-int-ast -> _z3-int-ast)
+
+; Comparisons
+(defz3 mk-lt : _z3-context _z3-int-or-real-ast _z3-int-or-real-ast -> _z3-bool-ast)
+(defz3 mk-le : _z3-context _z3-int-or-real-ast _z3-int-or-real-ast -> _z3-bool-ast)
+(defz3 mk-gt : _z3-context _z3-int-or-real-ast _z3-int-or-real-ast -> _z3-bool-ast)
+(defz3 mk-ge : _z3-context _z3-int-or-real-ast _z3-int-or-real-ast -> _z3-bool-ast)
 
 (defz3 mk-func-decl :
   (ctx s domain range) ::
