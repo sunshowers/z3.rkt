@@ -23,4 +23,4 @@
   (let ([o (open-output-string)])
     (for-each (lambda (l) (displayln l o)) smtlib2-defn)
     (let ([str (get-output-string o)])
-      (z3:parse-smtlib2-string ctx str 0 #f #f 0 #f #f))))
+      (z3:parse-smtlib2-string ctx str #f #f #f #f))))

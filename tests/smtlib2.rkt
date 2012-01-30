@@ -1,16 +1,25 @@
 #lang racket
 
-(require "../api.rkt")
+(require rackunit "../api.rkt")
 
 (define ctx (make-model-context))
 
 (define ast (parse-smtlib2 ctx '((declare-fun a () (_ BitVec 8))
                                  (assert (bvuge a \#x10))
-                                 (assert (bvule a \#xf0)))))
+                                 (assert (bvule a \#x20)))))
 
 (displayln (z3:ast-to-string ctx ast))
-(z3:assert-cnstr ctx ast)
-(displayln (z3:context-to-string ctx))
-(let-values ([(rv model) (z3:check-and-get-model ctx)])
-  (displayln rv)
-  (displayln (z3:model-to-string ctx model)))
+(define smtlib2-tests
+  (test-suite
+   "SMTLIB2 tests"
+   (test-case
+    "Initial test works"
+    (z3:assert-cnstr ctx ast)
+    (let-values ([(rv model) (z3:check-and-get-model ctx)])
+      (check-equal? rv 'true)
+      (let ([kind (z3:get-ast-kind ctx ast)])
+        (check-equal? kind 'app)
+        (displayln (z3:get-app-num-args ctx (z3:to-app ctx ast)))
+        )))))
+
+(provide smtlib2-tests)
