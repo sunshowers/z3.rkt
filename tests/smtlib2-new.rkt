@@ -5,5 +5,4 @@
 
 (with-context (new-context-info #t)
   (declare-sort MySort 0)
-  (declare-fun Foo (Bool) (_ BitVec 8))
-  MySort)
+  (declare-fun Foo (Bool) (_ BitVec 8)))
