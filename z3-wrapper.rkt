@@ -34,25 +34,34 @@
 ; _z3-bool-sort is the bool type while _z3-bool-ast is a variable or
 ; expression of that type.
 (define-cpointer-type _z3-sort _z3-ast)
-(define-cpointer-type _z3-uninterpreted-sort _z3-ast)
-(define-cpointer-type _z3-bool-sort _z3-ast)
-(define-cpointer-type _z3-int-sort _z3-ast)
-(define-cpointer-type _z3-real-sort _z3-ast)
-(define-cpointer-type _z3-bv-sort _z3-ast)
-(define-cpointer-type _z3-array-sort _z3-ast)
-(define-cpointer-type _z3-datatype-sort _z3-ast)
-(define-cpointer-type _z3-relation-sort _z3-ast)
-(define-cpointer-type _z3-finite-domain-sort _z3-ast)
-(define-cpointer-type _z3-unknown-sort _z3-ast)
+(define-cpointer-type _z3-uninterpreted-sort _z3-sort)
+(define-cpointer-type _z3-bool-sort _z3-sort)
+(define-cpointer-type _z3-int-sort _z3-sort)
+(define-cpointer-type _z3-real-sort _z3-sort)
+(define-cpointer-type _z3-bv-sort _z3-sort)
+(define-cpointer-type _z3-array-sort _z3-sort)
+(define-cpointer-type _z3-datatype-sort _z3-sort)
+(define-cpointer-type _z3-relation-sort _z3-sort)
+(define-cpointer-type _z3-finite-domain-sort _z3-sort)
+(define-cpointer-type _z3-unknown-sort _z3-sort)
 
-(define-cpointer-type _z3-app)
+; An association between sorts, func-decls and asts.
+(define sort-decl-ast '([z3-int-sort z3-int-decl z3-int-ast]
+                        [z3-bool-sort z3-bool-decl z3-bool-ast]
+                        [z3-real-sort z3-real-decl z3-real-ast]
+                        [z3-bv-sort z3-bv-decl z3-bv-ast]))
+
+(define-cpointer-type _z3-app _z3-ast)
 
 (define-cpointer-type _z3-pattern)
 (define-cpointer-type _z3-model)
-(define-cpointer-type _z3-func-decl)
+
+; Function declarations. The subtypes indicate return types
+(define-cpointer-type _z3-func-decl _z3-ast)
 
 ;; Enumerations
 (define _z3-lbool (_enum '(false = -1 undef true)))
+(define _z3-sat-lbool (_enum '(unsat = -1 unknown sat)))
 (define _z3-ast-kind (_enum '(numeral app var quantifier unknown = 1000)))
 (define _z3-error-code (_enum '(ok sort-error iob invalid-arg parser-error
                                    no-parser invalid-pattern memout-fail
@@ -65,12 +74,12 @@
   (syntax-rules (:)
     [(_ name : type ...)
      (begin
-       (define name
-         ; Turns out currying's really useful!
-         (curry (get-ffi-obj (regexp-replaces 'name '((#rx"-" "_")
+       (define (name . args)
+         (displayln (format "Calling (internal) function: ~a" 'name))
+         (apply (get-ffi-obj (regexp-replaces 'name '((#rx"-" "_")
                                                       (#rx"^" "Z3_")
                                                       (#rx"!$" "")))
-                             libz3 (_fun type ...))))
+                             libz3 (_fun type ...)) args))
        (provide name))]))
 
 (defz3 mk-config : -> _z3-config)
@@ -119,10 +128,13 @@
 (defz3 mk-rem : _z3-context _z3-int-ast _z3-int-ast -> _z3-int-ast)
 
 ; Comparisons
-(defz3 mk-lt : _z3-context _z3-int-or-real-ast _z3-int-or-real-ast -> _z3-bool-ast)
-(defz3 mk-le : _z3-context _z3-int-or-real-ast _z3-int-or-real-ast -> _z3-bool-ast)
-(defz3 mk-gt : _z3-context _z3-int-or-real-ast _z3-int-or-real-ast -> _z3-bool-ast)
-(defz3 mk-ge : _z3-context _z3-int-or-real-ast _z3-int-or-real-ast -> _z3-bool-ast)
+(defz3 mk-lt : _z3-context _z3-int-ast _z3-int-ast -> _z3-bool-ast)
+(defz3 mk-le : _z3-context _z3-int-ast _z3-int-ast -> _z3-bool-ast)
+(defz3 mk-gt : _z3-context _z3-int-ast _z3-int-ast -> _z3-bool-ast)
+(defz3 mk-ge : _z3-context _z3-int-ast _z3-int-ast -> _z3-bool-ast)
+
+; Numerals
+(defz3 mk-numeral : _z3-context _string _z3-sort -> _z3-int-ast)
 
 (defz3 mk-func-decl :
   (ctx s domain range) ::
@@ -130,7 +142,27 @@
   (s : _z3-symbol)
   (_uint = (vector-length domain))
   (domain : (_vector i _z3-sort))
-  (range : _z3-sort) -> _z3-func-decl)
+  (range : _z3-sort) ->
+  (decl : _z3-func-decl) ->
+  (begin
+    (for-each (match-lambda [(list sort-tag decl-tag _)
+      (when (cpointer-has-tag? range sort-tag)
+        (cpointer-push-tag! decl decl-tag))])
+              sort-decl-ast)
+    decl))
+
+(defz3 mk-const :
+  (ctx s sort) ::
+  (ctx : _z3-context)
+  (s : _z3-symbol)
+  (sort : _z3-sort) ->
+  (app : _z3-app) ->
+  (begin
+    (for-each (match-lambda [(list sort-tag _ ast-tag)
+      (when (cpointer-has-tag? sort sort-tag)
+        (cpointer-push-tag! app ast-tag))])
+              sort-decl-ast)
+    app))
 
 (define (vector-multilength v1 v2)
   (cond
@@ -165,8 +197,8 @@
 (defz3 get-error-msg : _z3-error-code -> _string)
 
 (defz3 assert-cnstr : _z3-context _z3-ast -> _void)
-(defz3 check : _z3-context -> _z3-lbool)
-(defz3 check-and-get-model : _z3-context (model : (_ptr o (_or-null _z3-model))) -> (rv : _z3-lbool) -> (values rv model))
+(defz3 check : _z3-context -> _z3-sat-lbool)
+(defz3 check-and-get-model : _z3-context (model : (_ptr o (_or-null _z3-model))) -> (rv : _z3-sat-lbool) -> (values rv model))
 (defz3 eval : _z3-context _z3-model _z3-ast (v : (_ptr o (_or-null _z3-ast))) -> (rv : _z3-lbool) -> (values rv v))
 (defz3 get-ast-kind : _z3-context _z3-ast -> _z3-ast-kind)
 (defz3 get-numeral-string : _z3-context _z3-ast -> _string)

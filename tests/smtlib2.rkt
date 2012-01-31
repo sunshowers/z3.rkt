@@ -4,8 +4,8 @@
 
 (define ctx (make-model-context))
 
-(define ast (parse-smtlib2 ctx '((declare-fun a () (_ BitVec 8))
-                                 )))
+(define ast (parse-smtlib2 ctx '((declare-fun p () Bool)
+                                 (assert (and p (not p))))))
 
 (displayln (z3:ast-to-string ctx ast))
 (define smtlib2-tests
@@ -14,6 +14,7 @@
    (test-case
     "Initial test works"
     (z3:assert-cnstr ctx ast)
+    (displayln (z3:context-to-string ctx))
     (let-values ([(rv model) (z3:check-and-get-model ctx)])
       (check-equal? rv 'true)
       (let ([kind (z3:get-ast-kind ctx ast)])
