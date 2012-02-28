@@ -5,14 +5,21 @@
 ; This must be parameterized every time any syntax is used
 (define ctx (make-parameter #f))
 (define (current-context) (ctx))
-(define ctx-namespace (make-parameter #f))
 
+(define ctx-namespace (make-parameter #f))
 (define (get-value id)
   (namespace-variable-value id #t #f (ctx-namespace)))
 (define (set-value id v)
   (namespace-set-variable-value! id v #t (ctx-namespace)))
 
-(struct z3-context-info (context namespace))
+;; A symbol table for sorts
+(define ctx-sort-table (make-parameter #f))
+(define (get-sort id)
+  (hash-ref (ctx-sort-table) id))
+(define (set-sort! id v)
+  (hash-set! (ctx-sort-table) id v))
+
+(struct z3-context-info (context namespace sort-table))
 
 ;; Wraps a binary function so that arguments are processed
 ;; in a right-associative manner.
@@ -52,13 +59,18 @@
 (define (new-context-info model?)
   (define ctx (z3:mk-context (make-config #:model? model?)))
   (define ns (make-empty-namespace))
+  (define sorts (make-hash))
+  ; Sorts go into a separate table
   (for-each (lambda (arg)
-              (namespace-set-variable-value! (first arg) (second arg) #t ns))
+              (hash-set! sorts (first arg) (second arg)))
             (list
              (builtin Bool z3:mk-bool-sort ctx)
              (builtin Int z3:mk-int-sort ctx)
-             (builtin-curried List z3:mk-list-sort ctx)
              (builtin-curried BitVec z3:mk-bv-sort ctx)
+             (builtin-curried List z3:mk-list-sort ctx)))
+  (for-each (lambda (arg)
+              (namespace-set-variable-value! (first arg) (second arg) #t ns))
+            (list
              (builtin true z3:mk-true ctx)
              (builtin false z3:mk-false ctx)
              (builtin-curried = z3:mk-eq ctx)
@@ -84,12 +96,13 @@
              (builtin-curried <= z3:mk-le ctx)
              (builtin-curried > z3:mk-gt ctx)
              (builtin-curried >= z3:mk-ge ctx)))
-  (z3-context-info ctx ns))
+  (z3-context-info ctx ns sorts))
 
 (define-syntax-rule (with-context info2 body ...)
   (let ([info info2])
     (parameterize ([ctx (z3-context-info-context info)]
-                   [ctx-namespace (z3-context-info-namespace info)])
+                   [ctx-namespace (z3-context-info-namespace info)]
+                   [ctx-sort-table (z3-context-info-sort-table info)])
     body ...)))
 
 ;; Handle the next error.
@@ -115,9 +128,9 @@
 ;; sort-exprs are sort ids, (_ id parameter*), or (id sort-expr*).
 (define (sort-expr->z3-sort expr)
   (match expr
-    [(list '_ id params ...) (apply (get-value id) params)]
-    [(list id args ...) (apply (get-value id) (map get-value args))]
-    [id (get-value id)]))
+    [(list '_ id params ...) (apply (get-sort id) params)]
+    [(list id args ...) (apply (get-sort id) (map get-sort args))]
+    [id (get-sort id)]))
 
 (define (trace expr)
   (displayln (format "TRACE: ~a" expr))
@@ -130,8 +143,8 @@
     ; Non-basic expressions
     [(list fn args ...) (apply (get-value fn) (map expr->z3-ast args))]
     ; Numerals
-    [(? exact-integer?) (z3:mk-numeral (ctx) (number->string expr) (get-value 'Int))]
-    [(? inexact-real?) (z3:mk-numeral (ctx) (number->string expr) (get-value 'Real))]
+    [(? exact-integer?) (z3:mk-numeral (ctx) (number->string expr) (get-sort 'Int))]
+    [(? inexact-real?) (z3:mk-numeral (ctx) (number->string expr) (get-sort 'Real))]
     ; Anything else should be in the namespace
     [id (get-value id)]))
   (displayln (format "Output: ~a ~a ~a" expr ast (z3:ast-to-string (current-context) ast)))
