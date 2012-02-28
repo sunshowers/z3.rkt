@@ -1,6 +1,7 @@
 #lang racket
 
 (require "api.rkt")
+(require "defs.rkt")
 
 ; This must be parameterized every time any syntax is used
 (define ctx (make-parameter #f))
@@ -16,8 +17,23 @@
 (define ctx-sort-table (make-parameter #f))
 (define (get-sort id)
   (hash-ref (ctx-sort-table) id))
-(define (set-sort! id v)
-  (hash-set! (ctx-sort-table) id v))
+(define (new-sort id v)
+  (if (not (hash-ref (ctx-sort-table) id #f))
+      (hash-set! (ctx-sort-table) id v)
+      (raise (make-exn:fail "Defining a pre-existing sort!"))))
+
+;; A complex sort (e.g. List) has data about the base sort, a creator function
+;; (which takes the base sort and a list of sort parameters to apply and produces
+;; an immutable datatype-instance. We also want to cache values for specific sort
+;; parameters. 
+(struct z3-complex-sort (base-sort creator instance-hash))
+
+;; Lists are a builtin complex sort. z3:mk-list-sort already returns a
+;; datatype-instance.
+(define (make-list-sort base-sort params)
+  (if (= (length params) 1)
+      (z3:mk-list-sort (current-context) (make-symbol (gensym)) (first params))
+      (raise (make-exn:fail "List sort should have just one parameter!"))))
 
 (struct z3-context-info (context namespace sort-table))
 
@@ -67,7 +83,8 @@
              (builtin Bool z3:mk-bool-sort ctx)
              (builtin Int z3:mk-int-sort ctx)
              (builtin-curried BitVec z3:mk-bv-sort ctx)
-             (builtin-curried List z3:mk-list-sort ctx)))
+             ; The base sort for lists is irrelevant
+             (list 'List (z3-complex-sort #f make-list-sort (make-hash)))))
   (for-each (lambda (arg)
               (namespace-set-variable-value! (first arg) (second arg) #t ns))
             (list

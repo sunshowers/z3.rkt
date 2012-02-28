@@ -2,6 +2,7 @@
 
 (require mzlib/foreign) (unsafe!)
 (require racket/runtime-path)
+(require "defs.rkt")
 
 ; We need this because libz3 is stupid and doesn't mention a dependence on
 ; libgomp. Loading this causes libz3 to pick up libgomp and thus not error out.
@@ -91,10 +92,6 @@
 (defz3 mk-real-sort : _z3-context -> _z3-real-sort)
 (defz3 mk-bv-sort : _z3-context _uint -> _z3-bv-sort)
 
-; A list type structure -- this is what gets returned
-(struct list-type
-  (sort nil-decl is-nil-decl cons-decl is-cons-decl head-decl tail-decl))
-
 (defz3 mk-list-sort : _z3-context _z3-symbol _z3-sort
   (nil-decl : (_ptr o _z3-func-decl))
   (is-nil-decl : (_ptr o _z3-func-decl))
@@ -103,7 +100,12 @@
   (head-decl : (_ptr o _z3-func-decl))
   (tail-decl : (_ptr o _z3-func-decl)) ->
   (res : _z3-sort) ->
-  (list-type res nil-decl is-nil-decl cons-decl is-cons-decl head-decl tail-decl))
+  (datatype-instance res (hash 'nil nil-decl
+                               'is-nil is-nil-decl
+                               'cons cons-decl
+                               'is-cons is-cons-decl
+                               'head head-decl
+                               'tail tail-decl)))
 
 (defz3 mk-true : _z3-context -> _z3-bool-ast)
 (defz3 mk-false : _z3-context -> _z3-bool-ast)
