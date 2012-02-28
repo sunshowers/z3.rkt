@@ -110,10 +110,11 @@
   (set-value 'sort
              (z3:mk-uninterpreted-sort (ctx) (make-symbol 'sort))))
 
-;; sort-exprs are either sort ids or (id sort-expr*). (id sort-expr*) isn't currently supported.
+;; sort-exprs are sort ids, (_ id parameter*), or (id sort-expr*).
 (define (sort-expr->z3-sort expr)
   (match expr
-    [(list '_ id args ...) (apply (get-value id) args)]
+    [(list '_ id params ...) (apply (get-value id) params)]
+    [(list id args ...) (apply (get-value id) (map get-value args))]
     [id (get-value id)]))
 
 (define (trace expr)
