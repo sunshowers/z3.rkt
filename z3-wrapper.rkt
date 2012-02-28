@@ -25,10 +25,6 @@
 (define-cpointer-type _z3-var-ast _z3-ast)
 (define-cpointer-type _z3-quantifier-ast _z3-ast)
 
-; XXX this should probably be separated out somehow
-(define-cpointer-type _z3-int-or-real-ast _z3-int-ast #f
-  (lambda (ptr) (cpointer-push-tag! ptr 'z3-real-ast)))
-
 ; We distinguish between the different kinds of sorts here to add a bit of
 ; type checking. Note that _z3-bool-sort is NOT _z3-bool-ast, etc.
 ; _z3-bool-sort is the bool type while _z3-bool-ast is a variable or
@@ -120,10 +116,10 @@
 (define-nary mk-or : _z3-bool-ast -> _z3-bool-ast)
 
 ; Arithmetic operations
-(define-nary mk-add : _z3-int-or-real-ast -> _z3-int-or-real-ast)
-(define-nary mk-mul : _z3-int-or-real-ast -> _z3-int-or-real-ast)
-(define-nary mk-sub : _z3-int-or-real-ast -> _z3-int-or-real-ast)
-(defz3 mk-div : _z3-context _z3-int-or-real-ast _z3-int-or-real-ast -> _z3-int-or-real-ast)
+(define-nary mk-add : _z3-int-ast -> _z3-int-ast)
+(define-nary mk-mul : _z3-int-ast -> _z3-int-ast)
+(define-nary mk-sub : _z3-int-ast -> _z3-int-ast)
+(defz3 mk-div : _z3-context _z3-int-ast _z3-int-ast -> _z3-int-ast)
 (defz3 mk-mod : _z3-context _z3-int-ast _z3-int-ast -> _z3-int-ast)
 (defz3 mk-rem : _z3-context _z3-int-ast _z3-int-ast -> _z3-int-ast)
 

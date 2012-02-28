@@ -22,5 +22,5 @@
   (assert (> a 10))
   (assert (< a 20))
   (displayln (check-sat))
-  (assert (< a 5))
+  (assert (= (+ a 5) 16))
   (displayln (check-sat)))

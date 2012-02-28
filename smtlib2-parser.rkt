@@ -59,7 +59,7 @@
              (builtin-curried BitVec z3:mk-bv-sort ctx)
              (builtin true z3:mk-true ctx)
              (builtin false z3:mk-false ctx)
-             (builtin-curried = z3:mk-eq ctx chainable)
+             (builtin-curried = z3:mk-eq ctx)
              (builtin-curried distinct z3:mk-distinct ctx)
              (builtin-curried not z3:mk-not ctx)
              (builtin-curried ite z3:mk-ite ctx)
