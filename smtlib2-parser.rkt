@@ -34,18 +34,20 @@
   (lambda (fst . rst)
     (apply z3:mk-and (foldl (flip fn) fst rst))))
 
-(define-syntax-rule (curry1 fn arg1)
-  (lambda args
-    (displayln (format "Calling function: ~a with args ~a" 'fn args))
-    (apply fn (cons arg1 args))))
+;; Curry a function application exactly *once*. The second time function
+;; arguments are applied, the application is evaluated.
+(define-syntax-rule (curry-once fn arg ...)
+  (lambda more-args
+    (displayln (format "Calling function: ~a with args ~a" 'fn more-args))
+    (apply fn (append (list arg ...) more-args))))
 
 (define-syntax-rule (builtin var fn ctx)
   (list 'var (fn ctx)))
 
 (define-syntax builtin-curried
   (syntax-rules ()
-    [(_ var fn ctx) (list 'var (curry1 fn ctx))]
-    [(_ var fn ctx wrap) (list 'var (wrap (curry1 fn ctx)))]))
+    [(_ var fn ctx) (list 'var (curry-once fn ctx))]
+    [(_ var fn ctx wrap) (list 'var (wrap (curry-once fn ctx)))]))
 
 (define (new-context-info model?)
   (define ctx (z3:mk-context (make-config #:model? model?)))

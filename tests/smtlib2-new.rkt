@@ -24,3 +24,7 @@
   (displayln (check-sat))
   (assert (= (+ a 5) 16))
   (displayln (check-sat)))
+
+(with-context
+ (new-context-info #t)
+ (declare-fun a () (List Int)))
