@@ -55,7 +55,6 @@
             (list
              (builtin Bool z3:mk-bool-sort ctx)
              (builtin Int z3:mk-int-sort ctx)
-             (builtin Real z3:mk-real-sort ctx)
              (builtin-curried BitVec z3:mk-bv-sort ctx)
              (builtin true z3:mk-true ctx)
              (builtin false z3:mk-false ctx)
