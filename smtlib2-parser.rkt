@@ -29,6 +29,24 @@
       (z3:mk-list-sort (current-context) (make-symbol (gensym)) (first params))
       (raise (make-exn:fail "List sort should have just one parameter!"))))
 
+;; Creates a new complex sort. This adds hooks for each constructor to the namespace
+;; provided and returns the sort.
+;; XXX handle hooks properly. We should have some sort of tag in place on every
+;; variable to figure out what instance function to call. Right now we just take the
+;; first element.
+(define (make-complex-sort base-sort creator ns hook-ids)
+  (let* ([instance-hash (make-hash)]
+         [res (z3-complex-sort base-sort creator instance-hash)])
+    (for-each
+     (lambda (hook)
+       (let ([hook-fn
+              (lambda args
+                (let ([z3-fn (hash-ref (datatype-instance-fns (first (hash-values instance-hash))) hook)])
+                  (z3:mk-app (current-context) z3-fn args)))])
+         (namespace-set-variable-value! hook hook-fn #t ns)))
+     hook-ids)
+    res))
+
 (struct z3-context-info (context namespace sort-table))
 
 ;; Wraps a binary function so that arguments are processed

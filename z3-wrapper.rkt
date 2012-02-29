@@ -163,6 +163,12 @@
               sort-decl-ast)
     decl))
 
+(defz3 mk-app : (ctx d args) ::
+  (ctx : _z3-context)
+  (d : _z3-func-decl)
+  (_uint = (length args))
+  (args : (_list i _z3-ast)) -> _z3-ast)
+
 (defz3 mk-const :
   (ctx s sort) ::
   (ctx : _z3-context)
