@@ -140,7 +140,8 @@
 (define (sort-expr->z3-sort expr)
   (match expr
     [(list '_ id params ...) (apply (get-sort id) params)]
-    [(list id args ...) (get-or-create-instance (get-sort id) (map sort-expr->z3-sort args))]
+    [(list id args ...) (datatype-instance-z3-sort
+                         (get-or-create-instance (get-sort id) (map sort-expr->z3-sort args)))]
     [id (get-sort id)]))
 
 (define (trace expr)
