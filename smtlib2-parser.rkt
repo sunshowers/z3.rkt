@@ -22,12 +22,6 @@
       (hash-set! (ctx-sort-table) id v)
       (raise (make-exn:fail "Defining a pre-existing sort!"))))
 
-;; A complex sort (e.g. List) has data about the base sort, a creator function
-;; (which takes the base sort and a list of sort parameters to apply and produces
-;; an immutable datatype-instance. We also want to cache values for specific sort
-;; parameters. 
-(struct z3-complex-sort (base-sort creator instance-hash))
-
 ;; Lists are a builtin complex sort. z3:mk-list-sort already returns a
 ;; datatype-instance.
 (define (make-list-sort base-sort params)
@@ -146,7 +140,7 @@
 (define (sort-expr->z3-sort expr)
   (match expr
     [(list '_ id params ...) (apply (get-sort id) params)]
-    [(list id args ...) (apply (get-sort id) (map get-sort args))]
+    [(list id args ...) (get-or-create-instance (get-sort id) (map sort-expr->z3-sort args))]
     [id (get-sort id)]))
 
 (define (trace expr)
