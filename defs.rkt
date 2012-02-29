@@ -10,18 +10,35 @@
 (struct z3-complex-sort (base-sort creator instance-hash))
 
 ;; Creates a new complex sort. This adds hooks for each constructor to the namespace
-;; provided.
-;; XXX handle hooks
+;; provided and returns the sort.
+;; XXX handle hooks properly. We should have some sort of tag in place on every
+;; variable to figure out what instance function to call. Right now we just take the
+;; first element.
 (define (make-complex-sort base-sort creator ns hook-ids)
-  (let ([res (z3-complex-sort base-sort creator (make-hash))])))
+  (let* ([instance-hash (make-hash)]
+         [res (z3-complex-sort base-sort creator instance-hash)])
+    (for-each
+     (lambda (hook)
+       (let ([hook-fn
+              (lambda args
+                (let ([z3-fn (hash-ref (datatype-instance-fns (first (hash-values instance-hash))) hook)])
+                  (apply z3-fn args)))])
+         (namespace-set-variable-value! hook hook-fn #t ns)))
+     hook-ids)
+    res))
 
-;; Given a base sort and parameter sorts get or create a parameterized datatype.
+;; Given a base sort and parameter sorts, get or create a parameterized
+;; datatype.
 (define (get-or-create-instance sort params)
-  (let ([ref (hash-ref (z3-complex-sort-instance-hash sort) params #f)])
+  (let* ([instance-hash (z3-complex-sort-instance-hash sort)]
+         [ref (hash-ref instance-hash params #f)])
     (if ref ref
-        ((z3-complex-sort-creator sort) (z3-complex-sort-base-sort sort) params))))
+        (let ([new-instance ((z3-complex-sort-creator sort) (z3-complex-sort-base-sort sort) params)])
+          (hash-set! instance-hash sort new-instance)
+          new-instance))))
 
 (provide (struct-out datatype-instance)
          (struct-out z3-complex-sort)
+         make-complex-sort
          get-or-create-instance)
 

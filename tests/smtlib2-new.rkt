@@ -27,4 +27,6 @@
 
 (with-context
  (new-context-info #t)
- (declare-fun a () (List Int)))
+ (declare-fun a () (List Int))
+ (assert (not (= a (nil))))
+ (check-sat))
