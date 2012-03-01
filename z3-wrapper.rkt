@@ -102,8 +102,8 @@
   (res : _z3-sort) ->
   (datatype-instance res (hash 'nil nil-decl
                                'is-nil is-nil-decl
-                               'cons cons-decl
-                               'is-cons is-cons-decl
+                               'insert cons-decl
+                               'is-insert is-cons-decl
                                'head head-decl
                                'tail tail-decl)))
 

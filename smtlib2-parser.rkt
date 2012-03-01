@@ -96,7 +96,7 @@
              (builtin Int z3:mk-int-sort ctx)
              (builtin-curried BitVec z3:mk-bv-sort ctx)
              ; The base sort for lists is irrelevant
-             (list 'List (make-complex-sort #f make-list-sort ns '(nil is-nil cons is-cons head tail)))))
+             (list 'List (make-complex-sort #f make-list-sort ns '(nil is-nil insert is-insert head tail)))))
   (for-each (lambda (arg)
               (namespace-set-variable-value! (first arg) (second arg) #t ns))
             (list
