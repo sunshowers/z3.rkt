@@ -12,12 +12,13 @@
 ;; Given a base sort and parameter sorts, get or create a parameterized
 ;; datatype.
 (define (get-or-create-instance sort params)
-  (let* ([instance-hash (z3-complex-sort-instance-hash sort)]
-         [ref (hash-ref instance-hash params #f)])
-    (if ref ref
-        (let ([new-instance ((z3-complex-sort-creator sort) (z3-complex-sort-base-sort sort) params)])
-          (hash-set! instance-hash sort new-instance)
-          new-instance))))
+  (define instance-hash (z3-complex-sort-instance-hash sort))
+  (define ref (hash-ref instance-hash params #f))
+  (if ref
+      ref
+      (let ([new-instance ((z3-complex-sort-creator sort) (z3-complex-sort-base-sort sort) params)])
+        (hash-set! instance-hash sort new-instance)
+        new-instance)))
 
 (provide (struct-out datatype-instance)
          (struct-out z3-complex-sort)
