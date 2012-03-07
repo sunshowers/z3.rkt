@@ -25,7 +25,10 @@
 ;; The current model for this context. This is a mutable box.
 (define ctx-current-model (make-parameter #f))
 (define (get-current-model)
-  (unbox (ctx-current-model)))
+  (define model (unbox (ctx-current-model)))
+  (if (eq? model #f)
+      (raise (make-exn:fail "No model found"))
+      model))
 (define (set-current-model! new-model)
   (set-box! (ctx-current-model) new-model))
 
@@ -208,6 +211,14 @@
   (let-values ([(rv model (z3:check-and-get-model (ctx)))])
     (set-current-model! model)
     rv))
+
+;; This would otherwise be (eval expr), but that obviously conflicts with
+;; Racket's own eval.
+(define-syntax-rule (z3-eval expr)
+   (let-values ([(rv val) (z3:eval (ctx) (get-current-model) (get-value expr))])
+     (if (eq? rv #f)
+         (raise (make-exn:fail "Evaluation failed"))
+         (void))))
 
 (provide current-context
          with-context
