@@ -220,7 +220,7 @@
 ;; This would otherwise be (eval expr), but that obviously conflicts with
 ;; Racket's own eval.
 (define-syntax-rule (z3-eval expr)
-   (let-values ([(rv ast) (z3:eval (ctx) (get-current-model) (get-value 'expr))])
+   (let-values ([(rv ast) (z3:eval (ctx) (get-current-model) (expr->_z3-ast 'expr))])
      (if (eq? rv #f)
          (raise (make-exn:fail "Evaluation failed"))
          (_z3-ast->expr ast))))
