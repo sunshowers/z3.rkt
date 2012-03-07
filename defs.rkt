@@ -17,7 +17,7 @@
   (if ref
       ref
       (let ([new-instance ((z3-complex-sort-creator sort) (z3-complex-sort-base-sort sort) params)])
-        (hash-set! instance-hash sort new-instance)
+        (hash-set! instance-hash params new-instance)
         new-instance)))
 
 (provide (struct-out datatype-instance)

@@ -28,6 +28,7 @@
 (with-context
  (new-context-info #t)
  (declare-fun a () (List Int))
+ (declare-fun b () (List Int))
  (assert (= a (cons 4 (cons 5 (nil)))))
  (displayln (check-sat))
  (displayln (z3-eval a)))
