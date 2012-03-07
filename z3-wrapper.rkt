@@ -217,7 +217,7 @@
 (defz3 assert-cnstr : _z3-context _z3-ast -> _void)
 (defz3 check : _z3-context -> _z3-sat-lbool)
 (defz3 check-and-get-model : _z3-context (model : (_ptr o (_or-null _z3-model))) -> (rv : _z3-sat-lbool) -> (values rv model))
-(defz3 eval : _z3-context _z3-model _z3-ast (v : (_ptr o (_or-null _z3-ast))) -> (rv : _z3-bool) -> (values rv v))
+(defz3 eval : _z3-context _z3-model _z3-ast (v : (_ptr o (_or-null _z3-ast))) -> (rv : _bool) -> (values rv v))
 (defz3 get-ast-kind : _z3-context _z3-ast -> _z3-ast-kind)
 (defz3 get-numeral-string : _z3-context _z3-ast -> _string)
 (defz3 to-app : _z3-context _z3-ast -> _z3-app)

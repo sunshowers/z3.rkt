@@ -208,7 +208,7 @@
     (z3:assert-cnstr (ctx) (expr->_z3-ast 'expr))))
 
 (define (check-sat)
-  (let-values ([(rv model (z3:check-and-get-model (ctx)))])
+  (let-values ([(rv model) (z3:check-and-get-model (ctx))])
     (set-current-model! model)
     rv))
 
