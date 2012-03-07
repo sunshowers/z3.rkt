@@ -178,11 +178,11 @@
   expr)
 
 ;; Given an expr, convert it to a Z3 AST. This is a really simple recursive descent parser.
-(define (expr->z3-ast expr)
+(define (expr->_z3-ast expr)
   (displayln (format "IN: ~a" expr))
   (define ast (match expr
     ; Non-basic expressions
-    [(list fn args ...) (apply (get-value fn) (map expr->z3-ast args))]
+    [(list fn args ...) (apply (get-value fn) (map expr->_z3-ast args))]
     ; Numerals
     [(? exact-integer?) (z3:mk-numeral (ctx) (number->string expr) (get-sort 'Int))]
     [(? inexact-real?) (z3:mk-numeral (ctx) (number->string expr) (get-sort 'Real))]
@@ -205,7 +205,7 @@
 (define-syntax-rule (assert expr)
   (begin
     (displayln 'expr)
-    (z3:assert-cnstr (ctx) (expr->z3-ast 'expr))))
+    (z3:assert-cnstr (ctx) (expr->_z3-ast 'expr))))
 
 (define (check-sat)
   (let-values ([(rv model (z3:check-and-get-model (ctx)))])
