@@ -106,7 +106,7 @@
              (builtin Int z3:mk-int-sort ctx)
              (builtin-curried BitVec z3:mk-bv-sort ctx)
              ; The base sort for lists is irrelevant
-             (list 'List (make-complex-sort #f make-list-sort ns '(nil is-nil insert is-insert head tail)))))
+             (list 'List (make-complex-sort #f make-list-sort ns '(nil is-nil cons is-cons head tail)))))
   (for-each (lambda (arg)
               (namespace-set-variable-value! (first arg) (second arg) #t ns))
             (list
@@ -191,6 +191,11 @@
   (displayln (format "Output: ~a ~a ~a" expr ast (z3:ast-to-string (current-context) ast)))
   ast)
 
+;; Given a Z3 AST, convert it to an expression that can be parsed again into an AST,
+;; assuming the same context. This is the inverse of expr->_z3-ast above.
+(define (_z3-ast->expr ast)
+  (read (open-input-string (z3:ast-to-string (ctx) ast))))
+
 ;; Declare a new function. argsort is a sort-expr.
 (define-syntax (declare-fun stx)
   (syntax-case stx ()
@@ -215,10 +220,10 @@
 ;; This would otherwise be (eval expr), but that obviously conflicts with
 ;; Racket's own eval.
 (define-syntax-rule (z3-eval expr)
-   (let-values ([(rv val) (z3:eval (ctx) (get-current-model) (get-value expr))])
+   (let-values ([(rv ast) (z3:eval (ctx) (get-current-model) (get-value 'expr))])
      (if (eq? rv #f)
          (raise (make-exn:fail "Evaluation failed"))
-         (void))))
+         (_z3-ast->expr ast))))
 
 (provide current-context
          with-context
@@ -227,5 +232,6 @@
          declare-fun
          assert
          check-sat
+         z3-eval
          (contract-out
           [set-logic (-> symbol? any)]))
