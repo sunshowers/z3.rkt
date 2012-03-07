@@ -22,6 +22,13 @@
       (hash-set! (ctx-sort-table) id v)
       (raise (make-exn:fail "Defining a pre-existing sort!"))))
 
+;; The current model for this context. This is a mutable box.
+(define ctx-current-model (make-parameter #f))
+(define (get-current-model)
+  (unbox (ctx-current-model)))
+(define (set-current-model! new-model)
+  (set-box! (ctx-current-model) new-model))
+
 ;; Lists are a builtin complex sort. z3:mk-list-sort already returns a
 ;; datatype-instance.
 (define (make-list-sort base-sort params)
@@ -47,7 +54,7 @@
      hook-ids)
     res))
 
-(struct z3-context-info (context namespace sort-table))
+(struct z3-context-info (context namespace sort-table current-model))
 
 ;; Wraps a binary function so that arguments are processed
 ;; in a right-associative manner.
@@ -125,13 +132,14 @@
              (builtin-curried <= z3:mk-le ctx)
              (builtin-curried > z3:mk-gt ctx)
              (builtin-curried >= z3:mk-ge ctx)))
-  (z3-context-info ctx ns sorts))
+  (z3-context-info ctx ns sorts (box #f)))
 
 (define-syntax-rule (with-context info2 body ...)
   (let ([info info2])
     (parameterize ([ctx (z3-context-info-context info)]
                    [ctx-namespace (z3-context-info-namespace info)]
-                   [ctx-sort-table (z3-context-info-sort-table info)])
+                   [ctx-sort-table (z3-context-info-sort-table info)]
+                   [ctx-current-model (z3-context-info-current-model info)])
     body ...)))
 
 ;; Handle the next error.
@@ -196,7 +204,10 @@
     (displayln 'expr)
     (z3:assert-cnstr (ctx) (expr->z3-ast 'expr))))
 
-(define (check-sat) (z3:check (ctx)))
+(define (check-sat)
+  (let-values ([(rv model (z3:check-and-get-model (ctx)))])
+    (set-current-model! model)
+    rv))
 
 (provide current-context
          with-context
