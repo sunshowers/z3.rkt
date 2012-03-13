@@ -19,7 +19,6 @@
 ; We distinguish between different kinds of asts here to add a bit of
 ; type checking
 (define-cpointer-type _z3-bool-ast _z3-ast)
-(define-cpointer-type _z3-int-ast _z3-ast)
 (define-cpointer-type _z3-real-ast _z3-ast)
 (define-cpointer-type _z3-bv-ast _z3-ast)
 (define-cpointer-type _z3-app-ast _z3-ast)
@@ -132,21 +131,21 @@
 (define-nary mk-or : _z3-bool-ast -> _z3-bool-ast)
 
 ; Arithmetic operations
-(define-nary mk-add : _z3-int-ast -> _z3-int-ast)
-(define-nary mk-mul : _z3-int-ast -> _z3-int-ast)
-(define-nary mk-sub : _z3-int-ast -> _z3-int-ast)
-(defz3 mk-div : _z3-context _z3-int-ast _z3-int-ast -> _z3-int-ast)
-(defz3 mk-mod : _z3-context _z3-int-ast _z3-int-ast -> _z3-int-ast)
-(defz3 mk-rem : _z3-context _z3-int-ast _z3-int-ast -> _z3-int-ast)
+(define-nary mk-add : _z3-ast -> _z3-ast)
+(define-nary mk-mul : _z3-ast -> _z3-ast)
+(define-nary mk-sub : _z3-ast -> _z3-ast)
+(defz3 mk-div : _z3-context _z3-ast _z3-ast -> _z3-ast)
+(defz3 mk-mod : _z3-context _z3-ast _z3-ast -> _z3-ast)
+(defz3 mk-rem : _z3-context _z3-ast _z3-ast -> _z3-ast)
 
 ; Comparisons
-(defz3 mk-lt : _z3-context _z3-int-ast _z3-int-ast -> _z3-bool-ast)
-(defz3 mk-le : _z3-context _z3-int-ast _z3-int-ast -> _z3-bool-ast)
-(defz3 mk-gt : _z3-context _z3-int-ast _z3-int-ast -> _z3-bool-ast)
-(defz3 mk-ge : _z3-context _z3-int-ast _z3-int-ast -> _z3-bool-ast)
+(defz3 mk-lt : _z3-context _z3-ast _z3-ast -> _z3-bool-ast)
+(defz3 mk-le : _z3-context _z3-ast _z3-ast -> _z3-bool-ast)
+(defz3 mk-gt : _z3-context _z3-ast _z3-ast -> _z3-bool-ast)
+(defz3 mk-ge : _z3-context _z3-ast _z3-ast -> _z3-bool-ast)
 
 ; Numerals
-(defz3 mk-numeral : _z3-context _string _z3-sort -> _z3-int-ast)
+(defz3 mk-numeral : _z3-context _string _z3-sort -> _z3-ast)
 
 (defz3 mk-func-decl :
   (ctx s domain range) ::
