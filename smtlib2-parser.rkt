@@ -166,11 +166,11 @@
              (z3:mk-uninterpreted-sort (ctx) (make-symbol 'sort))))
 
 ;; sort-exprs are sort ids, (_ id parameter*), or (id sort-expr*).
-(define (sort-expr->z3-sort expr)
+(define (sort-expr->_z3-sort expr)
   (match expr
     [(list '_ id params ...) (apply (get-sort id) params)]
     [(list id args ...) (datatype-instance-z3-sort
-                         (get-or-create-instance (get-sort id) (map sort-expr->z3-sort args)))]
+                         (get-or-create-instance (get-sort id) (map sort-expr->_z3-sort args)))]
     [id (get-sort id)]))
 
 (define (trace expr)
@@ -200,8 +200,8 @@
 (define-syntax (declare-fun stx)
   (syntax-case stx ()
     [(declare-fun fn (argsort ...) retsort)
-     #'(let ([args (vector (sort-expr->z3-sort 'argsort) ...)]
-             [ret (sort-expr->z3-sort 'retsort)])
+     #'(let ([args (vector (sort-expr->_z3-sort 'argsort) ...)]
+             [ret (sort-expr->_z3-sort 'retsort)])
          (if (= 0 (vector-length args))
              (set-value 'fn (z3:mk-const (ctx) (make-symbol 'fn) ret))
              (set-value 'fn (z3:mk-func-decl (ctx) (make-symbol 'fn) args ret)))
