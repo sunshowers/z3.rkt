@@ -122,7 +122,7 @@
              (builtin-curried not z3:mk-not ctx)
              (builtin-curried ite z3:mk-ite ctx)
              (builtin-curried iff z3:mk-iff ctx)
-             (builtin-curried z3:mk-implies ctx rassoc)
+             (builtin-curried implies z3:mk-implies ctx rassoc)
              (builtin-curried xor z3:mk-xor ctx lassoc)
              ; These functions already accept an arbitrary number of arguments
              (builtin-curried and z3:mk-and ctx)

@@ -2,6 +2,6 @@
 
 (require rackunit rackunit/text-ui)
 ; Load all files in the directory
-(require "tests/smtlib2.rkt")
+(require "tests/test-booleans.rkt")
 
-(run-tests smtlib2-tests)
+(run-tests test-booleans)
