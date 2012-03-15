@@ -32,6 +32,6 @@
     (check-eq? (smt:check-sat) 'sat)
     (smt:assert (= p true))
     (check-eq? (smt:check-sat) 'sat)
-    (check-eq? (smt:eval q) 'false)
+    (check-eq? (smt:eval q) 'true)
     (smt:assert (= q false))
     (check-eq? (smt:check-sat) 'unsat))))
