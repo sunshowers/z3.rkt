@@ -1,6 +1,6 @@
 #lang racket
 
-(require "../api.rkt" "../smtlib2-parser.rkt")
+(require "../smtlib2-parser.rkt")
 
 (with-context
  (new-context-info #t)
