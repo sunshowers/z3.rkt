@@ -1,6 +1,6 @@
 #lang racket
 
-(require "api.rkt")
+(require (prefix-in z3: "z3-wrapper.rkt"))
 (require "defs.rkt")
 
 ; This must be parameterized every time any syntax is used
@@ -94,7 +94,12 @@
     [(_ var fn ctx) (list 'var (curry-once fn ctx))]
     [(_ var fn ctx wrap) (list 'var (wrap (curry-once fn ctx)))]))
 
-(define (new-context-info model?)
+(define (make-config #:model? [model? #t])
+  (let ([config (z3:mk-config)])
+    (z3:set-param-value! config "MODEL" (if model? "true" "false"))
+    config))
+
+(define (new-context-info #:model? [model? #t])
   (define ctx (z3:mk-context (make-config #:model? model?)))
   (define ns (make-empty-namespace))
   (define sorts (make-hash))
@@ -241,20 +246,23 @@
 
 ;; This would otherwise be (eval expr), but that obviously conflicts with
 ;; Racket's own eval.
-(define-syntax-rule (z3-eval expr)
+(define-syntax-rule (smt:eval expr)
    (let-values ([(rv ast) (z3:eval (ctx) (get-current-model) (expr->_z3-ast 'expr))])
      (if (eq? rv #f)
          (raise (make-exn:fail "Evaluation failed"))
          (_z3-ast->expr ast))))
 
-(provide current-context
-         with-context
-         new-context-info
-         declare-datatypes
-         declare-sort
-         declare-fun
-         assert
-         check-sat
-         z3-eval
-         (contract-out
-          [set-logic (-> symbol? any)]))
+(provide
+ (prefix-out smt:
+             (combine-out
+              current-context
+              with-context
+              new-context-info
+              declare-datatypes
+              declare-sort
+              declare-fun
+              assert
+              check-sat))
+ smt:eval
+ (prefix-out smt: (contract-out
+                   [set-logic (-> symbol? any)])))
