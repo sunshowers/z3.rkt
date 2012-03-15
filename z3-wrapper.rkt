@@ -49,6 +49,7 @@
 
 (define-cpointer-type _z3-app _z3-ast)
 
+(define-cpointer-type _z3-constructor)
 (define-cpointer-type _z3-pattern)
 (define-cpointer-type _z3-model)
 
@@ -97,8 +98,8 @@
   (cons-decl : (_ptr o _z3-func-decl))
   (is-cons-decl : (_ptr o _z3-func-decl))
   (head-decl : (_ptr o _z3-func-decl))
-  (tail-decl : (_ptr o _z3-func-decl)) ->
-  (res : _z3-sort) ->
+  (tail-decl : (_ptr o _z3-func-decl))
+  -> (res : _z3-sort) ->
   (datatype-instance res (hash 'nil nil-decl
                                'is-nil is-nil-decl
                                'cons cons-decl
@@ -153,8 +154,8 @@
   (s : _z3-symbol)
   (_uint = (vector-length domain))
   (domain : (_vector i _z3-sort))
-  (range : _z3-sort) ->
-  (decl : _z3-func-decl) ->
+  (range : _z3-sort)
+  -> (decl : _z3-func-decl) ->
   (begin
     (for-each (match-lambda [(list sort-tag decl-tag _)
       (when (cpointer-has-tag? range sort-tag)
@@ -180,6 +181,26 @@
         (cpointer-push-tag! app ast-tag))])
               sort-decl-ast)
     app))
+
+;;; Complex types
+(defz3 mk-constructor :
+  (ctx name recognizer names-sorts-refs) ::
+  (ctx : _z3-context)
+  (name : _z3-symbol)
+  (recognizer : _z3-symbol)
+  (_uint = (length names-sorts-refs))
+  ((_list i _z3-symbol) = (map first names-sorts-refs))
+  ((_list i _z3-sort/null) = (map second names-sorts-refs))
+  ((_list i _uint) = (map third names-sorts-refs))
+  -> _z3-constructor)
+
+(defz3 mk-datatype :
+  (ctx name constructors) ::
+  (ctx : _z3-context)
+  (name : _z3-symbol)
+  (_uint = (length constructors))
+  (constructors : (_list i _z3-constructor))
+  -> _z3-sort)
 
 (define (vector-multilength v1 v2)
   (cond
