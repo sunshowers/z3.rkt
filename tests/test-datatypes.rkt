@@ -17,4 +17,18 @@
     (check-eq? (smt:check-sat) 'sat)
     (check-true (< (smt:eval (head b)) 2))
     (check-true (= (smt:eval (head (tail b))) 4))
-    (check-true (= (smt:eval (head (tail (tail b)))) 5)))))
+    (check-true (= (smt:eval (head (tail (tail b)))) 5))))
+  
+  (test-case
+   "Test defining scalars"
+   (smt:with-context
+    (smt:new-context-info)
+    (smt:declare-datatypes () ((S A B C)))
+    (smt:declare-fun a () S)
+    (smt:declare-fun b () S)
+    (smt:declare-fun c () S)
+    (smt:assert (distinct a b c))
+    (check-eq? (smt:check-sat) 'sat)
+    (smt:declare-fun d () S)
+    (smt:assert (distinct a b c d))
+    (check-eq? (smt:check-sat) 'unsat))))
