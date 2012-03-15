@@ -221,12 +221,13 @@
          [args (list `stx-args ...)]
          [constrs (map constr->_z3-constructor args)]
          [datatype (z3:mk-datatype (ctx) (make-symbol 'typename) constrs)])
-    (new-sort 'typename datatype)
+    (new-sort typename datatype)
     (for-each
      (lambda (constr-name constr)
        (let-values ([(constr-fn tester-fn accessor-fns)
                      (z3:query-constructor (ctx) constr 0)]) ; XXX handle > 0
-         (set-value constr-name (z3:mk-app (ctx) constr-fn '())))))))
+         (set-value constr-name (z3:mk-app (ctx) constr-fn '()))))
+     args constrs)))
 
 (define-syntax-rule (assert expr)
   (begin
@@ -249,6 +250,7 @@
 (provide current-context
          with-context
          new-context-info
+         declare-datatypes
          declare-sort
          declare-fun
          assert

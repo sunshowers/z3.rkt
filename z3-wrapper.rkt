@@ -4,6 +4,19 @@
 (require racket/runtime-path)
 (require "defs.rkt")
 
+; We let _list also support an output length of 0
+; Workaround for https://github.com/plt/racket/pull/87
+(define-fun-syntax _list*
+  (syntax-rules (i o io)
+    [(_ i  t  ) (type: _pointer
+                 pre:  (x => (list->cblock x t)))]
+    [(_ o  t n) (type: _pointer
+                 pre:  (if (> n 0) (malloc n t) #f)
+                 post: (x => (cblock->list x t n)))]
+    [(_ io t n) (type: _pointer
+                 pre:  (list->cblock x t)
+                 post: (x => (cblock->list x t n)))]))
+
 ; We need this because libz3 is stupid and doesn't mention a dependence on
 ; libgomp. Loading this causes libz3 to pick up libgomp and thus not error out.
 (define libgomp (ffi-lib "libgomp" '["1" #f]))
@@ -201,7 +214,7 @@
   (num-fields : _uint)
   (constructor-fn : (_ptr o _z3-func-decl))
   (tester-fn : (_ptr o _z3-func-decl))
-  (accessor-fns : (_list o _z3-func-decl num-fields))
+  (accessor-fns : (_list* o _z3-func-decl num-fields))
   -> _void ->
   (values constructor-fn tester-fn accessor-fns))
 
