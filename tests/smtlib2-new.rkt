@@ -4,15 +4,6 @@
 
 (with-context
  (new-context-info #t)
-  (declare-fun a () Int)
-  (assert (> a 10))
-  (assert (< a 20))
-  (displayln (check-sat))
-  (assert (= (+ a 5) 16))
-  (displayln (check-sat)))
-
-(with-context
- (new-context-info #t)
  (declare-fun a () (List Int))
  (declare-fun b () (List Int))
  (assert (= a (cons 4 (cons 5 (nil)))))

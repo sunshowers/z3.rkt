@@ -3,7 +3,6 @@
 (require rackunit)
 (require "../smtlib2-parser.rkt")
 
-
 (define/provide-test-suite test-integers
   (test-case
    "Test >, <, and +"
