@@ -5,4 +5,4 @@
 (require "tests/test-booleans.rkt"
          "tests/test-integers.rkt")
 
-(test/gui test-booleans test-integers #:wait? #t)
+((make-gui-runner) test-booleans test-integers)
