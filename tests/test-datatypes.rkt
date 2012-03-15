@@ -16,8 +16,8 @@
     (smt:assert (= (tail b) a))
     (check-eq? (smt:check-sat) 'sat)
     (check-true (< (smt:eval (head b)) 2))
-    (check-true (= (smt:eval (head (tail b))) 4))
-    (check-true (= (smt:eval (head (tail (tail b)))) 5))))
+    (check-eq? (smt:eval (head (tail b))) 4)
+    (check-eq? (smt:eval (head (tail (tail b)))) 5)))
   
   (test-case
    "Test defining scalars"
