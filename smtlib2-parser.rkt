@@ -207,6 +207,27 @@
              (set-value 'fn (z3:mk-func-decl (ctx) (make-symbol 'fn) args ret)))
          (void))]))
 
+;; We only support plain symbol for now
+(define (constr->_z3-constructor expr)
+  (z3:mk-constructor (ctx)
+                     (make-symbol expr)
+                     (z3:mk-string-symbol (ctx) (string-append "is-" (symbol->string expr)))
+                     '()))
+
+;; Declare a complex datatype. Currently one scalar type is supported.
+;; param-types is currently ignored
+(define-syntax-rule (declare-datatypes param-types ((stx-typename stx-args ...)))
+  (let* ([typename `stx-typename]
+         [args (list `stx-args ...)]
+         [constrs (map constr->_z3-constructor args)]
+         [datatype (z3:mk-datatype (ctx) (make-symbol 'typename) constrs)])
+    (new-sort 'typename datatype)
+    (for-each
+     (lambda (constr-name constr)
+       (let-values ([(constr-fn tester-fn accessor-fns)
+                     (z3:query-constructor (ctx) constr 0)]) ; XXX handle > 0
+         (set-value constr-name (z3:mk-app (ctx) constr-fn '())))))))
+
 (define-syntax-rule (assert expr)
   (begin
     (displayln 'expr)

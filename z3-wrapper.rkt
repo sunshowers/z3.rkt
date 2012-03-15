@@ -194,6 +194,17 @@
   ((_list i _uint) = (map third names-sorts-refs))
   -> _z3-constructor)
 
+(defz3 query-constructor :
+  (ctx constructor num-fields) ::
+  (ctx : _z3-context)
+  (constructor : _z3-constructor)
+  (num-fields : _uint)
+  (constructor-fn : (_ptr o _z3-func-decl))
+  (tester-fn : (_ptr o _z3-func-decl))
+  (accessor-fns : (_list o _z3-func-decl num-fields))
+  -> _void ->
+  (values constructor-fn tester-fn accessor-fns))
+
 (defz3 mk-datatype :
   (ctx name constructors) ::
   (ctx : _z3-context)
