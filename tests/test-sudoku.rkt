@@ -4,7 +4,7 @@
 (require "../examples/sudoku.rkt")
 
 (define (check-sudoku input output)
-  (check-equal? (solve-sudoku/compact input) output))
+  (check-equal? (solve-sudoku/string input) output))
 
 (define/provide-test-suite test-sudoku
   (check-sudoku

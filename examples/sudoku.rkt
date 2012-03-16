@@ -19,23 +19,23 @@
   (for ([n '(0 3 6 27 30 33 54 57 60)])
     (box-distinct n)))
 
-(define (int->Sudoku n)
-  (string->symbol (string-append "S" (number->string n))))
+(define (char->sudoku c)
+  (string->symbol (list->string (list #\S c))))
 
-(define (Sudoku->int s)
-  (string->number (substring (symbol->string s) 1)))
+(define (sudoku->char s)
+  (string-ref (symbol->string s) 1))
 
 (define (add-grid grid n)
   (if (empty? grid)
       (void)
       (begin
-        (unless (eq? (first grid) '_)
-          (smt:assert (= (select sudoku-grid ,n) ,(int->Sudoku (first grid)))))
+        (unless (eq? (first grid) #\_)
+          (smt:assert (= (select sudoku-grid ,n) ,(char->sudoku (first grid)))))
         (add-grid (rest grid) (+ n 1)))))
 
-;; Given a grid (81-element list where numbers are 1-9 and unknown entries are
-;; _), solve Sudoku for the grid and return #f if no solutions are possible,
-;; and an 81-element list if a solution is possible.
+;; Given a grid (81-element list where known entries are characters #\1-#\9 and
+;; unknown entries are _), solve Sudoku for the grid and return #f if no
+;; solutions are possible, and an 81-element list if a solution is possible.
 (define (solve-sudoku grid)
   (smt:with-context
    (smt:new-context-info)
@@ -45,17 +45,12 @@
    (add-grid grid 0)
    (define sat (smt:check-sat))
    (if (eq? sat 'sat)
-       (map (λ (x) (Sudoku->int (smt:eval (select sudoku-grid ,x))))
+       (map (λ (x) (sudoku->char (smt:eval (select sudoku-grid ,x))))
             (sequence->list (in-range 0 81))) ; Retrieve all the values
        #f)))
 
-(define (solve-sudoku/compact str)
-  (let* ([grid (sequence-map
-                (λ (c) (if (eq? c #\_) '_ (- (char->integer c) 48)))
-                (in-string str))]
-         [solution-grid (solve-sudoku (sequence->list grid))])
-    (if solution-grid
-        (list->string (map (λ (x) (integer->char (+ 48 x))) solution-grid))
-        #f)))
+(define (solve-sudoku/string str)
+  (let* ([solution-grid (solve-sudoku (sequence->list (in-string str)))])
+    (if solution-grid (list->string solution-grid) #f)))
 
-(provide solve-sudoku solve-sudoku/compact)
+(provide solve-sudoku solve-sudoku/string)
