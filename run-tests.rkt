@@ -4,7 +4,8 @@
 (require "tests/test-booleans.rkt"
          "tests/test-integers.rkt"
          "tests/test-datatypes.rkt"
-         "tests/test-arrays.rkt")
+         "tests/test-arrays.rkt"
+         "tests/test-sudoku.rkt")
 
 (run-tests
  (test-suite
@@ -12,4 +13,5 @@
   test-booleans
   test-integers
   test-datatypes
-  test-arrays))
+  test-arrays
+  test-sudoku))

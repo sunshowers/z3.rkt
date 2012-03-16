@@ -244,10 +244,10 @@
          (set-value constr-name (z3:mk-app (ctx) constr-fn '()))))
      args constrs)))
 
-(define-syntax-rule (assert expr)
-  (begin
-    (displayln 'expr)
-    (z3:assert-cnstr (ctx) (expr->_z3-ast 'expr))))
+(define-syntax-rule (assert expr-stx)
+  (let ([expr `expr-stx])
+    (displayln expr)
+    (z3:assert-cnstr (ctx) (expr->_z3-ast expr))))
 
 (define (check-sat)
   (let-values ([(rv model) (z3:check-and-get-model (ctx))])
@@ -256,8 +256,9 @@
 
 ;; This would otherwise be (eval expr), but that obviously conflicts with
 ;; Racket's own eval.
-(define-syntax-rule (smt:eval expr)
-   (let-values ([(rv ast) (z3:eval (ctx) (get-current-model) (expr->_z3-ast 'expr))])
+(define-syntax-rule (smt:eval expr-stx)
+   (let*-values ([(expr) `expr-stx]
+                 [(rv ast) (z3:eval (ctx) (get-current-model) (expr->_z3-ast expr))])
      (if (eq? rv #f)
          (raise (make-exn:fail "Evaluation failed"))
          (_z3-ast->expr ast))))
