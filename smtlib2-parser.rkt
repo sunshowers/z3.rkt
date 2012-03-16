@@ -111,7 +111,8 @@
              (builtin Int z3:mk-int-sort ctx)
              (builtin-curried BitVec z3:mk-bv-sort ctx)
              ; The base sort for lists is irrelevant
-             (list 'List (make-complex-sort #f make-list-sort ns '(nil is-nil cons is-cons head tail)))))
+             (list 'List (make-complex-sort #f make-list-sort ns '(nil is-nil cons is-cons head tail)))
+             (builtin-curried Array z3:mk-array-sort ctx)))
   (for-each (lambda (arg)
               (namespace-set-variable-value! (first arg) (second arg) #t ns))
             (list
@@ -139,7 +140,10 @@
              (builtin-curried < z3:mk-lt ctx)
              (builtin-curried <= z3:mk-le ctx)
              (builtin-curried > z3:mk-gt ctx)
-             (builtin-curried >= z3:mk-ge ctx)))
+             (builtin-curried >= z3:mk-ge ctx)
+             ;; Array operations
+             (builtin-curried select z3:mk-select ctx)
+             (builtin-curried store z3:mk-store ctx)))
   (z3-context-info ctx ns sorts (box #f)))
 
 (define-syntax-rule (with-context info2 body ...)
@@ -174,8 +178,14 @@
 (define (sort-expr->_z3-sort expr)
   (match expr
     [(list '_ id params ...) (apply (get-sort id) params)]
-    [(list id args ...) (datatype-instance-z3-sort
-                         (get-or-create-instance (get-sort id) (map sort-expr->_z3-sort args)))]
+    [(list id args ...)
+     (let ([sort (get-sort id)])
+       ;; The sort can either be a complex sort which needs to be
+       ;; instantiated, or a simple array sort.
+       (if (z3-complex-sort? sort)
+           (datatype-instance-z3-sort
+            (get-or-create-instance (get-sort id) (map sort-expr->_z3-sort args)))
+           (apply sort (map sort-expr->_z3-sort args))))]
     [id (get-sort id)]))
 
 (define (trace expr)

@@ -104,6 +104,7 @@
 (defz3 mk-int-sort : _z3-context -> _z3-int-sort)
 (defz3 mk-real-sort : _z3-context -> _z3-real-sort)
 (defz3 mk-bv-sort : _z3-context _uint -> _z3-bv-sort)
+(defz3 mk-array-sort : _z3-context _z3-sort _z3-sort -> _z3-sort)
 
 (defz3 mk-list-sort : _z3-context _z3-symbol _z3-sort
   (nil-decl : (_ptr o _z3-func-decl))
@@ -195,7 +196,11 @@
               sort-decl-ast)
     app))
 
-;;; Complex types
+;; Array operations
+(defz3 mk-select : _z3-context _z3-ast _z3-ast -> _z3-ast)
+(defz3 mk-store : _z3-context _z3-ast _z3-ast _z3-ast -> _z3-ast)
+
+;; Complex types
 (defz3 mk-constructor :
   (ctx name recognizer names-sorts-refs) ::
   (ctx : _z3-context)
