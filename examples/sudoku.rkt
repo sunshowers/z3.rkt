@@ -12,18 +12,13 @@
   (sudoku-grid-distinct (map ((curry +) n) '(0 1 2 9 10 11 18 19 20))))
 
 (define (add-sudoku-grid-rules)
-  (for ([n (in-range 0 81 9)])
-    (row-distinct n))
-  (for ([n (in-range 0 9)])
-    (column-distinct n))
-  (for ([n '(0 3 6 27 30 33 54 57 60)])
-    (box-distinct n)))
+  (for ([n (in-range 0 81 9)]) (row-distinct n))
+  (for ([n (in-range 0 9)]) (column-distinct n))
+  (for ([n '(0 3 6 27 30 33 54 57 60)]) (box-distinct n)))
 
-(define (char->sudoku c)
-  (string->symbol (list->string (list #\S c))))
+(define (char->sudoku c) (string->symbol (list->string (list #\S c))))
 
-(define (sudoku->char s)
-  (string-ref (symbol->string s) 1))
+(define (sudoku->char s) (string-ref (symbol->string s) 1))
 
 (define (add-grid grid n)
   (if (empty? grid)
@@ -50,7 +45,7 @@
        #f)))
 
 (define (solve-sudoku/string str)
-  (let* ([solution-grid (solve-sudoku (sequence->list (in-string str)))])
+  (let* ([solution-grid (solve-sudoku (string->list str))])
     (if solution-grid (list->string solution-grid) #f)))
 
 (provide solve-sudoku solve-sudoku/string)
