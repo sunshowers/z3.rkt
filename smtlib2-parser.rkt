@@ -81,7 +81,7 @@
 ;; arguments are applied, the application is evaluated.
 (define (curry-once fn . args)
   (lambda more-args
-    (displayln (format "Calling function: ~a with args ~a" 'fn more-args))
+    ;(displayln (format "Calling function: ~a with args ~a" 'fn more-args))
     (apply fn (append args more-args))))
 
 (define-syntax-rule (builtin var fn)
@@ -187,13 +187,9 @@
            (apply sort (map sort-expr->_z3-sort args))))]
     [id (get-sort id)]))
 
-(define (trace expr)
-  (displayln (format "TRACE: ~a" expr))
-  expr)
-
 ;; Given an expr, convert it to a Z3 AST. This is a really simple recursive descent parser.
 (define (expr->_z3-ast expr)
-  (displayln (format "IN: ~a" expr))
+  ;(displayln (format "IN: ~a" expr))
   (define ast (match expr
     ; Non-basic expressions
     [(list fn args ...) (apply (get-value fn) (map expr->_z3-ast args))]
@@ -202,7 +198,7 @@
     [(? inexact-real?) (z3:mk-numeral (ctx) (number->string expr) (get-sort 'Real))]
     ; Anything else should be in the namespace
     [id (get-value id)]))
-  (displayln (format "Output: ~a ~a ~a" expr ast (z3:ast-to-string (ctx) ast)))
+  ;(displayln (format "Output: ~a ~a ~a" expr ast (z3:ast-to-string (ctx) ast)))
   ast)
 
 ;; Given a Z3 AST, convert it to an expression that can be parsed again into an AST,
@@ -244,7 +240,7 @@
 
 (define-syntax-rule (assert expr-stx)
   (let ([expr `expr-stx])
-    (displayln expr)
+    ;(displayln expr)
     (z3:assert-cnstr (ctx) (expr->_z3-ast expr))))
 
 (define (check-sat)

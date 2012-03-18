@@ -85,7 +85,7 @@
     [(_ name : type ...)
      (begin
        (define (name . args)
-         (displayln (format "Calling (internal) function: ~a" 'name))
+         ;(displayln (format "Calling (internal) function: ~a" 'name))
          (apply (get-ffi-obj (regexp-replaces 'name '((#rx"-" "_")
                                                       (#rx"^" "Z3_")
                                                       (#rx"!$" "")))
