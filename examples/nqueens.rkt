@@ -16,15 +16,15 @@
    (smt:assert (distinct ,@queen-syms)) ; all columns distinct
    ;; no two queens on the same diagonal
    (for* ([(qi i) (in-indexed queen-syms)]
-          [(qj j) (in-indexed (stop-before queen-syms (λ (x) (eq? x qi))))])
+          [(qj j) (in-indexed (stop-before queen-syms ((curry eq?) qi)))])
      (smt:assert (and (distinct (- ,qi ,qj) ,(- i j)) (distinct (- ,qi ,qj) ,(- j i)))))
    (define seq
      (generator ()
        (let loop ()
-         (yield (smt:check-sat))
+         (yield (eq? (smt:check-sat) 'sat))
          ;; Get a new model by blocking out the current one
          (smt:assert (not (and ,@(map (λ (qi) `(= ,qi ,(smt:eval ,qi))) queen-syms))))
          (loop))))
-   (sequence-length (in-producer seq 'unsat))))
+   (sequence-length (in-producer seq #f))))
 
 (provide solve-nqueens)
