@@ -20,13 +20,10 @@
 
 (define (sudoku->char s) (string-ref (symbol->string s) 1))
 
-(define (add-grid grid n)
-  (if (empty? grid)
-      (void)
-      (begin
-        (unless (eq? (first grid) #\_)
-          (smt:assert (= (select sudoku-grid ,n) ,(char->sudoku (first grid)))))
-        (add-grid (rest grid) (+ n 1)))))
+(define (add-grid grid)
+  (for ([(entry i) (in-indexed grid)])
+    (unless (eq? entry #\_)
+      (smt:assert (= (select sudoku-grid ,i) ,(char->sudoku entry))))))
 
 ;; Given a grid (81-element list where known entries are characters #\1-#\9 and
 ;; unknown entries are _), solve Sudoku for the grid and return #f if no
@@ -37,7 +34,7 @@
    (smt:declare-datatypes () ((Sudoku S1 S2 S3 S4 S5 S6 S7 S8 S9)))
    (smt:declare-fun sudoku-grid () (Array Int Sudoku))
    (add-sudoku-grid-rules) ; Plug in the grid rules (row, column, box)
-   (add-grid grid 0)
+   (add-grid grid)
    (define sat (smt:check-sat))
    (if (eq? sat 'sat)
        (map (λ (x) (sudoku->char (smt:eval (select sudoku-grid ,x))))
