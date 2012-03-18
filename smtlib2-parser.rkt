@@ -167,7 +167,7 @@
 ;; Helper function to make a symbol with the given name (Racket symbol)
 (define (make-symbol symbol-name)
   (z3:mk-string-symbol (ctx) (symbol->string symbol-name)))
-   
+
 ;; Declare a new sort. num-params is currently ignored.
 (define-syntax-rule (declare-sort sort num-params)
   (set-value 'sort
@@ -211,15 +211,14 @@
   (read (open-input-string (z3:ast-to-string (ctx) ast))))
 
 ;; Declare a new function. argsort is a sort-expr.
-(define-syntax (declare-fun stx)
-  (syntax-case stx ()
-    [(declare-fun fn (argsort ...) retsort)
-     #'(let ([args (vector (sort-expr->_z3-sort 'argsort) ...)]
-             [ret (sort-expr->_z3-sort 'retsort)])
-         (if (= 0 (vector-length args))
-             (set-value 'fn (z3:mk-const (ctx) (make-symbol 'fn) ret))
-             (set-value 'fn (z3:mk-func-decl (ctx) (make-symbol 'fn) args ret)))
-         (void))]))
+(define-syntax-rule (declare-fun fn-stx (argsort ...) retsort)
+  (let ([fn `fn-stx]
+        [args (vector (sort-expr->_z3-sort 'argsort) ...)]
+        [ret (sort-expr->_z3-sort 'retsort)])
+    (if (= 0 (vector-length args))
+        (set-value fn (z3:mk-const (ctx) (make-symbol fn) ret))
+        (set-value fn (z3:mk-func-decl (ctx) (make-symbol fn) args ret)))
+    (void)))
 
 ;; We only support plain symbol for now
 (define (constr->_z3-constructor expr)
@@ -268,6 +267,9 @@
      (eval-in-model model `expr-stx)]
     [(_ expr-stx)
      (eval-in-model (get-current-model) `expr-stx)]))
+
+;; XXX need to implement a function to get all models. To do that we need
+;; push, pop, and a way to navigate a model.
 
 (provide
  (prefix-out

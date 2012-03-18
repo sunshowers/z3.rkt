@@ -5,7 +5,8 @@
          "tests/test-integers.rkt"
          "tests/test-datatypes.rkt"
          "tests/test-arrays.rkt"
-         "tests/test-sudoku.rkt")
+         "tests/test-sudoku.rkt"
+         "tests/test-nqueens.rkt")
 
 (run-tests
  (test-suite
@@ -14,4 +15,5 @@
   test-integers
   test-datatypes
   test-arrays
-  test-sudoku))
+  test-sudoku
+  test-nqueens))
