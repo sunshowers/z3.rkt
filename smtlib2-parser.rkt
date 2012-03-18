@@ -250,30 +250,42 @@
     (z3:assert-cnstr (ctx) (expr->_z3-ast expr))))
 
 (define (check-sat)
-  (let-values ([(rv model) (z3:check-and-get-model (ctx))])
-    (set-current-model! model)
-    rv))
+  (define-values (rv model) (z3:check-and-get-model (ctx)))
+  (set-current-model! model)
+  rv)
 
-;; This would otherwise be (eval expr), but that obviously conflicts with
-;; Racket's own eval.
-(define-syntax-rule (smt:eval expr-stx)
-   (let*-values ([(expr) `expr-stx]
-                 [(rv ast) (z3:eval (ctx) (get-current-model) (expr->_z3-ast expr))])
-     (if (eq? rv #f)
-         (raise (make-exn:fail "Evaluation failed"))
-         (_z3-ast->expr ast))))
+(define (get-model)
+  (get-current-model))
+
+(define (check-sat-and-get-model)
+  (z3:check-and-get-model (ctx)))
+
+(define (eval-in-model model expr)
+  (define-values (rv ast) (z3:eval (ctx) model (expr->_z3-ast expr)))
+  (if (eq? rv #f)
+      (raise (make-exn:fail "Evaluation failed"))
+      (_z3-ast->expr ast)))
+
+(define-syntax smt:eval
+  (syntax-rules ()
+    [(_ model expr-stx)
+     (eval-in-model model `expr-stx)]
+    [(_ expr-stx)
+     (eval-in-model (get-current-model) `expr-stx)]))
 
 (provide
- (prefix-out smt:
-             (combine-out
-              current-context
-              with-context
-              new-context-info
-              declare-datatypes
-              declare-sort
-              declare-fun
-              assert
-              check-sat))
+ (prefix-out
+  smt:
+  (combine-out
+   current-context
+   with-context
+   new-context-info
+   declare-datatypes
+   declare-sort
+   declare-fun
+   assert
+   check-sat
+   get-model))
  smt:eval
  (prefix-out smt: (contract-out
                    [set-logic (-> symbol? any)])))
