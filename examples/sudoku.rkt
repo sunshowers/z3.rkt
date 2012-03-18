@@ -21,9 +21,8 @@
 (define (sudoku->char s) (string-ref (symbol->string s) 1))
 
 (define (add-grid grid)
-  (for ([(entry i) (in-indexed grid)])
-    (unless (eq? entry #\_)
-      (smt:assert (= (select sudoku-grid ,i) ,(char->sudoku entry))))))
+  (for ([(entry i) (in-indexed grid)] #:unless (eq? entry #\_))
+    (smt:assert (= (select sudoku-grid ,i) ,(char->sudoku entry)))))
 
 ;; Given a grid (81-element list where known entries are characters #\1-#\9 and
 ;; unknown entries are _), solve Sudoku for the grid and return #f if no
