@@ -256,9 +256,6 @@
 (define (get-model)
   (get-current-model))
 
-(define (check-sat-and-get-model)
-  (z3:check-and-get-model (ctx)))
-
 (define (eval-in-model model expr)
   (define-values (rv ast) (z3:eval (ctx) model (expr->_z3-ast expr)))
   (if (eq? rv #f)
