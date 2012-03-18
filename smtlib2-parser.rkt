@@ -4,39 +4,37 @@
 (require "defs.rkt")
 
 ; This must be parameterized every time any syntax is used
-(define ctx (make-parameter #f))
-(define (current-context) (ctx))
+(define current-context-info (make-parameter #f))
+(define (ctx) (z3-context-info-context (current-context-info)))
 
-(define ctx-namespace (make-parameter #f))
 (define (get-value id)
-  (namespace-variable-value id #t #f (ctx-namespace)))
+  (namespace-variable-value id #t #f (z3-context-info-namespace (current-context-info))))
 (define (set-value id v)
-  (namespace-set-variable-value! id v #t (ctx-namespace)))
+  (namespace-set-variable-value! id v #t (z3-context-info-namespace (current-context-info))))
 
 ;; A symbol table for sorts
-(define ctx-sort-table (make-parameter #f))
 (define (get-sort id)
-  (hash-ref (ctx-sort-table) id))
+  (hash-ref (z3-context-info-sort-table (current-context-info)) id))
 (define (new-sort id v)
-  (if (not (hash-ref (ctx-sort-table) id #f))
-      (hash-set! (ctx-sort-table) id v)
+  (define sort-table (z3-context-info-sort-table (current-context-info)))
+  (if (not (hash-ref sort-table id #f))
+      (hash-set! sort-table id v)
       (raise (make-exn:fail "Defining a pre-existing sort!"))))
 
 ;; The current model for this context. This is a mutable box.
-(define ctx-current-model (make-parameter #f))
 (define (get-current-model)
-  (define model (unbox (ctx-current-model)))
+  (define model (unbox (z3-context-info-current-model (current-context-info))))
   (if (eq? model #f)
       (raise (make-exn:fail "No model found"))
       model))
 (define (set-current-model! new-model)
-  (set-box! (ctx-current-model) new-model))
+  (set-box! (z3-context-info-current-model (current-context-info)) new-model))
 
 ;; Lists are a builtin complex sort. z3:mk-list-sort already returns a
 ;; datatype-instance.
 (define (make-list-sort base-sort params)
   (if (= (length params) 1)
-      (z3:mk-list-sort (current-context) (make-symbol (gensym)) (first params))
+      (z3:mk-list-sort (ctx) (make-symbol (gensym)) (first params))
       (raise (make-exn:fail "List sort should have just one parameter!"))))
 
 ;; Creates a new complex sort. This adds hooks for each constructor to the namespace
@@ -52,7 +50,7 @@
        (let ([hook-fn
               (lambda args
                 (let ([z3-fn (hash-ref (datatype-instance-fns (first (hash-values instance-hash))) hook)])
-                  (z3:mk-app (current-context) z3-fn args)))])
+                  (z3:mk-app (ctx) z3-fn args)))])
          (namespace-set-variable-value! hook hook-fn #t ns)))
      hook-ids)
     res))
@@ -146,13 +144,9 @@
              (builtin-curried store z3:mk-store ctx)))
   (z3-context-info ctx ns sorts (box #f)))
 
-(define-syntax-rule (with-context info2 body ...)
-  (let ([info info2])
-    (parameterize ([ctx (z3-context-info-context info)]
-                   [ctx-namespace (z3-context-info-namespace info)]
-                   [ctx-sort-table (z3-context-info-sort-table info)]
-                   [ctx-current-model (z3-context-info-current-model info)])
-    body ...)))
+(define-syntax-rule (with-context info body ...)
+  (parameterize ([current-context-info info])
+    body ...))
 
 ;; Handle the next error.
 (define (handle-next-error)
@@ -203,7 +197,7 @@
     [(? inexact-real?) (z3:mk-numeral (ctx) (number->string expr) (get-sort 'Real))]
     ; Anything else should be in the namespace
     [id (get-value id)]))
-  (displayln (format "Output: ~a ~a ~a" expr ast (z3:ast-to-string (current-context) ast)))
+  (displayln (format "Output: ~a ~a ~a" expr ast (z3:ast-to-string (ctx) ast)))
   ast)
 
 ;; Given a Z3 AST, convert it to an expression that can be parsed again into an AST,
@@ -277,7 +271,6 @@
  (prefix-out
   smt:
   (combine-out
-   current-context
    with-context
    new-context-info
    declare-datatypes
