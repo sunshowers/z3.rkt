@@ -79,18 +79,18 @@
 
 ;; Curry a function application exactly *once*. The second time function
 ;; arguments are applied, the application is evaluated.
-(define-syntax-rule (curry-once fn arg ...)
+(define (curry-once fn . args)
   (lambda more-args
     (displayln (format "Calling function: ~a with args ~a" 'fn more-args))
-    (apply fn (append (list arg ...) more-args))))
+    (apply fn (append args more-args))))
 
-(define-syntax-rule (builtin var fn ctx)
-  (list 'var (fn ctx)))
+(define-syntax-rule (builtin var fn)
+  (list 'var (fn (ctx))))
 
 (define-syntax builtin-curried
   (syntax-rules ()
-    [(_ var fn ctx) (list 'var (curry-once fn ctx))]
-    [(_ var fn ctx wrap) (list 'var (wrap (curry-once fn ctx)))]))
+    [(_ var fn) (list 'var (curry-once fn (ctx)))]
+    [(_ var fn wrap) (list 'var (wrap (curry-once fn (ctx))))]))
 
 (define (make-config #:model? [model? #t])
   (let ([config (z3:mk-config)])
@@ -101,48 +101,53 @@
   (define ctx (z3:mk-context (make-config #:model? model?)))
   (define ns (make-empty-namespace))
   (define sorts (make-hash))
-  ; Sorts go into a separate table
-  (for-each (lambda (arg)
-              (hash-set! sorts (first arg) (second arg)))
-            (list
-             (builtin Bool z3:mk-bool-sort ctx)
-             (builtin Int z3:mk-int-sort ctx)
-             (builtin-curried BitVec z3:mk-bv-sort ctx)
-             ; The base sort for lists is irrelevant
-             (list 'List (make-complex-sort #f make-list-sort ns '(nil is-nil cons is-cons head tail)))
-             (builtin-curried Array z3:mk-array-sort ctx)))
-  (for-each (lambda (arg)
-              (namespace-set-variable-value! (first arg) (second arg) #t ns))
-            (list
-             (builtin true z3:mk-true ctx)
-             (builtin false z3:mk-false ctx)
-             (builtin-curried = z3:mk-eq ctx)
-             (builtin-curried distinct z3:mk-distinct ctx)
-             (builtin-curried not z3:mk-not ctx)
-             (builtin-curried ite z3:mk-ite ctx)
-             (builtin-curried iff z3:mk-iff ctx)
-             (builtin-curried implies z3:mk-implies ctx rassoc)
-             (builtin-curried xor z3:mk-xor ctx lassoc)
-             ; These functions already accept an arbitrary number of arguments
-             (builtin-curried and z3:mk-and ctx)
-             (builtin-curried or z3:mk-or ctx)
-             (builtin-curried + z3:mk-add ctx)
-             (builtin-curried * z3:mk-mul ctx)
-             (builtin-curried - z3:mk-sub ctx)
-             ; These don't
-             (builtin-curried / z3:mk-div ctx lassoc)
-             (builtin-curried div z3:mk-div ctx lassoc)
-             (builtin-curried mod z3:mk-mod ctx lassoc)
-             (builtin-curried rem z3:mk-rem ctx lassoc)
-             ; XXX Comparisons are chainable (i.e. (< a b c) == (and (< a b) (< b c)))
-             (builtin-curried < z3:mk-lt ctx)
-             (builtin-curried <= z3:mk-le ctx)
-             (builtin-curried > z3:mk-gt ctx)
-             (builtin-curried >= z3:mk-ge ctx)
-             ;; Array operations
-             (builtin-curried select z3:mk-select ctx)
-             (builtin-curried store z3:mk-store ctx)))
-  (z3-context-info ctx ns sorts (box #f)))
+  (define new-info (z3-context-info ctx ns sorts (box #f)))
+  (with-context
+   new-info
+   ;; Sorts go into a separate table
+   (for ([sort
+          (in-list
+           (list
+            (builtin Bool z3:mk-bool-sort)
+            (builtin Int z3:mk-int-sort)
+            (builtin-curried BitVec z3:mk-bv-sort)
+            ;; The base sort for lists is irrelevant
+            (list 'List (make-complex-sort #f make-list-sort ns '(nil is-nil cons is-cons head tail)))
+            (builtin-curried Array z3:mk-array-sort)))])
+     (new-sort (first sort) (second sort)))
+   (for ([val
+          (in-list
+           (list
+            (builtin true z3:mk-true)
+            (builtin false z3:mk-false)
+            (builtin-curried = z3:mk-eq)
+            (builtin-curried distinct z3:mk-distinct)
+            (builtin-curried not z3:mk-not)
+            (builtin-curried ite z3:mk-ite)
+            (builtin-curried iff z3:mk-iff)
+            (builtin-curried implies z3:mk-implies rassoc)
+            (builtin-curried xor z3:mk-xor lassoc)
+            ;; These functions already accept an arbitrary number of arguments
+            (builtin-curried and z3:mk-and)
+            (builtin-curried or z3:mk-or)
+            (builtin-curried + z3:mk-add)
+            (builtin-curried * z3:mk-mul)
+            (builtin-curried - z3:mk-sub)
+            ;; These don't
+            (builtin-curried / z3:mk-div lassoc)
+            (builtin-curried div z3:mk-div lassoc)
+            (builtin-curried mod z3:mk-mod lassoc)
+            (builtin-curried rem z3:mk-rem lassoc)
+            ;; XXX Comparisons are chainable (i.e. (< a b c) == (and (< a b) (< b c)))
+            (builtin-curried < z3:mk-lt)
+            (builtin-curried <= z3:mk-le)
+            (builtin-curried > z3:mk-gt)
+            (builtin-curried >= z3:mk-ge)
+            ;; Array operations
+            (builtin-curried select z3:mk-select)
+            (builtin-curried store z3:mk-store)))])
+     (set-value (first val) (second val))))
+  new-info)
 
 (define-syntax-rule (with-context info body ...)
   (parameterize ([current-context-info info])

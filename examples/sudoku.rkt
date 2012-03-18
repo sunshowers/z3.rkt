@@ -14,7 +14,7 @@
 (define (add-sudoku-grid-rules)
   (for ([n (in-range 0 81 9)]) (row-distinct n))
   (for ([n (in-range 0 9)]) (column-distinct n))
-  (for ([n '(0 3 6 27 30 33 54 57 60)]) (box-distinct n)))
+  (for ([n (in-list '(0 3 6 27 30 33 54 57 60))]) (box-distinct n)))
 
 (define (char->sudoku c) (string->symbol (list->string (list #\S c))))
 
