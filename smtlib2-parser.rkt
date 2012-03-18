@@ -5,30 +5,30 @@
 
 ; This must be parameterized every time any syntax is used
 (define current-context-info (make-parameter #f))
-(define (ctx) (z3-context-info-context (current-context-info)))
+(define (ctx) (z3ctx-context (current-context-info)))
 
 (define (get-value id)
-  (namespace-variable-value id #t #f (z3-context-info-namespace (current-context-info))))
+  (namespace-variable-value id #t #f (z3ctx-namespace (current-context-info))))
 (define (set-value id v)
-  (namespace-set-variable-value! id v #t (z3-context-info-namespace (current-context-info))))
+  (namespace-set-variable-value! id v #t (z3ctx-namespace (current-context-info))))
 
 ;; A symbol table for sorts
 (define (get-sort id)
-  (hash-ref (z3-context-info-sort-table (current-context-info)) id))
+  (hash-ref (z3ctx-sort-table (current-context-info)) id))
 (define (new-sort id v)
-  (define sort-table (z3-context-info-sort-table (current-context-info)))
+  (define sort-table (z3ctx-sort-table (current-context-info)))
   (if (not (hash-ref sort-table id #f))
       (hash-set! sort-table id v)
       (raise (make-exn:fail "Defining a pre-existing sort!"))))
 
 ;; The current model for this context. This is a mutable box.
 (define (get-current-model)
-  (define model (unbox (z3-context-info-current-model (current-context-info))))
+  (define model (unbox (z3ctx-current-model (current-context-info))))
   (if (eq? model #f)
       (raise (make-exn:fail "No model found"))
       model))
 (define (set-current-model! new-model)
-  (set-box! (z3-context-info-current-model (current-context-info)) new-model))
+  (set-box! (z3ctx-current-model (current-context-info)) new-model))
 
 ;; Lists are a builtin complex sort. z3:mk-list-sort already returns a
 ;; datatype-instance.
@@ -55,7 +55,7 @@
      hook-ids)
     res))
 
-(struct z3-context-info (context namespace sort-table current-model))
+(struct z3ctx (context namespace sort-table current-model))
 
 ;; Wraps a binary function so that arguments are processed
 ;; in a right-associative manner.
@@ -101,7 +101,7 @@
   (define ctx (z3:mk-context (make-config #:model? model?)))
   (define ns (make-empty-namespace))
   (define sorts (make-hash))
-  (define new-info (z3-context-info ctx ns sorts (box #f)))
+  (define new-info (z3ctx ctx ns sorts (box #f)))
   (with-context
    new-info
    ;; Sorts go into a separate table
