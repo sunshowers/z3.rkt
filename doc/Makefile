@@ -1,5 +1,11 @@
 
 all: tfp.pdf
 
+export TEXINPUTS=.:llncs/:
+export BSTINPUTS=.:llncs/:
+
 tfp.pdf: $(wildcard *.tex)
-	TEXINPUTS=.:llncs/:$$TEXINPUTS pdflatex tfp.tex
+	pdflatex tfp
+	bibtex tfp
+	pdflatex tfp
+	pdflatex tfp

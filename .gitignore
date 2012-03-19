@@ -6,6 +6,8 @@
 *.snm
 *.toc
 *.nav
+*.bbl
+*.blg
 z3/*
 compiled/*
 *.pdf
