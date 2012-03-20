@@ -145,7 +145,10 @@
             (builtin-curried >= z3:mk-ge)
             ;; Array operations
             (builtin-curried select z3:mk-select)
-            (builtin-curried store z3:mk-store)))])
+            (builtin-curried store z3:mk-store)
+            ;; eval works inside expressions too, and doesn't result in
+            ;; conversion to a printable form
+            (list 'eval get-evaluated-ast)))])
      (set-value (first val) (second val))))
   new-info)
 
@@ -189,7 +192,7 @@
 
 ;; Given an expr, convert it to a Z3 AST. This is a really simple recursive descent parser.
 (define (expr->_z3-ast expr)
-  ;(displayln (format "IN: ~a" expr))
+  (displayln (format "IN: ~a" expr))
   (define ast (match expr
     ; Non-basic expressions
     [(list fn args ...) (apply (get-value fn) (map expr->_z3-ast args))]
@@ -198,7 +201,7 @@
     [(? inexact-real?) (z3:mk-numeral (ctx) (number->string expr) (get-sort 'Real))]
     ; Anything else should be in the namespace
     [id (get-value id)]))
-  ;(displayln (format "Output: ~a ~a ~a" expr ast (z3:ast-to-string (ctx) ast)))
+  (displayln (format "Output: ~a ~a ~a" expr ast (z3:ast-to-string (ctx) ast)))
   ast)
 
 ;; Given a Z3 AST, convert it to an expression that can be parsed again into an AST,
@@ -251,18 +254,22 @@
 (define (get-model)
   (get-current-model))
 
-(define (eval-in-model model expr)
-  (define-values (rv ast) (z3:eval (ctx) model (expr->_z3-ast expr)))
+;;; Given an AST and an optional model (evaluated to the last-retrieved model
+;;; by default), retrieves the evaluated AST. See below for a function that
+;;; also converts the AST into an expression.
+(define (get-evaluated-ast ast [model (get-current-model)])
+  (printf "~a ~a ~n" ast model)
+  (define-values (rv result-ast) (z3:eval (ctx) model ast))
   (if (eq? rv #f)
       (raise (make-exn:fail "Evaluation failed"))
-      (_z3-ast->expr ast)))
+      result-ast))
 
 (define-syntax smt:eval
   (syntax-rules ()
-    [(_ model expr-stx)
-     (eval-in-model model `expr-stx)]
+    [(_ expr-stx model)
+     (_z3-ast->expr (get-evaluated-ast (expr->_z3-ast `expr-stx) model))]
     [(_ expr-stx)
-     (eval-in-model (get-current-model) `expr-stx)]))
+     (_z3-ast->expr (get-evaluated-ast (expr->_z3-ast `expr-stx)))]))
 
 ;; XXX need to implement a function to get all models. To do that we need
 ;; push, pop, and a way to navigate a model.

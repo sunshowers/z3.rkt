@@ -6,24 +6,28 @@
 (define (integer->queen n)
   (string->symbol (string-append "Q" (number->string n))))
 
+(define (queens-distinct args)
+  (smt:assert (distinct ,@(map (λ (arg) `(select queens ,arg)) args))))
+
 (define (solve-nqueens n)
   (define queen-syms (sequence->list (sequence-map integer->queen (in-range 0 n))))
   (smt:with-context
    (smt:new-context-info)
-   (for ([qi queen-syms])
-     (smt:declare-fun ,qi () Int)
-     (smt:assert (and (>= ,qi 0) (< ,qi ,n)))) ; columns are within bounds
-   (smt:assert (distinct ,@queen-syms)) ; all columns distinct
+   (smt:declare-fun queens () (Array Int Int))
+   (for ([i (in-range 0 n)])
+     (smt:assert (and (>= (select queens ,i) 0) (< (select queens ,i) ,n)))) ; columns are within bounds
+   (queens-distinct (sequence->list (in-range 0 n))) ; all columns distinct
    ;; no two queens on the same diagonal
-   (for* ([(qi i) (in-indexed queen-syms)]
-          [(qj j) (in-indexed (stop-before queen-syms ((curry eq?) qi)))])
-     (smt:assert (and (distinct (- ,qi ,qj) ,(- i j)) (distinct (- ,qi ,qj) ,(- j i)))))
+   (for* ([i (in-range 0 n)]
+          [j (in-range 0 i)])
+     (smt:assert (and (distinct (- (select queens ,i) (select queens ,j) ,(- i j)))
+                      (distinct (- (select queens ,i) (select queens ,j) ,(- j i))))))
    (define seq
      (generator ()
        (let loop ()
          (yield (eq? (smt:check-sat) 'sat))
          ;; Get a new model by blocking out the current one
-         (smt:assert (not (and ,@(map (λ (qi) `(= ,qi ,(smt:eval ,qi))) queen-syms))))
+         (smt:assert (distinct queens (eval queens)))
          (loop))))
    (sequence-length (in-producer seq #f))))
 
