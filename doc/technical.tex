@@ -23,7 +23,8 @@ that checks whether a contradiction is satisfiable.
 (check-sat)
 \end{verbatim}
 
-\texttt{z3.rkt} retains the structure and brevity of the SMT-LIB program.
+\texttt{z3.rkt} retains the structure and brevity of the SMT-LIB program, which
+means that translating existing SMT-LIB programs to it is simple.
 
 \begin{verbatim}
 (smt:with-context
@@ -55,17 +56,15 @@ return Z3_check(ctx);
 
 The true power of the system, however, is in the integration it makes possible
 with Racket code. Programs using an SMT solver often need to dynamically add or
-change assertions depending on the model the SMT solver generates. The
-recreational game of Sudoku is a good example: a Sudoku solver needs to check if
-a particular grid has multiple solutions. The straightforward way to do that is
-to first ask the SMT solver for a solution (model), then add assertions negating
-the generated solution and ask if the solver can come up with another
-model. With a standard SMT-LIB program, there's no way to do that short of
-generating a brand new program containing the negation of the first solution,
-then asking the solver to solve the problem all over again. This gets wasteful
-as the process is iterated further, say to get all possible solution grids for a
-particular Sudoku grid. With the present system, however, we can simply evaluate
-the model and add assertions on the fly by calling the respective C functions.
+change assertions depending on the model the SMT solver generates. Some problems
+may require getting all possible models for a set of constraints. The
+straightforward way to do that is to keep asking the SMT solver for a model and
+then adding assertions negating the generated model, until the solver fails to
+generate another model. With a standard SMT-LIB program, there's no way to do
+that short of asking Z3 to solve successively generated brand-new programs
+containing the negation of all models seen so far. With the present system,
+however, we can simply evaluate the model and add assertions on the fly by
+calling the respective C functions.
 
 Thus the SMT-LIB v2 interface is concise but not interactive, while the C
 interface is the opposite. \texttt{z3.rkt} is the best of both worlds: you get
