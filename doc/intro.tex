@@ -20,10 +20,47 @@ applications.
 
 \subsection{Why z3.rkt? A Motivating Example}
 
-SMT solvers are powerful tools and can solve a wide variety of problems using
-efficient heuristics, yet they're only used by a small number of experts. It
-isn't hard to see why: the usual way for programs to interact with SMT solvers
-like Z3~\cite{z3}, Yices~\cite{yices} and CVC3~\cite{cvc3} is via relatively
-arcane C APIs. For example, here's a C program that 
+SMT solvers are powerful tools that can make and can solve a wide variety of
+problems using efficient heuristics, yet they're only used by a small number of
+experts. It isn't hard to see why: the usual way for programs to interact with
+SMT solvers like Z3~\cite{z3}, Yices~\cite{yices} and CVC3~\cite{cvc3} is via
+powerful but relatively arcane C APIs. For example, here's a C program that asks
+Z3 whether the simple proposition $p \wedge \neg p$ is satisfiable.
+
+\begin{verbatim}
+Z3_config cfg = Z3_mk_config();
+Z3_context ctx = Z3_mk_context(cfg);
+Z3_del_config();
+Z3_sort bool_sort = Z3_mk_bool_sort(ctx);
+
+Z3_symbol symbol_p = Z3_mk_int_symbol(ctx, 0);
+
+Z3_ast p = Z3_mk_const(ctx, symbol_p, bool_sort);
+Z3_ast not_p = Z3_mk_not(ctx, p);
+
+Z3_ast args[2] = {p, not_p};
+Z3_ast conjecture = Z3_mk_or(ctx, 2, args);
+
+Z3_assert_cnstr(ctx, conjecture);
+return Z3_check(ctx);
+\end{verbatim}
+
+Simultaneously, most SMT solvers also feature interaction via the standard input
+language SMT-LIB \cite{smtlib2:10}. SMT-LIB is \textit{significantly} easier to
+use in isolation. An SMT-LIB program that does the same as the C program above
+would look something like
+
+\begin{verbatim}
+(declare-fun p () Bool)
+(assert (and p (not p)))
+(check-sat)
+\end{verbatim}
+
+However, the SMT-LIB interfaces are generally hard to use from C programs and
+often not as full-featured\footnote{Z3, for instance, supports plugging in
+  external theories via the C API, but not via the SMT-LIB interface.} or
+extensible. Importantly, it is difficult to write programs that
+\textit{interact} dynamically with the solver in some way, for instance by
+adding assertions based on generated models.
 
 \subsection{Organization}

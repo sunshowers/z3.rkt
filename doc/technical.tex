@@ -36,24 +36,6 @@ means that translating existing SMT-LIB programs to it is simple.
 
 On the other hand, the same program becomes significantly more verbose in C.
 
-\begin{verbatim}
-Z3_config cfg = Z3_mk_config();
-Z3_context ctx = Z3_mk_context(cfg);
-Z3_del_config();
-Z3_sort bool_sort = Z3_mk_bool_sort(ctx);
-
-Z3_symbol symbol_p = Z3_mk_int_symbol(ctx, 0);
-
-Z3_ast p = Z3_mk_const(ctx, symbol_p, bool_sort);
-Z3_ast not_p = Z3_mk_not(ctx, p);
-
-Z3_ast args[2] = {p, not_p};
-Z3_ast conjecture = Z3_mk_or(ctx, 2, args);
-
-Z3_assert_cnstr(ctx, conjecture);
-return Z3_check(ctx);
-\end{verbatim}
-
 The true power of the system, however, is in the integration it makes possible
 with Racket code. Programs using an SMT solver often need to dynamically add or
 change assertions depending on the model the SMT solver generates. Some problems
