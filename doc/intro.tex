@@ -20,17 +20,22 @@ applications.
 
 \subsection{Why z3.rkt? A Motivating Example}
 
-SMT solvers are powerful tools that can make and can solve a wide variety of
-problems using efficient heuristics, yet they're only used by a small number of
-experts. It isn't hard to see why: the usual way for programs to interact with
-SMT solvers like Z3~\cite{z3}, Yices~\cite{yices} and CVC3~\cite{cvc3} is via
-powerful but relatively arcane C APIs. For example, here's a C program that asks
-Z3 whether the simple proposition $p \wedge \neg p$ is satisfiable.
+SMT solvers today are powerful tools that can make and can solve a wide variety
+of problems using efficient heuristics. Problems they can solve range from
+simple puzzles like Sudoku and n-queens to program analysis~\cite{Gulwani:08},
+whitebox fuzz testing~\cite{Godefroid:08} and bounded model
+checking~\cite{Armando:09}.
+
+Yet, SMT solvers are only used by a small number of experts. It isn't hard to
+see why: the standard way for programs to interact with SMT solvers like
+Z3~\cite{z3}, Yices~\cite{yices} and CVC3~\cite{cvc3} is via powerful but
+relatively arcane C APIs. For example, here's a C program that asks Z3 whether
+the simple proposition $p \wedge \neg p$ is satisfiable.
 
 \begin{verbatim}
 Z3_config cfg = Z3_mk_config();
 Z3_context ctx = Z3_mk_context(cfg);
-Z3_del_config();
+Z3_del_config(cfg);
 Z3_sort bool_sort = Z3_mk_bool_sort(ctx);
 
 Z3_symbol symbol_p = Z3_mk_int_symbol(ctx, 0);
@@ -39,16 +44,19 @@ Z3_ast p = Z3_mk_const(ctx, symbol_p, bool_sort);
 Z3_ast not_p = Z3_mk_not(ctx, p);
 
 Z3_ast args[2] = {p, not_p};
-Z3_ast conjecture = Z3_mk_or(ctx, 2, args);
+Z3_ast conjecture = Z3_mk_and(ctx, 2, args);
 
 Z3_assert_cnstr(ctx, conjecture);
-return Z3_check(ctx);
+
+Z3_lbool sat = Z3_check(ctx);
+
+Z3_del_context(ctx);
+return sat;
 \end{verbatim}
 
 Simultaneously, most SMT solvers also feature interaction via the standard input
-language SMT-LIB \cite{smtlib2:10}. SMT-LIB is \textit{significantly} easier to
-use in isolation. An SMT-LIB program that does the same as the C program above
-would look something like
+language SMT-LIB~\cite{smtlib2:10}. SMT-LIB is \textit{significantly} easier to
+use in isolation. The same program as above in SMT-LIB would look something like
 
 \begin{verbatim}
 (declare-fun p () Bool)
@@ -56,11 +64,36 @@ would look something like
 (check-sat)
 \end{verbatim}
 
-However, the SMT-LIB interfaces are generally hard to use from C programs and
-often not as full-featured\footnote{Z3, for instance, supports plugging in
-  external theories via the C API, but not via the SMT-LIB interface.} or
-extensible. Importantly, it is difficult to write programs that
-\textit{interact} dynamically with the solver in some way, for instance by
-adding assertions based on generated models.
+However, the SMT-LIB interfaces are generally hard to use directly from C
+programs and often not as full-featured\footnote{Z3, for instance, supports
+  plugging in external theories via the C API, but not via the textual SMT-LIB
+  interface.}  or extensible. Importantly, it is difficult to write programs
+that \textit{interact} dynamically with the solver in some way, for example by
+adding assertions based on generated models, and therefore it is often difficult
+to build new abstractions on top.
+
+Faced with these difficulties, we decided to reimplement SMT-LIB in a way that
+allowed for the same power as the C version while appearing naturally integrated
+into the language. Since SMT-LIB is s-expression-based, a Lisp seemed like a
+natural choice for an implementation. Our implementation is in
+Racket~\cite{racket}, a descendant of Scheme, because of its extensive
+facilities for implementing new languages~\cite{Tobin-Hochstadt:11}, not just
+for the interface to the solver, but also for the resulting program analysis
+tools that the solver would make possible.
+
+Using the present system, the program above becomes almost as brief as the
+SMT-LIB version.
+
+\begin{verbatim}
+(smt:with-context
+ (smt:new-context-info)
+ (smt:declare-fun p () Bool)
+ (smt:assert (and p (not p)))
+ (smt:check-sat))
+\end{verbatim}
+
+\subsection{Sudoku}
+
+
 
 \subsection{Organization}
