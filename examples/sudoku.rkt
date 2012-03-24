@@ -36,8 +36,8 @@
    (add-grid grid)
    (define sat (smt:check-sat))
    (if (eq? sat 'sat)
-       (map (λ (x) (sudoku->char (smt:eval (select sudoku-grid ,x))))
-            (sequence->list (in-range 0 81))) ; Retrieve all the values
+       (for/list ([x (in-range 0 81)]) ; Retrieve all the values
+         (sudoku->char (smt:eval (select sudoku-grid ,x))))
        #f)))
 
 (define (solve-sudoku/string str)

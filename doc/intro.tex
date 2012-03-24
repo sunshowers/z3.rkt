@@ -81,8 +81,8 @@ facilities for implementing new languages~\cite{Tobin-Hochstadt:11}, not just
 for the interface to the solver, but also for the resulting program analysis
 tools that the solver would make possible.
 
-Using the present system, the program above becomes almost as brief as the
-SMT-LIB version.
+Using this system, the program above becomes almost as brief as the SMT-LIB
+version.
 
 \begin{verbatim}
 (smt:with-context
@@ -94,6 +94,40 @@ SMT-LIB version.
 
 \subsection{Sudoku}
 
+We now turn our attention to a problem that demonstrates how this interactivity
+is useful. A Sudoku puzzle asks the player to complete a partially pre-filled
+9$\times$9 grid with the numbers 1 through 9 in such a way that no row, column,
+or 3$\times$3 box has two instances of a number. This is a classic constraint
+satisfaction problem that any constraint solver can handle with ease.
 
+A Racket program using \texttt{z3.rkt} to solve Sudoku would look something like
+
+\begin{verbatim}
+(define (solve-sudoku grid)
+  (smt:with-context
+   (smt:new-context-info)
+   ;; Declare a scalar datatype (finite domain type) with 9 entries
+   (smt:declare-datatypes () ((Sudoku S1 S2 S3 S4 S5 S6 S7 S8 S9)))
+   ;; Represent the grid as an array from integers to the Sudoku type.
+   (smt:declare-fun sudoku-grid () (Array Int Sudoku))
+   ;; Assert the standard grid rules (row, column, box)
+   (add-sudoku-grid-rules)
+   ;; Add pre-filled entries
+   (add-grid grid)
+   (define sat (smt:check-sat))
+   ;; 'sat means we found a solution, 'unsat means we didn't
+   (if (eq? sat 'sat)
+       ;; Retrieve all the values and return them in a list
+       (for/list ([x (in-range 0 81)])
+         (smt:eval (select sudoku-grid ,x)))
+       #f)))
+\end{verbatim}
+
+Here \texttt{add-sudoku-grid-rules} asserts the standard Sudoku grid rules, and
+\texttt{add-grid} reads the grid in a particular format and creates assertions
+based on the grid. We note that the SMT-LIB function \texttt{(select arr x)}
+retrieves the value at \texttt{x} from the array \texttt{arr}, and that this can
+be used to add constraints on the array (for instance, \texttt{(assert (=
+  (select arr x) y))}).
 
 \subsection{Organization}
