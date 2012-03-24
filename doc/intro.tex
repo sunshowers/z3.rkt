@@ -96,9 +96,9 @@ version.
 
 We now turn our attention to a problem that demonstrates how this interactivity
 is useful. A Sudoku puzzle asks the player to complete a partially pre-filled
-9$\times$9 grid with the numbers 1 through 9 in such a way that no row, column,
-or 3$\times$3 box has two instances of a number. This is a classic constraint
-satisfaction problem that any constraint solver can handle with ease.
+9$\times$9 grid with the numbers 1 through 9 such that no row, column, or
+3$\times$3 box has two instances of a number. This is a classic constraint
+satisfaction problem, and any constraint solver can handle it with ease.
 
 A Racket program using \texttt{z3.rkt} to solve Sudoku would look something like
 
@@ -117,17 +117,27 @@ A Racket program using \texttt{z3.rkt} to solve Sudoku would look something like
    (define sat (smt:check-sat))
    ;; 'sat means we found a solution, 'unsat means we didn't
    (if (eq? sat 'sat)
-       ;; Retrieve all the values and return them in a list
+       ;; Retrieve the values from the model
        (for/list ([x (in-range 0 81)])
          (smt:eval (select sudoku-grid ,x)))
        #f)))
 \end{verbatim}
 
-Here \texttt{add-sudoku-grid-rules} asserts the standard Sudoku grid rules, and
-\texttt{add-grid} reads the grid in a particular format and creates assertions
-based on the grid. We note that the SMT-LIB function \texttt{(select arr x)}
-retrieves the value at \texttt{x} from the array \texttt{arr}, and that this can
-be used to add constraints on the array (for instance, \texttt{(assert (=
-  (select arr x) y))}).
+Here we omit a couple of function definitions: \texttt{add-sudoku-grid-rules}
+asserts the standard Sudoku grid rules, and \texttt{add-grid} reads the grid in
+a particular format and creates assertions based on the grid. We note that the
+SMT-LIB function \texttt{(select arr x)} retrieves the value at \texttt{x} from
+the array \texttt{arr}, and that this can be used to add constraints on the
+array (for instance, \texttt{(assert (= (select arr x) y))}).
+
+However, simply finding a solution isn't enough for a Sudoku solver: it must
+also verify that there aren't any other solutions. The usual way to do that for
+a constraint solver is by retrieving a generated model, adding assertions such
+that this model cannot be generated, and then asking the solver whether all the
+assertions are still satisfiable. If they are, a second solution exists and the
+puzzle is considered invalid.
+
+This is where the interactivity offered by \texttt{z3.rkt} becomes useful. It
+allows the programmer to add entries on the fly
 
 \subsection{Organization}

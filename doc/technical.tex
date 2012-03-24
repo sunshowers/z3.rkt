@@ -17,22 +17,12 @@ the complexities of the C wrapper and stay as close to the SMT-LIB v2 standard
 start using the system quickly. For instance, here is a simple SMT-LIB program
 that checks whether a contradiction is satisfiable.
 
-\begin{verbatim}
-(declare-fun p () Bool)
-(assert (and p (not p)))
-(check-sat)
-\end{verbatim}
+
 
 \texttt{z3.rkt} retains the structure and brevity of the SMT-LIB program, which
 means that translating existing SMT-LIB programs to it is simple.
 
-\begin{verbatim}
-(smt:with-context
- (smt:new-context-info)
- (smt:declare-fun p () Bool)
- (smt:assert (and p (not p)))
- (smt:check-sat))
-\end{verbatim}
+
 
 On the other hand, the same program becomes significantly more verbose in C.
 
