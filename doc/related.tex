@@ -1,1 +1,26 @@
 \section{Related Work}
+Integration with SMT solvers is desirable for any programming
+language. It enables programmers in that language to use the
+power of SMT solvers to solve logical constraints arising in
+a program, and use the solutions obtained in the rest of the
+program. The alternative would be to hand code the solution
+process in the program itself, which is time consuming and
+inefficient for complex constraints. Thus, it is not
+surprising that several such projects exist, most of them
+available freely on the world wide web. These project differ
+mainly in the host language, the format of the interface, and
+the constructs they support.  We give details of some of
+the implementations that use some functional language as the
+host language and compare our approach with these
+implementations.  
+
+The integration of Scala with Z3~\cite{scalaz3} is one of the
+most complete implementation. It provides support for adding
+new theories and procedural abstraction that gives more
+expressiveness to the system. It takes advantage of Scala's
+type system to deal with type related errors at compile time.
+The system is used in solving several challenging problems
+within and outside the group that developed it. The main
+disadvantage of this system is that the syntax is far from
+SMT-LIB format, and is almost as verbose as the C APIs.
+
