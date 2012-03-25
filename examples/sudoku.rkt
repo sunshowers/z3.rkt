@@ -36,8 +36,17 @@
    (add-grid grid)
    (define sat (smt:check-sat))
    (if (eq? sat 'sat)
-       (for/list ([x (in-range 0 81)]) ; Retrieve all the values
-         (sudoku->char (smt:eval (select sudoku-grid ,x))))
+       ;; Make sure no other solution exists
+       (let ([result-grid
+         (for/list ([x (in-range 0 81)])
+           (smt:eval (select sudoku-grid ,x)))])
+         (smt:assert
+          (not (and
+                ,@(for/list ([(x i) (in-indexed result-grid)])
+                    `(= (select sudoku-grid ,i) ,x)))))
+         (if (eq? (smt:check-sat) 'sat)
+             #f ; Multiple solutions
+             (map sudoku->char result-grid)))
        #f)))
 
 (define (solve-sudoku/string str)

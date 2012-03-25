@@ -21,10 +21,10 @@ applications.
 \subsection{Why z3.rkt? A Motivating Example}
 
 SMT solvers today are powerful tools that can make and can solve a wide variety
-of problems using efficient heuristics. Problems they can solve range from
-simple puzzles like Sudoku and n-queens to program analysis~\cite{Gulwani:08},
-whitebox fuzz testing~\cite{Godefroid:08} and bounded model
-checking~\cite{Armando:09}.
+of problems using efficient heuristics. Problems they can attack range from
+simple puzzles like Sudoku and n-queens, to planning and scheduling, program
+analysis~\cite{Gulwani:08}, whitebox fuzz testing~\cite{Godefroid:08} and
+bounded model checking~\cite{Armando:09}.
 
 Yet, SMT solvers are only used by a small number of experts. It isn't hard to
 see why: the standard way for programs to interact with SMT solvers like
@@ -130,14 +130,34 @@ SMT-LIB function \texttt{(select arr x)} retrieves the value at \texttt{x} from
 the array \texttt{arr}, and that this can be used to add constraints on the
 array (for instance, \texttt{(assert (= (select arr x) y))}).
 
-However, simply finding a solution isn't enough for a Sudoku solver: it must
-also verify that there aren't any other solutions. The usual way to do that for
-a constraint solver is by retrieving a generated model, adding assertions such
-that this model cannot be generated, and then asking the solver whether all the
-assertions are still satisfiable. If they are, a second solution exists and the
-puzzle is considered invalid.
+However, simply finding a solution isn't enough for a good Sudoku solver: it
+must also verify that there aren't any other solutions. The usual way to do that
+for a constraint solver is by retrieving a generated model, adding assertions
+such that this model cannot be generated, and then asking the solver whether the
+system of assertions is still satisfiable. If they are, a second solution
+exists and the puzzle is considered invalid.
 
-This is where the interactivity offered by \texttt{z3.rkt} becomes useful. It
-allows the programmer to add entries on the fly
+This is where the interactivity offered by \texttt{z3.rkt} becomes useful, since
+it lets the programmer add assertions on the fly. The last part of the program
+then becomes
+
+\begin{verbatim}
+   ...
+   (if (eq? sat 'sat)
+       ;; Make sure no other solution exists
+       (let ([result-grid
+         (for/list ([x (in-range 0 81)])
+           (smt:eval (select sudoku-grid ,x)))])
+         (smt:assert
+          (not (and
+                ,@(for/list ([(x i) (in-indexed result-grid)])
+                    `(= (select sudoku-grid ,i) ,x)))))
+         (if (eq? (smt:check-sat) 'sat)
+             #f ; Multiple solutions
+             result-grid))
+       #f)))
+\end{verbatim}
+
+
 
 \subsection{Organization}
