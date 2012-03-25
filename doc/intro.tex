@@ -72,11 +72,11 @@ to build new abstractions on top.
 Faced with these difficulties, we decided to re-implement SMT-LIB in a way that
 allowed for the same power as the C version while appearing naturally integrated
 into the language. Since SMT-LIB is s-expression-based, a Lisp seemed like a
-natural choice for an implementation. Our implementation is in
-Racket~\cite{racket}, a descendant of Scheme, because of its extensive
-facilities for implementing new languages~\cite{Tobin-Hochstadt:11}, not just
-for the interface to the solver, but also for the resulting program analysis
-tools that the solver would make possible.
+natural choice for an implementation. We chose Racket~\cite{racket} for our
+implementation, \texttt{z3.rkt}, because of its extensive facilities for
+implementing new languages~\cite{Tobin-Hochstadt:11}, not just for the interface
+to the solver, but also for the resulting program analysis tools that the solver
+would make possible.
 
 Using this system, the program above becomes almost as brief as the SMT-LIB
 version.
@@ -91,11 +91,12 @@ version.
 
 \subsection{Interactive SMT}
 
-We now turn our attention to a problem that demonstrates how this interactivity
-is useful. A Sudoku puzzle asks the player to complete a partially pre-filled
-9$\times$9 grid with the numbers 1 through 9 such that no row, column, or
-3$\times$3 box has two instances of a number. This is a classic constraint
-satisfaction problem, and any constraint solver can handle it with ease.
+We now turn our attention to a problem that demonstrates how interactivity with
+an SMT solver is useful. A Sudoku puzzle asks the player to complete a partially
+pre-filled 9$\times$9 grid with the numbers 1 through 9 such that no row,
+column, or 3$\times$3 box has two instances of a number. This is a classic
+constraint satisfaction problem, and any constraint solver can handle it with
+ease.
 
 A Racket program using \texttt{z3.rkt} to solve Sudoku would look something like
 
