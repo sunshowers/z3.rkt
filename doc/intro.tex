@@ -30,8 +30,9 @@ bounded model checking~\cite{Armando:09}.
 Yet, SMT solvers are only used by a small number of experts. It isn't hard to
 see why: the standard way for programs to interact with SMT solvers like
 Z3~\cite{z3}, Yices~\cite{yices} and CVC3~\cite{cvc3} is via powerful but
-relatively arcane C APIs. For example, here's a C program that asks Z3 whether
-the simple proposition $p \wedge \neg p$ is satisfiable.
+relatively arcane C APIs that require the users to know the particular solver's
+internals. For example, here's a C program that asks Z3 whether the simple
+proposition $p \wedge \neg p$ is satisfiable.
 
 \begin{verbatim}
 Z3_config cfg = Z3_mk_config();

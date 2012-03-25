@@ -11,34 +11,7 @@ wrapper. While it is possible to use the Z3 wrapper directly, we highly
 recommend using the programmer interface instead.
 
 \textbf{The programmer interface.} This is a small set of Racket macros and
-functions layered on top of the Z3 wrapper. The aim of the interface is to hide
-the complexities of the C wrapper and stay as close to the SMT-LIB v2 standard
-\cite{smtlib2:10} as possible, so that newcomers familiar with the standard can
-start using the system quickly. For instance, here is a simple SMT-LIB program
-that checks whether a contradiction is satisfiable.
-
-
-
-\texttt{z3.rkt} retains the structure and brevity of the SMT-LIB program, which
-means that translating existing SMT-LIB programs to it is simple.
-
-
-
-On the other hand, the same program becomes significantly more verbose in C.
-
-The true power of the system, however, is in the integration it makes possible
-with Racket code. Programs using an SMT solver often need to dynamically add or
-change assertions depending on the model the SMT solver generates. Some problems
-may require getting all possible models for a set of constraints. The
-straightforward way to do that is to keep asking the SMT solver for a model and
-then adding assertions negating the generated model, until the solver fails to
-generate another model. With a standard SMT-LIB program, there's no way to do
-that short of asking Z3 to solve successively generated brand-new programs
-containing the negation of all models seen so far. With the present system,
-however, we can simply evaluate the model and add assertions on the fly by
-calling the respective C functions.
-
-Thus the SMT-LIB v2 interface is concise but not interactive, while the C
-interface is the opposite. \texttt{z3.rkt} is the best of both worlds: you get
-the full power of the C interface combined with the ease of use of the SMT-LIB
-v2 interface.
+functions layered on top of the Z3 wrapper. As noted in Section~\ref{sec:motiv},
+the aim of the interface is to hide the complexities of the C wrapper and stay
+as close to the SMT-LIB v2 standard \cite{smtlib2:10} as possible, while
+extending it in useful ways.
