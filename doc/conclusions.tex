@@ -9,7 +9,7 @@ seamless and fully transparent.
 
 Our implementation is open source and freely available at
 \begin{center}
-\url{http://www.cse.iitk.ac.in/users/karkare/code/z3.html}
+\url{http://www.cse.iitk.ac.in/users/karkare/code/z3/}
 \end{center}
 
 \texttt{z3.rkt} is still a work in progress, and in the near term we plan to
@@ -22,6 +22,12 @@ achieve the following:
 \item Work on model checking and debugging functional programs
 \item Possible integration with other SMT solvers
 \end{itemize}
+
+The current interface requires expression-based manipulations like
+\texttt{unquote} for programmatic use. We wish to experiment with moving Racket
+and Z3 bindings into the same namespace, cleaning the syntax up further and
+allowing higher-order functions like \texttt{map} and \texttt{apply} to be used
+instead.
 
 In the long term, we hope the community will find this system useful and
 contribute to the project to solve large practical problems.

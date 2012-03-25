@@ -1,7 +1,7 @@
 \section{Related Work}
 Integration with SMT solvers is desirable for any programming
-language. It enables programmers in that language to use the
-power of SMT solvers to solve logical constraints arising in
+language. It enables programmers in that language to use their power
+to solve logical constraints arising in
 a program, and use the solutions obtained in the rest of the
 program. The alternative would be to hand-code a solution
 using backtracking or other methods, which is time-consuming and
@@ -33,8 +33,7 @@ Symbolic Bit Vectors (SBV)~\cite{sbv} is a Haskell package that can
 be used to prove properties about
 bit-precise Haskell programs. Given a constraint in a Haskell
 program, SBV generates SMT-LIB code that can be run against
-either Yices or Z3.  The major limitation of SBV is that it
-works only for bitvector formulas.
+either Yices or Z3.  However, it only works for bitvector formulas.
 
 Yices-Painless~\cite{yices-painless} integrates Haskell with Yices
 via its C API. This project
