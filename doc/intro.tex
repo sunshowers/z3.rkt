@@ -1,31 +1,24 @@
 \begin{abstract}
- We present a system that integrates Z3 SMT solver with
- Racket programming language. The system defines a programmer's
- interface in Racket that makes it easy to harness the power
- of Z3 to discover solutions to logical constraints. The
- interface format, although in Racket, retains the structure
- and brevity of SMT-LIB format, thereby making it trivial to
- translate SMT-LIB programs to it. The integration of Z3
- with Racket is useful for many applications like debugging,
- program verification, and automatic test generation. We
- provide some examples of the proposed usages.
+ We present a work-in-progess system that integrates the Z3 SMT solver with
+ Racket programming language. The system defines a programmer's interface in
+ Racket that makes it easy to harness the power of Z3 to discover solutions to
+ logical constraints. The interface format, although in Racket, retains the
+ structure and brevity of the SMT-LIB format, making it trivial to translate
+ SMT-LIB programs to it. This system is expected to be useful for a wide variety
+ of applications, from simple constraint solving to writing tools for debugging,
+ program verification, and automatic test generation.
 \end{abstract}
 \section{Introduction}
-We present a system that integrates Z3 SMT solver~\cite{z3} with
-Racket programming language~\cite{racket}. The integrated
-system allows the user to embed logical constraints in a
-Racket program, thus assisting in program verification,
-debugging, automatic test generation and related
-applications.
 
-\subsection{Why z3.rkt? A Motivating Example}
-\label{sec:motiv}
-
-SMT solvers today are powerful tools that can make and can solve a wide variety
-of problems using efficient heuristics. Problems they can attack range from
-simple puzzles like Sudoku and n-queens, to planning and scheduling, program
-analysis~\cite{Gulwani:08}, whitebox fuzz testing~\cite{Godefroid:08} and
-bounded model checking~\cite{Armando:09}.
+Satisfiability Modulo Theories (SMT) solvers let programmers specify constraints
+over booleans, integers, (pure) functions and other types, and either come up
+with assignments that satisfy these constraints, or, if possible, a proof that
+the constraints aren't satisfiable. Over the last few years, SMT solvers using
+DPLL(T)~\cite{dpllt:04} and other frameworks have come into their own and can
+solve a wide variety of problems using efficient heuristics. Problems they can
+attack range from simple puzzles like Sudoku and n-queens, to planning and
+scheduling, program analysis~\cite{Gulwani:08}, whitebox fuzz
+testing~\cite{Godefroid:08} and bounded model checking~\cite{Armando:09}.
 
 Yet, SMT solvers are only used by a small number of experts. It isn't hard to
 see why: the standard way for programs to interact with SMT solvers like
@@ -58,7 +51,7 @@ return sat;
 
 Simultaneously, most SMT solvers also feature interaction via the standard input
 language SMT-LIB~\cite{smtlib2:10}. SMT-LIB is \textit{significantly} easier to
-use in isolation. The same program as above in SMT-LIB would look something like
+use in isolation. The same program in SMT-LIB would look something like
 
 \begin{verbatim}
 (declare-fun p () Bool)
@@ -94,7 +87,7 @@ version.
  (smt:check-sat))
 \end{verbatim}
 
-\subsection{Sudoku}
+\subsection{Interactive SMT}
 
 We now turn our attention to a problem that demonstrates how this interactivity
 is useful. A Sudoku puzzle asks the player to complete a partially pre-filled
@@ -160,6 +153,7 @@ then becomes
        #f)))
 \end{verbatim}
 
-
+This part can even be abstracted out into a function that returns a lazy
+stream of satisfying assignments.
 
 \subsection{Organization}
