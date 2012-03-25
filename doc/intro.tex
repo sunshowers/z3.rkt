@@ -1,5 +1,5 @@
 \begin{abstract}
- We present a work-in-progess system that integrates the Z3 SMT solver with
+ We present a work-in-progress system that integrates the Z3 SMT solver with
  Racket programming language. The system defines a programmer's interface in
  Racket that makes it easy to harness the power of Z3 to discover solutions to
  logical constraints. The interface format, although in Racket, retains the
@@ -67,7 +67,7 @@ that \textit{interact} dynamically with the solver in some way, for example by
 adding assertions based on generated models, and therefore it is often difficult
 to build new abstractions on top.
 
-Faced with these difficulties, we decided to reimplement SMT-LIB in a way that
+Faced with these difficulties, we decided to re-implement SMT-LIB in a way that
 allowed for the same power as the C version while appearing naturally integrated
 into the language. Since SMT-LIB is s-expression-based, a Lisp seemed like a
 natural choice for an implementation. Our implementation is in
