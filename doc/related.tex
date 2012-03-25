@@ -3,53 +3,47 @@ Integration with SMT solvers is desirable for any programming
 language. It enables programmers in that language to use the
 power of SMT solvers to solve logical constraints arising in
 a program, and use the solutions obtained in the rest of the
-program. The alternative would be to hand code the solution
-process in the program itself, which is time consuming and
+program. The alternative would be to hand-code a solution
+using backtracking or other methods, which is time-consuming and
 inefficient for complex constraints. Thus, it is not
 surprising that several such projects exist, most of them
-available freely on the world wide web. These project differ
-mainly in the host language, the format of the interface, and
-the constructs they support.  We give details of some of the
-implementations and compare our approach with these
-implementations.  Note that, as most languages support some
-way of interaction with C functions, theoretically these
-languages are already integrated with Z3 (or other SMT
-solvers) through the C API calls. However, we do not consider
-this as an integration because it does not simplify the task
-of the programmer and, as noted in Section~\ref{sec:motiv},
-they require the user to know the internals of Z3.
+available freely on the Internet. These projects differ
+mainly in the host language, the interface, and
+the constructs they support.
 
+As most languages support some
+form of interaction with C functions, theoretically these
+languages are already integrated with Z3 (or other SMT
+solvers) through the C API. However, we do not consider
+this to be true integration because it doesn't actually simplify the job
+of the programmer and, as noted in Section~\ref{sec:motiv}, it
+requires her to deal with the internals of the solver.
 
 The integration of Scala with Z3~\cite{scalaz3} is one of the
-most complete implementation. It provides support for adding
-new theories and procedural abstraction that gives more
-expressiveness to the system. It takes advantage of Scala's
-type system to deal with type related errors at compile time.
-The system is used in solving several challenging problems
+most complete implementations available today. It provides support for adding
+new theories and procedural abstractions, and also takes advantage
+of Scala's
+type system to deal with some type errors at compile time.
+The system has been used to solve several challenging problems
 within and outside the group that developed it. The main
-disadvantage of this system is that the syntax is far from
-SMT-LIB format, and is almost as verbose as using the C bindings.
+disadvantage of this system is that the syntax is quite different from
+SMT-LIB, and is almost as verbose as using the C bindings.
 
-Symbolic Bit Vectors (SBV)~\cite{sbv} is a package developed
-in Haskell that can be used to prove properties about
-bit-precise Haskell programs. Given a constraint in Haskell
-program, SBV generate SMT-LIB formula that can be solved
-using any SMT solver.  The major limitation of SBV is that it
-works only for bit vector formulae. SBV has been hooked up
-with Yices SMT solver~\cite{yices}.
+Symbolic Bit Vectors (SBV)~\cite{sbv} is a Haskell package that can
+be used to prove properties about
+bit-precise Haskell programs. Given a constraint in a Haskell
+program, SBV generates SMT-LIB code that can be run against
+either Yices or Z3.  The major limitation of SBV is that it
+works only for bitvector formulas.
 
-Yices-Painless~\cite{yices-painless} is another project that
-integrates Haskell with Yices SMT solver~\cite{yices}.  The
-integration of Yices-Painless is done using Yices's C
-API. Thus the integration is specific to Yices.  This project
+Yices-Painless~\cite{yices-painless} integrates Haskell with Yices
+via its C API. This project
 does not yet support arrays, tuples, lists and user defined
-data types, but supports bit vectors and uninterpreted
-functions only. Further, the development of the tool seems to
+data types. Further, the development of the tool seems to
 be stalled for some time now (last change to the repository
 was in January 2011).
 
-Z3 Documentation page~\cite{z3} lists bindings for Z3
-in other languages like OCAML and Python. These bindings,
-however, are in almost one-to-one correspondence with the C
-bindings. Thus, they suffer the same disadvantages as
-mentioned for C bindings.
+The Z3 documentation page lists bindings
+to other languages like OCaml and Python. These bindings correspond
+almost one-to-one with the C API, and thus they suffer from the same
+disadvantages.
