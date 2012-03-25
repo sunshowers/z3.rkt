@@ -23,5 +23,5 @@
    "85___24__72______9__4_________1_7__23_5___9___4___________8__7__17__________36_4_"
    "859612437723854169164379528986147352375268914241593786432981675617425893598736241")
   (check-sudoku
-   (list->string (make-list 81 #\_)) ; Empty grid: has multiple solutions
+   (make-string 81 #\_) ; Empty grid: has multiple solutions
    #f))
