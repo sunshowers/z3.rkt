@@ -15,3 +15,18 @@ functions layered on top of the Z3 wrapper. As noted in Section~\ref{sec:motiv},
 the aim of the interface is to hide the complexities of the C wrapper and stay
 as close to the SMT-LIB v2 standard \cite{smtlib2:10} as possible, while
 extending it in useful ways.
+
+We use a separate Racket namespace to store user-defined constants and functions
+in. Thus a command of the form \texttt{(smt:declare-fun x () Int)} will not
+create a binding for \texttt{x} in the caller's namespace. This has been done
+because several functions built into the SMT-LIB specification (such as
+\texttt{=} and \texttt{<=}) collide with Racket-provided symbols. However, the
+system does let the programmer substitute values from her own namespace using
+the \texttt{unquote} form familiar to Lisp programmers (usually shortened to a
+prefixed comma). So the following code asserts that \texttt{x} is 20.
+
+\begin{verbatim}
+(smt:declare-fun x () Int)
+(define n 20)
+(smt:assert (= x ,n))
+\end{verbatim} 
