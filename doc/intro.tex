@@ -6,14 +6,14 @@
  structure and brevity of the SMT-LIB format, making it trivial to translate
  SMT-LIB programs to it. This system is expected to be useful for a wide variety
  of applications, from simple constraint solving to writing tools for debugging,
- program verification, and automatic test generation.
+ verification, and automatic test generation for functional programs.
 \end{abstract}
 
 \section{Introduction}
 \label{sec:motiv}
 
 Satisfiability Modulo Theories (SMT) solvers let programmers specify constraints
-over booleans, integers, (pure) functions and other types, and either come up
+over booleans, integers, pure functions and other types, and either come up
 with assignments that satisfy these constraints, or, if possible, a proof that
 the constraints aren't satisfiable. Over the last few years, SMT solvers using
 DPLL(T)~\cite{dpllt:04} and other frameworks have come into their own and can
