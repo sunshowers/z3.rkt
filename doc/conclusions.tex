@@ -1,25 +1,27 @@
 \section{Conclusions and Future Work}
 
-In this paper, we have presented a system that makes the power of SMT more
-available to programmers than ever before. We have demonstrated that integrating
-SMT-LIB with Racket lets users do more and build abstractions on top, letting
-users grow the language according to their needs.
+In this paper, we have presented \texttt{z3.rkt}, which lets users interact with
+an SMT solver programmatically. We have demonstrated through an example the
+simplicity and usefulness of such an interaction. The power of \texttt{z3.rkt}
+comes from the facilities provided by Racket to build abstractions on top of the
+SMT-solving capabilities of Z3. From the user's perspective, the integration is
+seamless and fully transparent.
 
 Our implementation is open source and freely available at
 \begin{center}
 \url{http://www.cse.iitk.ac.in/users/karkare/code/z3.html}
 \end{center}
 
-\texttt{z3.rkt} is still a work in progress, and in the near term we hope to
-achieve
+\texttt{z3.rkt} is still a work in progress, and in the near term we plan to
+achieve the following:
 
 \begin{itemize}
 \item Support for more of Z3, including external theories and procedure
   abstractions
-\item New abstractions built on top, guided by practical use cases
+\item New abstractions, guided by practical use cases
 \item Work on model checking and debugging functional programs
 \item Possible integration with other SMT solvers
 \end{itemize}
 
 In the long term, we hope the community will find this system useful and
-contribute to the project.
+contribute to the project to solve large practical problems.

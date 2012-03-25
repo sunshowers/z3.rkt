@@ -1,6 +1,6 @@
 \begin{abstract}
  We present a work-in-progress system that integrates the Z3 SMT solver with
- Racket programming language. The system defines a programmer's interface in
+ the Racket programming language. The system defines a programmer's interface in
  Racket that makes it easy to harness the power of Z3 to discover solutions to
  logical constraints. The interface format, although in Racket, retains the
  structure and brevity of the SMT-LIB format, making it trivial to translate
@@ -89,14 +89,14 @@ version.
  (smt:check-sat))
 \end{verbatim}
 
-\subsection{Interactive SMT}
+\section{Interactive SMT solving}
 
-We now turn our attention to a problem that demonstrates how interactivity with
-an SMT solver is useful. A Sudoku puzzle asks the player to complete a partially
-pre-filled 9$\times$9 grid with the numbers 1 through 9 such that no row,
-column, or 3$\times$3 box has two instances of a number. This is a classic
-constraint satisfaction problem, and any constraint solver can handle it with
-ease.
+We now turn our attention to a problem that demonstrates how the interaction of
+a language with an SMT solver is useful. A Sudoku puzzle asks the player to
+complete a partially pre-filled 9$\times$9 grid with the numbers 1 through 9
+such that no row, column, or 3$\times$3 box has two instances of a number. This
+is a classic constraint satisfaction problem, and any constraint solver can
+handle it with ease.
 
 A Racket program using \texttt{z3.rkt} to solve Sudoku would look something like
 
@@ -156,5 +156,6 @@ then becomes
        #f)))
 \end{verbatim}
 
-This part can even be abstracted out into a function that returns a lazy
-stream of satisfying assignments.
+This part can even be abstracted out into a function that returns a lazy stream
+of satisfying assignments for any given set of constraints. Racket is
+well-suited for such tasks of abstraction.
