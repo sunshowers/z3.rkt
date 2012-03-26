@@ -16,8 +16,7 @@ Our implementation is open source and freely available at
 achieve the following:
 
 \begin{itemize}
-\item Support for more of Z3, including external theories and procedure
-  abstractions
+\item Support for more of Z3 constructs, including external theories and procedure abstractions
 \item New abstractions, guided by practical use cases
 \item Work on model checking and debugging functional programs
 \item Possible integration with other SMT solvers
@@ -25,9 +24,9 @@ achieve the following:
 
 The current interface requires expression-based manipulations like
 \texttt{unquote} for programmatic use. We wish to experiment with moving Racket
-and Z3 bindings into the same namespace, cleaning the syntax up further and
+and Z3 bindings into the same namespace, cleaning up the syntax further and
 allowing higher-order functions like \texttt{map} and \texttt{apply} to be used
 instead.
 
 In the long term, we hope the community will find this system useful and
-contribute to the project to solve large practical problems.
+will contribute to the project to solve large practical problems.

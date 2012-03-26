@@ -16,12 +16,14 @@ the aim of the interface is to hide the complexities of the C wrapper and stay
 as close to the SMT-LIB version 2 standard \cite{smtlib2:10} as possible, while
 extending it in useful ways.
 
-We use a separate Racket namespace to store user-defined constants and functions
-in. Thus a command of the form \texttt{(smt:declare-fun x () Int)} will not
-create a binding for \texttt{x} in the caller's namespace. The reason for this
-is that several functions built into the SMT-LIB specification (such as
-\texttt{=} and \texttt{<=}) collide with functions provided by Racket, and
-mixing them up in the same namespace might lead to some confusion.
+We use a separate Racket namespace to store user-defined
+constants and functions. Thus a command of the form
+\texttt{(smt:declare-fun x () Int)} will not create a binding
+for \texttt{x} in the caller's namespace. The reason for this
+is that several functions built into the SMT-LIB
+specification (such as \texttt{=} and \texttt{<=}) collide
+with functions provided by Racket, and mixing them up in the
+same namespace might lead to confusion.
 
 However, the system does let the programmer substitute values from her own
 namespace using the \texttt{unquote} form familiar to Lisp programmers (usually

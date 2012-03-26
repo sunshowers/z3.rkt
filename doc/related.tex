@@ -1,15 +1,16 @@
 \section{Related Work}
-Integration with SMT solvers is desirable for any programming
-language. It enables programmers in that language to use their power
-to solve logical constraints arising in
-a program, and use the solutions obtained in the rest of the
-program. The alternative would be to hand-code a solution
-using backtracking or other methods, which is time-consuming and
+Integration with a SMT solver is desirable for any
+programming language. It enables the programmers in that
+language to use integrated SMT solver's power to solve
+logical constraints arising in a program.  The solutions thus
+obtained can be used in the rest of the program. The
+alternative would be to hand-code a solution using
+backtracking or other methods, which is time-consuming and
 inefficient for complex constraints. Thus, it is not
 surprising that several such projects exist, most of them
 available freely on the Internet. These projects differ
-mainly in the host language, the interface, and
-the constructs they support.
+mainly in the host language, the interface, and the
+constructs they support.
 
 As most languages support some
 form of interaction with C functions, theoretically these
@@ -20,27 +21,27 @@ of the programmer and, as noted in Section~\ref{sec:motiv}, it
 requires her to deal with the internals of the solver.
 
 The integration of Scala with Z3~\cite{scalaz3} is one of the
-most complete implementations available today. It provides support for adding
-new theories and procedural abstractions, and also takes advantage
-of Scala's
-type system to deal with some type errors at compile time.
-The system has been used to solve several challenging problems
-within and outside the group that developed it. The main
-disadvantage of this system is that the syntax is quite different from
-SMT-LIB, and is almost as verbose as using the C bindings.
+most complete implementations available as of now. It
+provides support for adding new theories and procedural
+abstractions, and also takes advantage of Scala's type system
+to deal with type related errors at compile time.  The system
+has been used to solve several challenging problems within
+and outside the group that developed it. The main
+disadvantage of this system is that the syntax is quite
+different from SMT-LIB, and is almost as verbose as using the
+C bindings.
 
-Symbolic Bit Vectors (SBV)~\cite{sbv} is a Haskell package that can
-be used to prove properties about
-bit-precise Haskell programs. Given a constraint in a Haskell
-program, SBV generates SMT-LIB code that can be run against
-either Yices or Z3.  However, it only works for bitvector formulas.
+Symbolic Bit Vectors (SBV)~\cite{sbv} is a Haskell package
+that can be used to prove properties about bit-precise
+Haskell programs. Given a constraint in a Haskell program,
+SBV generates SMT-LIB code that can be run against either
+Yices or Z3.  However, it only works for bitvector formulas.
 
-Yices-Painless~\cite{yices-painless} integrates Haskell with Yices
-via its C API. This project
-does not yet support arrays, tuples, lists and user defined
-data types. Further, the development of the tool seems to
-be stalled for some time now (last change to the repository
-was in January 2011).
+Yices-Painless~\cite{yices-painless} integrates Haskell with
+Yices via its C API. This project does not support
+arrays, tuples, lists and user defined data types yet. Further,
+the development of the tool seems to be stalled for some time
+now (last change to the repository was in January 2011).
 
 The Z3 documentation page lists bindings
 to other languages like OCaml and Python. These bindings correspond
