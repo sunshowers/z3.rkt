@@ -61,7 +61,6 @@
 ;; in a right-associative manner.
 (define (rassoc fn)
   (lambda args
-    (displayln args)
     (foldr fn (last args) (drop-right args 1))))
 
 (define (flip fn) (lambda (x y) (fn y x)))
@@ -218,7 +217,7 @@
 
 ;; Given an expr, convert it to a Z3 AST. This is a really simple recursive descent parser.
 (define (expr->_z3-ast expr)
-  (displayln (format "IN: ~a" expr))
+  ;(displayln (format "IN: ~a" expr))
   (define ast (match expr
     ; Non-basic expressions
     [(list fn args ...) (apply (get-value fn) (cons (ctx) (map expr->_z3-ast args)))]
@@ -229,7 +228,7 @@
     [(? symbol?) (get-value expr)]
     ; Anything else
     [_ expr]))
-  (displayln (format "Output: ~a ~a ~a" expr ast (z3:ast-to-string (ctx) ast)))
+  ;(displayln (format "Output: ~a ~a ~a" expr ast (z3:ast-to-string (ctx) ast)))
   ast)
 
 ;; Given a Z3 AST, convert it to an expression that can be parsed again into an AST,
