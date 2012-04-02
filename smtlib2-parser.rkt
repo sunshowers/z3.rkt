@@ -61,6 +61,7 @@
 ;; in a right-associative manner.
 (define (rassoc fn)
   (lambda args
+    (displayln args)
     (foldr fn (last args) (drop-right args 1))))
 
 (define (flip fn) (lambda (x y) (fn y x)))
@@ -79,6 +80,9 @@
     ;(displayln (format "Calling function: ~a with args ~a" 'fn more-args))
     (apply fn (append args more-args))))
 
+(define-syntax-rule (builtin var fn)
+  (list 'var (fn (ctx))))
+
 (define-syntax builtin-curried
   (syntax-rules ()
     [(_ var fn) (list 'var (curry-once fn (ctx)))]
@@ -91,6 +95,7 @@
 
 ;;; This is the prototype namespace for new contexts. It is added to by
 ;;; define-builtin-symbol and define-builtin-proc below.
+(define builtin-vals-eval-at-init (make-hash))
 (define builtin-vals (make-hash))
 
 (define-for-syntax (add-smt-suffix stx)
@@ -100,23 +105,27 @@
 (define-syntax (define-builtin-symbol stx)
   (syntax-case stx ()
     [(_ name fn)
-     (with-syntax ([proc-stx (add-smt-suffix name)])
+     (with-syntax ([proc-stx (add-smt-suffix #'name)])
        #'(begin
            (define proc-stx 'name)
-           (hash-set! builtin-vals 'name fn)))]))
+           (hash-set! builtin-vals-eval-at-init 'name fn)
+           (provide proc-stx)))]))
 
-(define-for-syntax (with-syntax-define-proc name fn)
-  (with-syntax ([proc-stx (add-smt-suffix name)])
+(define-for-syntax (with-syntax-define-proc name-stx fn-stx)
+  (with-syntax ([proc-stx (add-smt-suffix name-stx)]
+                [name name-stx]
+                [fn fn-stx])
     #'(begin
         (define (proc-stx . args) `(name ,@args))
-        (hash-set! builtin-vals 'name fn))))
+        (hash-set! builtin-vals 'name fn)
+        (provide proc-stx))))
 
 (define-syntax (define-builtin-proc stx)
   (syntax-case stx ()
     [(_ name fn)
-     (with-syntax-define-proc name fn)]
+     (with-syntax-define-proc #'name #'fn)]
     [(_ name fn wrap)
-     (with-syntax-define-proc name (λ args (wrap (apply fn args))))]))
+     (with-syntax-define-proc #'name #'(λ (context . args) (apply (wrap (curry-once fn context)) args)))]))
 
 (define-builtin-symbol true z3:mk-true)
 (define-builtin-symbol false z3:mk-false)
@@ -150,8 +159,11 @@
 (define (new-context-info #:model? [model? #t])
   (define ctx (z3:mk-context (make-config #:model? model?)))
   (define vals (hash-copy builtin-vals))
+  ;; Evaluate whatever values are supposed to be evaluated at initialization time
+  (for ([(k fn) (in-hash builtin-vals-eval-at-init)])
+    (hash-set! vals k (fn ctx)))
   (define sorts (make-hash))
-  (define new-info (z3ctx ctx ns sorts (box #f)))
+  (define new-info (z3ctx ctx vals sorts (box #f)))
   (with-context
    new-info
    ;; Sorts go into a separate table
@@ -163,7 +175,7 @@
             ;; The base sort for lists is irrelevant
             (list 'List (make-complex-sort #f make-list-sort vals '(nil is-nil cons is-cons head tail)))
             (builtin-curried Array z3:mk-array-sort)))])
-     (new-sort (first sort) (second sort)))
+     (new-sort (first sort) (second sort))))
   new-info)
 
 (define-syntax-rule (with-context info body ...)
@@ -206,16 +218,18 @@
 
 ;; Given an expr, convert it to a Z3 AST. This is a really simple recursive descent parser.
 (define (expr->_z3-ast expr)
-  ;(displayln (format "IN: ~a" expr))
+  (displayln (format "IN: ~a" expr))
   (define ast (match expr
     ; Non-basic expressions
-    [(list fn args ...) (apply (get-value fn) (map expr->_z3-ast args))]
+    [(list fn args ...) (apply (get-value fn) (cons (ctx) (map expr->_z3-ast args)))]
     ; Numerals
     [(? exact-integer?) (z3:mk-numeral (ctx) (number->string expr) (get-sort 'Int))]
     [(? inexact-real?) (z3:mk-numeral (ctx) (number->string expr) (get-sort 'Real))]
-    ; Anything else should be in the namespace
-    [id (get-value id)]))
-  ;(displayln (format "Output: ~a ~a ~a" expr ast (z3:ast-to-string (ctx) ast)))
+    ; Symbols
+    [(? symbol?) (get-value expr)]
+    ; Anything else
+    [_ expr]))
+  (displayln (format "Output: ~a ~a ~a" expr ast (z3:ast-to-string (ctx) ast)))
   ast)
 
 ;; Given a Z3 AST, convert it to an expression that can be parsed again into an AST,
@@ -224,14 +238,13 @@
   (read (open-input-string (z3:ast-to-string (ctx) ast))))
 
 ;; Declare a new function. argsort is a sort-expr.
-(define-syntax-rule (declare-fun fn-stx (argsort ...) retsort)
-  (let ([fn `fn-stx]
-        [args (vector (sort-expr->_z3-sort 'argsort) ...)]
-        [ret (sort-expr->_z3-sort 'retsort)])
-    (if (= 0 (vector-length args))
-        (set-value fn (z3:mk-const (ctx) (make-symbol fn) ret))
-        (set-value fn (z3:mk-func-decl (ctx) (make-symbol fn) args ret)))
-    (void)))
+(define-syntax-rule (declare-fun fn (argsort ...) retsort)
+  (define fn
+    (let ([args (vector (sort-expr->_z3-sort 'argsort) ...)]
+          [ret (sort-expr->_z3-sort 'retsort)])
+      (if (= 0 (vector-length args))
+          (z3:mk-const (ctx) (make-symbol 'fn) ret)
+          (z3:mk-func-decl (ctx) (make-symbol 'fn) args ret)))))
 
 ;; We only support plain symbol for now
 (define (constr->_z3-constructor expr)
@@ -255,10 +268,8 @@
          (set-value constr-name (z3:mk-app (ctx) constr-fn '()))))
      args constrs)))
 
-(define-syntax-rule (assert expr-stx)
-  (let ([expr `expr-stx])
-    ;(displayln expr)
-    (z3:assert-cnstr (ctx) (expr->_z3-ast expr))))
+(define (assert expr)
+  (z3:assert-cnstr (ctx) (expr->_z3-ast expr)))
 
 (define (check-sat)
   (define-values (rv model) (z3:check-and-get-model (ctx)))
@@ -276,10 +287,10 @@
 
 (define-syntax smt:eval
   (syntax-rules ()
-    [(_ model expr-stx)
-     (eval-in-model model `expr-stx)]
-    [(_ expr-stx)
-     (eval-in-model (get-current-model) `expr-stx)]))
+    [(_ model expr)
+     (eval-in-model model expr)]
+    [(_ expr)
+     (eval-in-model (get-current-model) expr)]))
 
 ;; XXX need to implement a function to get all models. To do that we need
 ;; push, pop, and a way to navigate a model.
