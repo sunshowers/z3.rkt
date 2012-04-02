@@ -4,7 +4,7 @@
 (require "tests/test-booleans.rkt"
          "tests/test-integers.rkt"
 ;         "tests/test-datatypes.rkt"
-;         "tests/test-arrays.rkt"
+         "tests/test-arrays.rkt"
          "tests/test-sudoku.rkt"
 ;         "tests/test-nqueens.rkt"
          )
@@ -15,7 +15,7 @@
   test-booleans
   test-integers
 ;  test-datatypes
-;  test-arrays
+  test-arrays
   test-sudoku
 ;  test-nqueens
 ))
