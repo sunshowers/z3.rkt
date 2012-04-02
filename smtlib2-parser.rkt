@@ -253,7 +253,11 @@
 
 (define-syntax-rule (make-fun/vector n args ...)
   (for/vector ([i (in-range 0 n)])
-    (make-uninterpreted (gensym) args ...)))
+    (make-uninterpreted (gensym) 'args ...)))
+
+(define-syntax-rule (make-fun/list n args ...)
+  (for/list ([i (in-range 0 n)])
+    (make-uninterpreted (gensym) 'args ...)))
 
 ;; We only support plain symbol for now
 (define (constr->_z3-constructor expr)
@@ -315,6 +319,7 @@
    declare-fun
    make-fun
    make-fun/vector
+   make-fun/list
    assert
    check-sat
    get-model))

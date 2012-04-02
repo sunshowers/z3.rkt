@@ -6,7 +6,7 @@
 ;         "tests/test-datatypes.rkt"
          "tests/test-arrays.rkt"
          "tests/test-sudoku.rkt"
-;         "tests/test-nqueens.rkt"
+         "tests/test-nqueens.rkt"
          )
 
 (run-tests
@@ -17,5 +17,5 @@
 ;  test-datatypes
   test-arrays
   test-sudoku
-;  test-nqueens
+  test-nqueens
 ))
