@@ -236,14 +236,24 @@
 (define (_z3-ast->expr ast)
   (read (open-input-string (z3:ast-to-string (ctx) ast))))
 
+;; Make an uninterpreted function given arg sorts and return sort.
+(define (make-uninterpreted name argsorts retsort)
+  (let ([args (map sort-expr->_z3-sort argsorts)]
+        [ret (sort-expr->_z3-sort retsort)])
+    (if (= 0 (length args))
+        (z3:mk-const (ctx) (make-symbol name) ret)
+        (z3:mk-func-decl (ctx) (make-symbol name) args ret))))
+
 ;; Declare a new function. argsort is a sort-expr.
-(define-syntax-rule (declare-fun fn (argsort ...) retsort)
-  (define fn
-    (let ([args (vector (sort-expr->_z3-sort 'argsort) ...)]
-          [ret (sort-expr->_z3-sort 'retsort)])
-      (if (= 0 (vector-length args))
-          (z3:mk-const (ctx) (make-symbol 'fn) ret)
-          (z3:mk-func-decl (ctx) (make-symbol 'fn) args ret)))))
+(define-syntax-rule (declare-fun fn args ...)
+  (define fn (make-uninterpreted 'fn 'args ...)))
+
+(define-syntax-rule (make-fun args ...)
+  (make-uninterpreted (gensym) 'args ...))
+
+(define-syntax-rule (make-fun/vector n args ...)
+  (for/vector ([i (in-range 0 n)])
+    (make-uninterpreted (gensym) args ...)))
 
 ;; We only support plain symbol for now
 (define (constr->_z3-constructor expr)
@@ -303,6 +313,8 @@
    declare-datatypes
    declare-sort
    declare-fun
+   make-fun
+   make-fun/vector
    assert
    check-sat
    get-model))
