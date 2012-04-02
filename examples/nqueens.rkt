@@ -3,9 +3,6 @@
 (require racket/generator)
 (require "../smtlib2-parser.rkt")
 
-(define (integer->queen n)
-  (string->symbol (string-append "Q" (number->string n))))
-
 (define (solve-nqueens n)
   (smt:with-context
    (smt:new-context-info)
