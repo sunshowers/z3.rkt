@@ -59,7 +59,8 @@
     [(_ name fn)
      (with-syntax-define-proc #'name #'fn)]
     [(_ name fn wrap)
-     (with-syntax-define-proc #'name #'(λ (context . args) (apply (wrap (curry-once fn context)) args)))]))
+     (with-syntax-define-proc #'name
+                              #'(λ (context . args) (apply (wrap (curry-once fn context)) args)))]))
 
 (provide (struct-out datatype-instance)
          (struct-out z3-complex-sort)
