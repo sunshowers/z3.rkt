@@ -7,12 +7,14 @@ working:
 
 * Basic assertions on integers, booleans and arrays
 * Custom datatypes: only scalar datatypes supported right now
+* Extracting values from generated models
 * A few examples using the assertions, including Sudoku and n-queens
 
 Check out the `tests` and `examples` subdirectories for examples.
 
 Important things to do:
 
+* Better model navigation
 * Assertions on lists and other non-scalar datatypes
 * More examples, a more comprehensive test suite
 * Better debugging and printing
