@@ -21,7 +21,7 @@
 ; libgomp. Loading this causes libz3 to pick up libgomp and thus not error out.
 (define libgomp (ffi-lib "libgomp" '["1" #f]))
 
-(define-runtime-path libz3-path "z3/lib/libz3-gmp")
+(define-runtime-path libz3-path "z3/lib/libz3")
 (define libz3 (ffi-lib libz3-path))
 
 (define-cpointer-type _z3-config)
