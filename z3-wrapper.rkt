@@ -1,6 +1,9 @@
 #lang racket
 
-(require mzlib/foreign) (unsafe!)
+(require ffi/unsafe
+         ffi/unsafe/cvector
+         ffi/vector
+         ffi/unsafe/alloc)
 (require racket/runtime-path)
 (require "defs.rkt")
 
@@ -80,6 +83,7 @@
 
 (define _z3-error-handler (_fun #:keep #t _int -> _void))
 
+;; XXX combine these two
 (define-syntax defz3
   (syntax-rules (:)
     [(_ name : type ...)
@@ -91,10 +95,27 @@
                                                       (#rx"!$" "")))
                              libz3 (_fun type ...)) args))
        (provide name))]))
+(define-syntax defz3-wrapped
+  (syntax-rules (:)
+    [(_ name wrapper : type ...)
+     (begin
+       (define name
+         (wrapper
+          (lambda args
+            (apply (get-ffi-obj (regexp-replaces 'name '((#rx"-" "_")
+                                                         (#rx"^" "Z3_")
+                                                         (#rx"!$" "")))
+                                libz3 (_fun type ...)) args))))
+       (provide name))]))
 
-(defz3 mk-config : -> _z3-config)
+;; Deallocators
+(defz3 del-config : _z3-config -> _void)
+(defz3 del-context : _z3-context -> _void)
+(defz3 del-model : _z3-context _z3-model -> _void)
+
+(defz3-wrapped mk-config (allocator del-config) : -> _z3-config)
 (defz3 set-param-value! : _z3-config _string _string -> _void)
-(defz3 mk-context : _z3-config -> _z3-context)
+(defz3-wrapped mk-context (allocator del-context) : _z3-config -> _z3-context)
 
 (defz3 set-logic : _z3-context _string -> _bool)
 
