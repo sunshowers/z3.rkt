@@ -3,14 +3,16 @@
 (require (prefix-in z3: "z3-wrapper.rkt"))
 (require "defs.rkt")
 
+(struct z3ctx (context vals sort-table current-model))
+
 ; This must be parameterized every time any syntax is used
 (define current-context-info (make-parameter #f))
 (define (ctx) (z3ctx-context (current-context-info)))
 
 (define (get-value id)
-  (namespace-variable-value id #t #f (z3ctx-namespace (current-context-info))))
+  (hash-ref (z3ctx-vals (current-context-info)) id))
 (define (set-value id v)
-  (namespace-set-variable-value! id v #t (z3ctx-namespace (current-context-info))))
+  (hash-set! (z3ctx-vals (current-context-info)) id v))
 
 ;; A symbol table for sorts
 (define (get-sort id)
@@ -42,7 +44,7 @@
 ;; XXX handle hooks properly. We should have some sort of tag in place on every
 ;; variable to figure out what instance function to call. Right now we just take the
 ;; first element.
-(define (make-complex-sort base-sort creator ns hook-ids)
+(define (make-complex-sort base-sort creator hash hook-ids)
   (let* ([instance-hash (make-hash)]
          [res (z3-complex-sort base-sort creator instance-hash)])
     (for-each
@@ -51,11 +53,9 @@
               (lambda args
                 (let ([z3-fn (hash-ref (datatype-instance-fns (first (hash-values instance-hash))) hook)])
                   (z3:mk-app (ctx) z3-fn args)))])
-         (namespace-set-variable-value! hook hook-fn #t ns)))
+         (hash-set! hash hook hook-fn)))
      hook-ids)
     res))
-
-(struct z3ctx (context namespace sort-table current-model))
 
 ;; Wraps a binary function so that arguments are processed
 ;; in a right-associative manner.
@@ -72,18 +72,6 @@
   (lambda (fst . rst)
     (foldl (flip fn) fst rst)))
 
-; XXX this is broken
-(define (chainable fn)
-  (lambda (fst . rst)
-    (apply z3:mk-and (foldl (flip fn) fst rst))))
-
-;; Curry a function application exactly *once*. The second time function
-;; arguments are applied, the application is evaluated.
-(define (curry-once fn . args)
-  (lambda more-args
-    ;(displayln (format "Calling function: ~a with args ~a" 'fn more-args))
-    (apply fn (append args more-args))))
-
 (define-syntax-rule (builtin var fn)
   (list 'var (fn (ctx))))
 
@@ -97,11 +85,43 @@
     (z3:set-param-value! config "MODEL" (if model? "true" "false"))
     config))
 
+(define-builtin-symbol true z3:mk-true)
+(define-builtin-symbol false z3:mk-false)
+(define-builtin-proc = z3:mk-eq)
+(define-builtin-proc distinct z3:mk-distinct)
+(define-builtin-proc not z3:mk-not)
+(define-builtin-proc ite z3:mk-ite)
+(define-builtin-proc iff z3:mk-iff)
+(define-builtin-proc implies z3:mk-implies rassoc)
+(define-builtin-proc xor z3:mk-xor lassoc)
+;; These functions already accept an arbitrary number of arguments
+(define-builtin-proc and z3:mk-and)
+(define-builtin-proc or z3:mk-or)
+(define-builtin-proc + z3:mk-add)
+(define-builtin-proc * z3:mk-mul)
+(define-builtin-proc - z3:mk-sub)
+;; These don't
+(define-builtin-proc / z3:mk-div lassoc)
+(define-builtin-proc div z3:mk-div lassoc)
+(define-builtin-proc mod z3:mk-mod lassoc)
+(define-builtin-proc rem z3:mk-rem lassoc)
+;; XXX Comparisons are chainable (i.e. (< a b c) == (and (< a b) (< b c)))
+(define-builtin-proc < z3:mk-lt)
+(define-builtin-proc <= z3:mk-le)
+(define-builtin-proc > z3:mk-gt)
+(define-builtin-proc >= z3:mk-ge)
+;; Array operations
+(define-builtin-proc select z3:mk-select)
+(define-builtin-proc store z3:mk-store)
+
 (define (new-context-info #:model? [model? #t])
   (define ctx (z3:mk-context (make-config #:model? model?)))
-  (define ns (make-empty-namespace))
+  (define vals (hash-copy builtin-vals))
+  ;; Evaluate whatever values are supposed to be evaluated at initialization time
+  (for ([(k fn) (in-hash builtin-vals-eval-at-init)])
+    (hash-set! vals k (fn ctx)))
   (define sorts (make-hash))
-  (define new-info (z3ctx ctx ns sorts (box #f)))
+  (define new-info (z3ctx ctx vals sorts (box #f)))
   (with-context
    new-info
    ;; Sorts go into a separate table
@@ -110,43 +130,10 @@
            (list
             (builtin Bool z3:mk-bool-sort)
             (builtin Int z3:mk-int-sort)
-            (builtin-curried BitVec z3:mk-bv-sort)
             ;; The base sort for lists is irrelevant
-            (list 'List (make-complex-sort #f make-list-sort ns '(nil is-nil cons is-cons head tail)))
+            (list 'List (make-complex-sort #f make-list-sort vals '(nil is-nil cons is-cons head tail)))
             (builtin-curried Array z3:mk-array-sort)))])
-     (new-sort (first sort) (second sort)))
-   (for ([val
-          (in-list
-           (list
-            (builtin true z3:mk-true)
-            (builtin false z3:mk-false)
-            (builtin-curried = z3:mk-eq)
-            (builtin-curried distinct z3:mk-distinct)
-            (builtin-curried not z3:mk-not)
-            (builtin-curried ite z3:mk-ite)
-            (builtin-curried iff z3:mk-iff)
-            (builtin-curried implies z3:mk-implies rassoc)
-            (builtin-curried xor z3:mk-xor lassoc)
-            ;; These functions already accept an arbitrary number of arguments
-            (builtin-curried and z3:mk-and)
-            (builtin-curried or z3:mk-or)
-            (builtin-curried + z3:mk-add)
-            (builtin-curried * z3:mk-mul)
-            (builtin-curried - z3:mk-sub)
-            ;; These don't
-            (builtin-curried / z3:mk-div lassoc)
-            (builtin-curried div z3:mk-div lassoc)
-            (builtin-curried mod z3:mk-mod lassoc)
-            (builtin-curried rem z3:mk-rem lassoc)
-            ;; XXX Comparisons are chainable (i.e. (< a b c) == (and (< a b) (< b c)))
-            (builtin-curried < z3:mk-lt)
-            (builtin-curried <= z3:mk-le)
-            (builtin-curried > z3:mk-gt)
-            (builtin-curried >= z3:mk-ge)
-            ;; Array operations
-            (builtin-curried select z3:mk-select)
-            (builtin-curried store z3:mk-store)))])
-     (set-value (first val) (second val))))
+     (new-sort (first sort) (second sort))))
   new-info)
 
 (define-syntax-rule (with-context info body ...)
@@ -192,12 +179,14 @@
   ;(displayln (format "IN: ~a" expr))
   (define ast (match expr
     ; Non-basic expressions
-    [(list fn args ...) (apply (get-value fn) (map expr->_z3-ast args))]
+    [(list fn args ...) (apply (get-value fn) (cons (ctx) (map expr->_z3-ast args)))]
     ; Numerals
     [(? exact-integer?) (z3:mk-numeral (ctx) (number->string expr) (get-sort 'Int))]
     [(? inexact-real?) (z3:mk-numeral (ctx) (number->string expr) (get-sort 'Real))]
-    ; Anything else should be in the namespace
-    [id (get-value id)]))
+    ; Symbols
+    [(? symbol?) (get-value expr)]
+    ; Anything else
+    [_ expr]))
   ;(displayln (format "Output: ~a ~a ~a" expr ast (z3:ast-to-string (ctx) ast)))
   ast)
 
@@ -206,15 +195,28 @@
 (define (_z3-ast->expr ast)
   (read (open-input-string (z3:ast-to-string (ctx) ast))))
 
+;; Make an uninterpreted function given arg sorts and return sort.
+(define (make-uninterpreted name argsorts retsort)
+  (let ([args (map sort-expr->_z3-sort argsorts)]
+        [ret (sort-expr->_z3-sort retsort)])
+    (if (= 0 (length args))
+        (z3:mk-const (ctx) (make-symbol name) ret)
+        (z3:mk-func-decl (ctx) (make-symbol name) args ret))))
+
 ;; Declare a new function. argsort is a sort-expr.
-(define-syntax-rule (declare-fun fn-stx (argsort ...) retsort)
-  (let ([fn `fn-stx]
-        [args (vector (sort-expr->_z3-sort 'argsort) ...)]
-        [ret (sort-expr->_z3-sort 'retsort)])
-    (if (= 0 (vector-length args))
-        (set-value fn (z3:mk-const (ctx) (make-symbol fn) ret))
-        (set-value fn (z3:mk-func-decl (ctx) (make-symbol fn) args ret)))
-    (void)))
+(define-syntax-rule (declare-fun fn args ...)
+  (define fn (make-uninterpreted 'fn 'args ...)))
+
+(define-syntax-rule (make-fun args ...)
+  (make-uninterpreted (gensym) 'args ...))
+
+(define-syntax-rule (make-fun/vector n args ...)
+  (for/vector ([i (in-range 0 n)])
+    (make-uninterpreted (gensym) 'args ...)))
+
+(define-syntax-rule (make-fun/list n args ...)
+  (for/list ([i (in-range 0 n)])
+    (make-uninterpreted (gensym) 'args ...)))
 
 ;; We only support plain symbol for now
 (define (constr->_z3-constructor expr)
@@ -238,10 +240,8 @@
          (set-value constr-name (z3:mk-app (ctx) constr-fn '()))))
      args constrs)))
 
-(define-syntax-rule (assert expr-stx)
-  (let ([expr `expr-stx])
-    ;(displayln expr)
-    (z3:assert-cnstr (ctx) (expr->_z3-ast expr))))
+(define (assert expr)
+  (z3:assert-cnstr (ctx) (expr->_z3-ast expr)))
 
 (define (check-sat)
   (define-values (rv model) (z3:check-and-get-model (ctx)))
@@ -259,10 +259,10 @@
 
 (define-syntax smt:eval
   (syntax-rules ()
-    [(_ model expr-stx)
-     (eval-in-model model `expr-stx)]
-    [(_ expr-stx)
-     (eval-in-model (get-current-model) `expr-stx)]))
+    [(_ model expr)
+     (eval-in-model model expr)]
+    [(_ expr)
+     (eval-in-model (get-current-model) expr)]))
 
 ;; XXX need to implement a function to get all models. To do that we need
 ;; push, pop, and a way to navigate a model.
@@ -276,6 +276,9 @@
    declare-datatypes
    declare-sort
    declare-fun
+   make-fun
+   make-fun/vector
+   make-fun/list
    assert
    check-sat
    get-model))
