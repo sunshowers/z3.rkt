@@ -1,4 +1,25 @@
 #lang racket
+
+(provide (struct-out z3ctx)
+         current-context-info
+         ctx
+         (struct-out datatype-instance)
+         (struct-out z3-complex-sort)
+         get-or-create-instance
+         builtin-vals-eval-at-init
+         builtin-vals
+         define-builtin-symbol
+         define-builtin-proc
+         curry-once)
+
+;; Z3 context info structure.
+(struct z3ctx (context vals sort-table current-model))
+
+; This must be parameterized every time any syntax is used
+(define current-context-info (make-parameter #f))
+
+(define (ctx) (z3ctx-context (current-context-info)))
+
 ;; Indicates an instance of a datatype (e.g. (List Int) for List).
 (struct datatype-instance (z3-sort fns))
 
@@ -61,12 +82,3 @@
     [(_ name fn wrap)
      (with-syntax-define-proc #'name
                               #'(λ (context . args) (apply (wrap (curry-once fn context)) args)))]))
-
-(provide (struct-out datatype-instance)
-         (struct-out z3-complex-sort)
-         get-or-create-instance
-         builtin-vals-eval-at-init
-         builtin-vals
-         define-builtin-symbol
-         define-builtin-proc
-         curry-once)

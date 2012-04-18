@@ -3,12 +3,6 @@
 (require (prefix-in z3: "z3-wrapper.rkt"))
 (require "defs.rkt")
 
-(struct z3ctx (context vals sort-table current-model))
-
-; This must be parameterized every time any syntax is used
-(define current-context-info (make-parameter #f))
-(define (ctx) (z3ctx-context (current-context-info)))
-
 (define (get-value id)
   (hash-ref (z3ctx-vals (current-context-info)) id))
 (define (set-value id v)
@@ -118,12 +112,12 @@
   (define ctx (z3:mk-context (make-config #:model? model?)))
   (define vals (hash-copy builtin-vals))
   ;; Evaluate whatever values are supposed to be evaluated at initialization time
-  (for ([(k fn) (in-hash builtin-vals-eval-at-init)])
-    (hash-set! vals k (fn ctx)))
   (define sorts (make-hash))
   (define new-info (z3ctx ctx vals sorts (box #f)))
   (with-context
    new-info
+   (for ([(k fn) (in-hash builtin-vals-eval-at-init)])
+     (hash-set! vals k (fn ctx)))
    ;; Sorts go into a separate table
    (for ([sort
           (in-list
