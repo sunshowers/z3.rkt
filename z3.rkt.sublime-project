@@ -1,8 +1,9 @@
 {
-	"folders":
-	[
-		{
-			"path": "/home/sid/scheme/z3-api"
-		}
-	]
+  "folders":
+  [
+    {
+      "path": "/home/sid/scheme/z3-api",
+      "folder_exclude_patterns": ["compiled"]
+    }
+  ]
 }
