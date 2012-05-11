@@ -251,12 +251,8 @@
       (raise (make-exn:fail "Evaluation failed"))
       (_z3-ast->expr ast)))
 
-(define-syntax smt:eval
-  (syntax-rules ()
-    [(_ model expr)
-     (eval-in-model model expr)]
-    [(_ expr)
-     (eval-in-model (get-current-model) expr)]))
+(define (smt:eval expr)
+  (eval-in-model (get-current-model) expr))
 
 ;; XXX need to implement a function to get all models. To do that we need
 ;; push, pop, and a way to navigate a model.

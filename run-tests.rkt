@@ -7,6 +7,7 @@
          "tests/test-arrays.rkt"
          "tests/test-sudoku.rkt"
          "tests/test-nqueens.rkt"
+         "tests/test-numbermind.rkt"
          )
 
 (run-tests
@@ -18,4 +19,5 @@
   test-arrays
   test-sudoku
   test-nqueens
+  test-numbermind
 ))
