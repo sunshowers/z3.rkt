@@ -9,6 +9,6 @@ syntax: glob
 *.nav
 *.bbl
 *.blg
-z3/*
+/z3
 compiled/*
 *.pdf
