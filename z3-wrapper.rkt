@@ -1,4 +1,4 @@
-#lang racket
+#lang racket/base
 
 (require ffi/unsafe
          ffi/unsafe/cvector
@@ -201,9 +201,9 @@
   (name : _z3-symbol)
   (recognizer : _z3-symbol)
   (_uint = (length names-sorts-refs))
-  ((_list i _z3-symbol) = (map first names-sorts-refs))
-  ((_list i _z3-sort/null) = (map second names-sorts-refs))
-  ((_list i _uint) = (map third names-sorts-refs))
+  ((_list i _z3-symbol) = (map car names-sorts-refs))
+  ((_list i _z3-sort/null) = (map cadr names-sorts-refs))
+  ((_list i _uint) = (map caddr names-sorts-refs))
   -> _z3-constructor)
 
 (defz3 query-constructor :

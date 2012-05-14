@@ -1,7 +1,10 @@
-#lang racket
+#lang racket/base
 
-(require (prefix-in z3: "z3-wrapper.rkt"))
-(require "defs.rkt")
+(require (prefix-in z3: "z3-wrapper.rkt")
+         "defs.rkt")
+(require racket/list
+         racket/match
+         racket/contract/base)
 
 (define (get-value id)
   (hash-ref (z3ctx-vals (current-context-info)) id))
@@ -30,7 +33,7 @@
 ;; datatype-instance.
 (define (make-list-sort base-sort params)
   (if (= (length params) 1)
-      (z3:mk-list-sort (ctx) (make-symbol (gensym)) (first params))
+      (z3:mk-list-sort (ctx) (make-symbol (gensym)) (car params))
       (raise (make-exn:fail "List sort should have just one parameter!"))))
 
 ;; Creates a new complex sort. This adds hooks for each constructor to the namespace
@@ -45,7 +48,7 @@
      (lambda (hook)
        (let ([hook-fn
               (lambda args
-                (let ([z3-fn (hash-ref (datatype-instance-fns (first (hash-values instance-hash))) hook)])
+                (let ([z3-fn (hash-ref (datatype-instance-fns (car (hash-values instance-hash))) hook)])
                   (z3:mk-app (ctx) z3-fn args)))])
          (hash-set! hash hook hook-fn)))
      hook-ids)

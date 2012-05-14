@@ -1,4 +1,4 @@
-#lang racket
+#lang racket/base
 
 (require rackunit rackunit/text-ui rackunit/gui)
 (require "tests/test-booleans.rkt"
