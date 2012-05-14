@@ -21,10 +21,6 @@
                  pre:  (list->cblock x t)
                  post: (x => (cblock->list x t n)))]))
 
-; We need this because libz3 is stupid and doesn't mention a dependence on
-; libgomp. Loading this causes libz3 to pick up libgomp and thus not error out.
-(define libgomp (ffi-lib "libgomp" '["1" #f]))
-
 (define-runtime-path libz3-path (build-path "z3" "lib" "libz3.so"))
 (define libz3-without-suffix (path-replace-suffix libz3-path ""))
 (define libz3 (ffi-lib libz3-without-suffix))
