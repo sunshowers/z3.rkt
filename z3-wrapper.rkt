@@ -4,7 +4,8 @@
          ffi/unsafe/cvector
          ffi/vector
          ffi/unsafe/alloc)
-(require racket/runtime-path)
+(require racket/runtime-path
+         (for-syntax racket/base))
 (require "defs.rkt")
 
 ; We let _list also support an output length of 0
@@ -24,8 +25,9 @@
 ; libgomp. Loading this causes libz3 to pick up libgomp and thus not error out.
 (define libgomp (ffi-lib "libgomp" '["1" #f]))
 
-(define-runtime-path libz3-path "z3/lib/libz3")
-(define libz3 (ffi-lib libz3-path))
+(define-runtime-path libz3-path (build-path "z3" "lib" "libz3.so"))
+(define libz3-without-suffix (path-replace-suffix libz3-path ""))
+(define libz3 (ffi-lib libz3-without-suffix))
 
 (define-cpointer-type _z3-config)
 (define-cpointer-type _z3-context)
