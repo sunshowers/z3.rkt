@@ -57,13 +57,13 @@
 
 
 ;; Enumerations
-(define _z3-lbool (_enum '(false = -1 undef true)))
-(define _z3-sat-lbool (_enum '(unsat = -1 unknown sat)))
-(define _z3-ast-kind (_enum '(numeral app var quantifier unknown = 1000)))
+(define _z3-lbool (_enum '(false = -1 undef true) _int32))
+(define _z3-sat-lbool (_enum '(unsat = -1 unknown sat) _int32))
+(define _z3-ast-kind (_enum '(numeral app var quantifier unknown = 1000) _int32))
 (define _z3-error-code (_enum '(ok sort-error iob invalid-arg parser-error
                                    no-parser invalid-pattern memout-fail
                                    file-access-error invalid-usage
-                                   internal-fatal dec-ref-error)))
+                                   internal-fatal dec-ref-error) _int32))
 
 (define _z3-error-handler (_fun #:keep #t _int -> _void))
 
