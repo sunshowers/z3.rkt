@@ -10,7 +10,9 @@ working:
 * Extracting values from generated models
 * A few examples using the assertions, including Sudoku and n-queens
 
-Check out the `tests` and `examples` subdirectories for examples.
+Check out the `tests` and `examples` subdirectories for examples. For a
+slightly more involved example, see [numbermind](https://github.com/sid0/numbermind),
+a small web app written using this library.
 
 Important things to do:
 
