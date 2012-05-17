@@ -6,7 +6,7 @@
          ffi/unsafe/alloc)
 (require racket/runtime-path
          (for-syntax racket/base))
-(require "defs.rkt")
+(require "utils.rkt")
 
 ; We let _list also support an output length of 0
 ; Workaround for https://github.com/plt/racket/pull/87

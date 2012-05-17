@@ -1,6 +1,6 @@
 #lang racket
 
-(require "../smtlib2-parser.rkt")
+(require "../main.rkt")
 
 (define (sudoku-grid-distinct grid args)
   (smt:assert (apply distinct/s (for/list ([arg args]) (select/s grid arg)))))

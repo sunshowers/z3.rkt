@@ -1,7 +1,7 @@
 #lang racket
 
 (require racket/generator)
-(require "../smtlib2-parser.rkt")
+(require "../main.rkt")
 
 (define (solve-nqueens n)
   (smt:with-context

@@ -1,7 +1,7 @@
 #lang racket
 
 (require rackunit)
-(require "../smtlib2-parser.rkt")
+(require "../main.rkt")
 
 (define/provide-test-suite test-integers
   (test-case

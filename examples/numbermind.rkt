@@ -1,6 +1,6 @@
 #lang racket
 
-(require "../smtlib2-parser.rkt")
+(require "../main.rkt")
 
 ;; A solution to Project Euler problem 185.
 ;; http://projecteuler.net/index.php?section=problems&id=185
