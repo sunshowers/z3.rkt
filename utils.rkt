@@ -10,9 +10,11 @@
          get-or-create-instance
          builtin-vals-eval-at-init
          builtin-vals
+         builtin-sorts
          define-builtin-symbol
          define-builtin-proc
-         curry-once)
+         define-builtin-sort
+         curry-n)
 
 ;; Z3 context info structure.
 (struct z3ctx (context vals sort-table current-model))
@@ -43,17 +45,19 @@
         (hash-set! instance-hash params new-instance)
         new-instance)))
 
-;; Curry a function application exactly *once*. The second time function
-;; arguments are applied, the application is evaluated.
-(define (curry-once fn . args)
-  (lambda more-args
-    ;(displayln (format "Calling function: ~a with args ~a" 'fn more-args))
-    (apply fn (append args more-args))))
+;; Curry a function application exactly n times.
+;; (curry-n 0 f a b) is the same as (f a b).
+;; ((curry-n 1 f a b) c d) is the same as (f a b c d) and so on.
+(define (curry-n n fn . args)
+  (if (zero? n)
+      (apply fn args)
+      (λ more-args (apply curry-n (sub1 n) fn (append args more-args)))))
 
 ;; This is the prototype namespace for new contexts. It is added to by
 ;; define-builtin-symbol and define-builtin-proc below.
 (define builtin-vals-eval-at-init (make-hash))
 (define builtin-vals (make-hash))
+(define builtin-sorts (make-hash))
 
 (define-for-syntax (add-smt-suffix stx)
   (define suffixed-string (string-append (symbol->string (syntax->datum stx)) "/s"))
@@ -83,4 +87,7 @@
      (with-syntax-define-proc #'name #'fn)]
     [(_ name fn wrap)
      (with-syntax-define-proc #'name
-                              #'(λ (context . args) (apply (wrap (curry-once fn context)) args)))]))
+                              #'(λ (context . args) (apply (wrap (curry-n 1 fn context)) args)))]))
+
+(define-syntax-rule (define-builtin-sort name fn)
+  (hash-set! builtin-sorts 'name fn))

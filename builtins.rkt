@@ -48,3 +48,8 @@
 ;; Array operations
 (define-builtin-proc select z3:mk-select)
 (define-builtin-proc store z3:mk-store)
+
+;; Built-in sorts
+(define-builtin-sort Bool z3:mk-bool-sort)
+(define-builtin-sort Int z3:mk-int-sort)
+(define-builtin-sort Array (curry-n 2 z3:mk-array-sort))

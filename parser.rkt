@@ -29,14 +29,6 @@
 (define (set-current-model! new-model)
   (set-box! (z3ctx-current-model (current-context-info)) new-model))
 
-(define-syntax-rule (builtin var fn)
-  (list 'var (fn (ctx))))
-
-(define-syntax builtin-curried
-  (syntax-rules ()
-    [(_ var fn) (list 'var (curry-once fn (ctx)))]
-    [(_ var fn wrap) (list 'var (wrap (curry-once fn (ctx))))]))
-
 (define (make-config #:model? [model? #t])
   (let ([config (z3:mk-config)])
     (z3:set-param-value! config "MODEL" (if model? "true" "false"))
@@ -53,13 +45,8 @@
    (for ([(k fn) (in-hash builtin-vals-eval-at-init)])
      (hash-set! vals k (fn ctx)))
    ;; Sorts go into a separate table
-   (for ([sort
-          (in-list
-           (list
-            (builtin Bool z3:mk-bool-sort)
-            (builtin Int z3:mk-int-sort)
-            (builtin-curried Array z3:mk-array-sort)))])
-     (new-sort (car sort) (cadr sort))))
+   (for ([(k fn) (in-hash builtin-sorts)])
+     (new-sort k (fn ctx))))
   new-info)
 
 (define-syntax-rule (with-context info body ...)
