@@ -29,31 +29,6 @@
 (define (set-current-model! new-model)
   (set-box! (z3ctx-current-model (current-context-info)) new-model))
 
-;; Lists are a builtin complex sort. z3:mk-list-sort already returns a
-;; datatype-instance.
-(define (make-list-sort base-sort params)
-  (if (= (length params) 1)
-      (z3:mk-list-sort (ctx) (make-symbol (gensym)) (car params))
-      (raise (make-exn:fail "List sort should have just one parameter!"))))
-
-;; Creates a new complex sort. This adds hooks for each constructor to the namespace
-;; provided and returns the sort.
-;; XXX handle hooks properly. We should have some sort of tag in place on every
-;; variable to figure out what instance function to call. Right now we just take the
-;; first element.
-(define (make-complex-sort base-sort creator hash hook-ids)
-  (let* ([instance-hash (make-hash)]
-         [res (z3-complex-sort base-sort creator instance-hash)])
-    (for-each
-     (lambda (hook)
-       (let ([hook-fn
-              (lambda args
-                (let ([z3-fn (hash-ref (datatype-instance-fns (car (hash-values instance-hash))) hook)])
-                  (z3:mk-app (ctx) z3-fn args)))])
-         (hash-set! hash hook hook-fn)))
-     hook-ids)
-    res))
-
 (define-syntax-rule (builtin var fn)
   (list 'var (fn (ctx))))
 
@@ -83,8 +58,6 @@
            (list
             (builtin Bool z3:mk-bool-sort)
             (builtin Int z3:mk-int-sort)
-            ;; The base sort for lists is irrelevant
-            (list 'List (make-complex-sort #f make-list-sort vals '(nil is-nil cons is-cons head tail)))
             (builtin-curried Array z3:mk-array-sort)))])
      (new-sort (car sort) (cadr sort))))
   new-info)
