@@ -67,4 +67,4 @@
 ;; Built-in sorts
 (define-builtin-sort Bool z3:mk-bool-sort)
 (define-builtin-sort Int z3:mk-int-sort)
-(define-builtin-sort Array (curry-n 2 z3:mk-array-sort))
+(define-builtin-sort Array (curryn 2 z3:mk-array-sort))
