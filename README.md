@@ -5,7 +5,7 @@ We aim to provide a reasonably complete and *easy-to-use* implementation of Z3
 on Racket. The documentation is rather incomplete right now, but here's what's
 working:
 
-* Basic assertions on integers, booleans and arrays
+* Basic assertions on integers, booleans, arrays and integer lists
 * Custom datatypes: only scalar datatypes supported right now
 * Extracting values from generated models
 * A few examples using the assertions, including Sudoku and n-queens
@@ -17,7 +17,7 @@ a small web app written using this library.
 Important things to do:
 
 * Better model navigation
-* Assertions on lists and other non-scalar datatypes
+* Assertions on other types of lists and other non-scalar datatypes
 * More examples, a more comprehensive test suite
 * Better debugging and printing
 
