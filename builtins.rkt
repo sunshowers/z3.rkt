@@ -4,6 +4,21 @@
          "utils.rkt")
 (require racket/list)
 
+;; Initialize builtins. (The current context is assumed to be a parameter.)
+(define (init-builtins)
+  (define-values (context vals sorts)
+    (values
+     (ctx)
+     (z3ctx-vals (current-context-info))
+     (z3ctx-sorts (current-context-info))))
+  (for ([(k fn) (in-hash builtin-vals-eval-at-init)])
+    (hash-set! vals k (fn context)))
+  (for ([(k fn) (in-hash builtin-vals)])
+    (hash-set! vals k fn))
+  (for ([(k fn) (in-hash builtin-sorts)])
+    (new-sort k (fn context))))
+(provide init-builtins)
+
 ;; Wraps a binary function so that arguments are processed
 ;; in a right-associative manner.
 (define (rassoc fn)

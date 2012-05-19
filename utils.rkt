@@ -7,6 +7,8 @@
          ctx
          (struct-out datatype-instance)
          (struct-out z3-complex-sort)
+         get-sort
+         new-sort
          get-or-create-instance
          builtin-vals-eval-at-init
          builtin-vals
@@ -17,12 +19,21 @@
          curry-n)
 
 ;; Z3 context info structure.
-(struct z3ctx (context vals sort-table current-model))
+(struct z3ctx (context vals sorts current-model))
 
 ; This must be parameterized every time any syntax is used
 (define current-context-info (make-parameter #f))
 
 (define (ctx) (z3ctx-context (current-context-info)))
+
+;; A symbol table for sorts
+(define (get-sort id)
+  (hash-ref (z3ctx-sorts (current-context-info)) id))
+(define (new-sort id v)
+  (define sorts (z3ctx-sorts (current-context-info)))
+  (if (not (hash-ref sorts id #f))
+      (hash-set! sorts id v)
+      (raise (make-exn:fail "Defining a pre-existing sort!"))))
 
 ;; Indicates an instance of a datatype (e.g. (List Int) for List).
 (struct datatype-instance (z3-sort fns))

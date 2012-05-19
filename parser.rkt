@@ -11,15 +11,6 @@
 (define (set-value id v)
   (hash-set! (z3ctx-vals (current-context-info)) id v))
 
-;; A symbol table for sorts
-(define (get-sort id)
-  (hash-ref (z3ctx-sort-table (current-context-info)) id))
-(define (new-sort id v)
-  (define sort-table (z3ctx-sort-table (current-context-info)))
-  (if (not (hash-ref sort-table id #f))
-      (hash-set! sort-table id v)
-      (raise (make-exn:fail "Defining a pre-existing sort!"))))
-
 ;; The current model for this context. This is a mutable box.
 (define (get-current-model)
   (define model (unbox (z3ctx-current-model (current-context-info))))
@@ -36,17 +27,12 @@
 
 (define (new-context-info #:model? [model? #t])
   (define ctx (z3:mk-context (make-config #:model? model?)))
-  (define vals (hash-copy builtin-vals))
-  ;; Evaluate whatever values are supposed to be evaluated at initialization time
+  (define vals (make-hash))
   (define sorts (make-hash))
   (define new-info (z3ctx ctx vals sorts (box #f)))
   (with-context
    new-info
-   (for ([(k fn) (in-hash builtin-vals-eval-at-init)])
-     (hash-set! vals k (fn ctx)))
-   ;; Sorts go into a separate table
-   (for ([(k fn) (in-hash builtin-sorts)])
-     (new-sort k (fn ctx))))
+   (init-builtins))
   new-info)
 
 (define-syntax-rule (with-context info body ...)
