@@ -50,10 +50,6 @@
          (z3:set-logic (ctx) (symbol->string logic))])
     (when (not rv) (handle-next-error))))
 
-;; Helper function to make a symbol with the given name (Racket symbol)
-(define (make-symbol symbol-name)
-  (z3:mk-string-symbol (ctx) (symbol->string symbol-name)))
-
 ;; Declare a new sort. num-params is currently ignored.
 (define-syntax-rule (declare-sort sort num-params)
   (set-value 'sort

@@ -4,6 +4,11 @@
          "utils.rkt")
 (require racket/list)
 
+;; Helper function to make a symbol with the given name (Racket symbol)
+(define (make-symbol symbol-name)
+  (z3:mk-string-symbol (ctx) (symbol->string symbol-name)))
+(provide make-symbol)
+
 ;; Initialize builtins. (The current context is assumed to be a parameter.)
 (define (init-builtins)
   (define-values (context vals sorts)
@@ -16,8 +21,21 @@
   (for ([(k fn) (in-hash builtin-vals)])
     (hash-set! vals k fn))
   (for ([(k fn) (in-hash builtin-sorts)])
-    (new-sort k (fn context))))
+    (new-sort k (fn context)))
+  ;; XXX This is a giant hack and needs to be generalized.
+  (define int-list-instance (z3:mk-list-sort (ctx) (make-symbol 'IntList) (get-sort 'Int)))
+  (new-sort 'IntList (datatype-instance-z3-sort int-list-instance))
+  (hash-set! vals int-list-key int-list-instance))
 (provide init-builtins)
+
+(define int-list-key (gensym))
+;; XXX This is a giant hack and needs to be generalized.
+(define (get-list-op op)
+  (λ (context . args)
+    (define instance-fns (datatype-instance-fns (hash-ref (z3ctx-vals (current-context-info)) int-list-key)))
+    (define func-decl (hash-ref instance-fns op))
+    ;; Make an app out of it. (Drop the first argument since it'll be the context.)
+    (z3:mk-app (ctx) func-decl args)))
 
 ;; Wraps a binary function so that arguments are processed
 ;; in a right-associative manner.
@@ -63,6 +81,11 @@
 ;; Array operations
 (define-builtin-proc select z3:mk-select)
 (define-builtin-proc store z3:mk-store)
+;; List operations
+(define-builtin-proc cons (get-list-op 'cons))
+(define-builtin-proc head (get-list-op 'head))
+(define-builtin-proc tail (get-list-op 'tail))
+(define-builtin-proc nil (get-list-op 'nil))
 
 ;; Built-in sorts
 (define-builtin-sort Bool z3:mk-bool-sort)
