@@ -7,17 +7,21 @@
          "tests/test-arrays.rkt"
          "tests/test-sudoku.rkt"
          "tests/test-nqueens.rkt"
-         "tests/test-numbermind.rkt"
-         )
+         "tests/test-numbermind.rkt")
 
-(run-tests
- (test-suite
-  "Z3 API tests"
-  test-booleans
-  test-integers
-  test-datatypes
-  test-arrays
-  test-sudoku
-  test-nqueens
-  test-numbermind
-))
+(define total-failures 0)
+
+(define-syntax-rule (run-test-suite suite)
+  (begin
+    (printf "~a: " 'suite)
+    (set! total-failures (+ total-failures (run-tests suite)))))
+
+(run-test-suite test-booleans)
+(run-test-suite test-integers)
+(run-test-suite test-datatypes)
+(run-test-suite test-arrays)
+(run-test-suite test-sudoku)
+(run-test-suite test-nqueens)
+(run-test-suite test-numbermind)
+
+(printf "Total failures: ~a~n" total-failures)
