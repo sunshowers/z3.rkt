@@ -6,7 +6,8 @@
          "parser.rkt"
          "builtins.rkt")
 
-(define (make-config #:model? [model? #t] #:mbqi? [mbqi? #f])
+(define (make-config #:model? [model? #t]
+                     #:mbqi? [mbqi? #f])
   (let ([config (z3:mk-config)])
     (z3:set-param-value! config "MODEL" (if model? "true" "false"))
     (z3:set-param-value! config "MBQI" (if mbqi? "true" "false"))
