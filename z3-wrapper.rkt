@@ -166,12 +166,12 @@
 ; Numerals
 (defz3 mk-numeral : _z3-context _string _z3-sort -> _z3-ast)
 
-(defz3 mk-func-decl :
-  (ctx s domain range) ::
+(defz3 mk-fresh-func-decl :
+  (ctx prefix domain range) ::
   (ctx : _z3-context)
-  (s : _z3-symbol)
-  (_uint = (vector-length domain))
-  (domain : (_vector i _z3-sort))
+  (prefix : _string)
+  (_uint = (length domain))
+  (domain : (_list i _z3-sort))
   (range : _z3-sort)
   -> _z3-func-decl)
 
@@ -181,10 +181,10 @@
   (_uint = (length args))
   (args : (_list i _z3-ast)) -> _z3-ast)
 
-(defz3 mk-const :
-  (ctx s sort) ::
+(defz3 mk-fresh-const :
+  (ctx prefix sort) ::
   (ctx : _z3-context)
-  (s : _z3-symbol)
+  (prefix : _string)
   (sort : _z3-sort)
   -> _z3-app)
 

@@ -79,23 +79,23 @@
   (let ([args (map sort-expr->_z3-sort argsorts)]
         [ret (sort-expr->_z3-sort retsort)])
     (if (= 0 (length args))
-        (z3:mk-const (ctx) (make-symbol name) ret)
-        (z3:mk-func-decl (ctx) (make-symbol name) args ret))))
+        (z3:mk-fresh-const (ctx) name ret)
+        (z3:mk-fresh-func-decl (ctx) name args ret))))
 
 ;; Declare a new function. argsort is a sort-expr.
 (define-syntax-rule (declare-fun fn args ...)
-  (define fn (make-uninterpreted 'fn 'args ...)))
+  (define fn (make-uninterpreted (symbol->string 'fn) 'args ...)))
 
 (define-syntax-rule (make-fun args ...)
-  (make-uninterpreted (gensym) 'args ...))
+  (make-uninterpreted "" 'args ...))
 
 (define-syntax-rule (make-fun/vector n args ...)
   (for/vector ([i (in-range 0 n)])
-    (make-uninterpreted (gensym) 'args ...)))
+    (make-uninterpreted "" 'args ...)))
 
 (define-syntax-rule (make-fun/list n args ...)
   (for/list ([i (in-range 0 n)])
-    (make-uninterpreted (gensym) 'args ...)))
+    (make-uninterpreted "" 'args ...)))
 
 ;; Helper function to make a symbol with the given name (Racket symbol)
 (define (make-symbol symbol-name)
@@ -157,10 +157,14 @@
    make-fun
    make-fun/vector
    make-fun/list
-   make-symbol
    assert
    check-sat
    get-model))
  smt:eval
  (prefix-out smt: (contract-out
-                   [set-logic (-> symbol? any)])))
+                   [set-logic (-> symbol? any)]))
+ ; XXX move these to a submodule once Racket 5.3 is released
+ (prefix-out smt:internal:
+             (combine-out
+              make-symbol
+              sort-expr->_z3-sort)))
