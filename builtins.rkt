@@ -90,7 +90,8 @@
 
 ;; forall. The syntax is (forall/s (list of bound variables) expression).
 (define-syntax-rule (forall/s ((varname vartype) ...) expr)
-  (let ([varname (z3:mk-fresh-const (ctx) (symbol->string varname)
-                                    (smt:internal:sort-expr->_z3-sort vartype))] ...)
-    `(forall (no-eval ,varname ...) ,expr)))
+  (let ([varname (z3:mk-fresh-const (ctx) (symbol->string 'varname)
+                                    (smt:internal:sort-expr->_z3-sort 'vartype))] ...)
+    `(@app forall (,varname ...) ,expr)))
 (hash-set! builtin-vals 'forall (λ (ctx bound-consts expr) (z3:mk-forall-const ctx 0 bound-consts '() expr)))
+(provide forall/s)

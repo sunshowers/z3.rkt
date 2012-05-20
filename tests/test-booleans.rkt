@@ -34,4 +34,13 @@
     (check-eq? (smt:check-sat) 'sat)
     (check-eq? (smt:eval q) 'true)
     (smt:assert (=/s q false/s))
+    (check-eq? (smt:check-sat) 'unsat)))
+  
+  (test-case
+   "Test a quantifier over all booleans"
+   (smt:with-context
+    (smt:new-context-info)
+    (smt:assert (forall/s ((x Bool)) x))
+    (smt:declare-fun p () Bool)
+    (smt:assert (not/s p))
     (check-eq? (smt:check-sat) 'unsat))))
