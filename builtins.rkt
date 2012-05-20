@@ -1,13 +1,9 @@
 #lang racket/base
 
 (require (prefix-in z3: "z3-wrapper.rkt")
-         "utils.rkt")
+         "utils.rkt"
+         "parser.rkt")
 (require racket/list)
-
-;; Helper function to make a symbol with the given name (Racket symbol)
-(define (make-symbol symbol-name)
-  (z3:mk-string-symbol (ctx) (symbol->string symbol-name)))
-(provide make-symbol)
 
 ;; Initialize builtins. (The current context is assumed to be a parameter.)
 (define (init-builtins)
@@ -23,7 +19,7 @@
   (for ([(k fn) (in-hash builtin-sorts)])
     (new-sort k (fn context)))
   ;; XXX This is a giant hack and needs to be generalized.
-  (define int-list-instance (z3:mk-list-sort (ctx) (make-symbol 'IntList) (get-sort 'Int)))
+  (define int-list-instance (z3:mk-list-sort (ctx) (smt:make-symbol 'IntList) (get-sort 'Int)))
   (new-sort 'IntList (datatype-instance-z3-sort int-list-instance))
   (hash-set! vals int-list-key int-list-instance))
 (provide init-builtins)

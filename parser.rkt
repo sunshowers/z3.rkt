@@ -1,8 +1,7 @@
 #lang racket/base
 
 (require (prefix-in z3: "z3-wrapper.rkt")
-         "utils.rkt"
-         "builtins.rkt")
+         "utils.rkt")
 (require racket/match
          racket/contract/base)
 
@@ -19,21 +18,6 @@
       model))
 (define (set-current-model! new-model)
   (set-box! (z3ctx-current-model (current-context-info)) new-model))
-
-(define (make-config #:model? [model? #t])
-  (let ([config (z3:mk-config)])
-    (z3:set-param-value! config "MODEL" (if model? "true" "false"))
-    config))
-
-(define (new-context-info #:model? [model? #t])
-  (define ctx (z3:mk-context (make-config #:model? model?)))
-  (define vals (make-hash))
-  (define sorts (make-hash))
-  (define new-info (z3ctx ctx vals sorts (box #f)))
-  (with-context
-   new-info
-   (init-builtins))
-  new-info)
 
 (define-syntax-rule (with-context info body ...)
   (parameterize ([current-context-info info])
@@ -113,6 +97,10 @@
   (for/list ([i (in-range 0 n)])
     (make-uninterpreted (gensym) 'args ...)))
 
+;; Helper function to make a symbol with the given name (Racket symbol)
+(define (make-symbol symbol-name)
+  (z3:mk-string-symbol (ctx) (symbol->string symbol-name)))
+
 ;; We only support plain symbol for now
 (define (constr->_z3-constructor expr)
   (z3:mk-constructor (ctx)
@@ -163,13 +151,13 @@
   smt:
   (combine-out
    with-context
-   new-context-info
    declare-datatypes
    declare-sort
    declare-fun
    make-fun
    make-fun/vector
    make-fun/list
+   make-symbol
    assert
    check-sat
    get-model))
