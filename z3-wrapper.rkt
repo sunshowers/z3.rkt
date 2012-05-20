@@ -224,14 +224,17 @@
   (constructors : (_list i _z3-constructor))
   -> _z3-sort)
 
-(define (vector-multilength v1 v2)
-  (cond
-   [(and (not v1) (not v2)) 0]
-   [else
-    (let ([l1 (vector-length v1)])
-      (if (equal? l1 (vector-length v2))
-          l1
-          (raise-user-error "vector lengths don't match")))]))
+;; Quantifiers
+(defz3 mk-forall-const :
+  (ctx weight bound-consts patterns body) ::
+  (ctx : _z3-context)
+  (weight : _uint)
+  (_uint = (length bound-consts))
+  (bound-consts : (_list i _z3-app))
+  (_uint = (length patterns))
+  (patterns : (_list i _z3-pattern))
+  (body : _z3-ast)
+  -> _z3-ast)
 
 ;; -> string functions
 (defz3 context-to-string : _z3-context -> _string)

@@ -58,7 +58,7 @@
   ;(displayln (format "IN: ~a" expr))
   (define ast (match expr
     ; Non-basic expressions
-    [(list fn args ...) (apply (get-value fn) (cons (ctx) (map expr->_z3-ast args)))]
+    [(list '@app fn args ...) (apply (get-value fn) (ctx) (map expr->_z3-ast args))]
     ; Numerals
     [(? exact-integer?) (z3:mk-numeral (ctx) (number->string expr) (get-sort 'Int))]
     [(? inexact-real?) (z3:mk-numeral (ctx) (number->string expr) (get-sort 'Real))]

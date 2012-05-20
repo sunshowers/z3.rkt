@@ -87,3 +87,10 @@
 (define-builtin-sort Bool z3:mk-bool-sort)
 (define-builtin-sort Int z3:mk-int-sort)
 (define-builtin-sort Array (curryn 2 z3:mk-array-sort))
+
+;; forall. The syntax is (forall/s (list of bound variables) expression).
+(define-syntax-rule (forall/s ((varname vartype) ...) expr)
+  (let ([varname (z3:mk-fresh-const (ctx) (symbol->string varname)
+                                    (smt:internal:sort-expr->_z3-sort vartype))] ...)
+    `(forall (no-eval ,varname ...) ,expr)))
+(hash-set! builtin-vals 'forall (λ (ctx bound-consts expr) (z3:mk-forall-const ctx 0 bound-consts '() expr)))
