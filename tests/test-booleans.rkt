@@ -39,7 +39,7 @@
   (test-case
    "Test a quantifier over all booleans"
    (smt:with-context
-    (smt:new-context-info)
+    (smt:new-context-info #:mbqi? #t)
     (smt:assert (forall/s ((x Bool)) x))
     (smt:declare-fun p () Bool)
     (smt:assert (not/s p))
