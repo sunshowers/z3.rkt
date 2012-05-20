@@ -38,18 +38,23 @@
     [(_ _TYPE)
      (define-z3-type _TYPE #f)]
     [(_ _TYPE ptr-tag)
+     (define-z3-type _TYPE ptr-tag z3-boxed-pointer)]
+    [(_ _TYPE ptr-tag ptr-struct)
      (define-cpointer-type _TYPE #f
        z3-boxed-pointer-ptr
        (λ (ptr)
          (when ptr-tag (cpointer-push-tag! ptr ptr-tag))
-         (z3-boxed-pointer (ctx) ptr)))]))
+         (ptr-struct (ctx) ptr)))]))
+
+(struct z3-func-decl-pointer z3-boxed-pointer ()
+  #:property prop:procedure (λ (f . args) `(@app ,mk-app ,f ,@args)))
 
 (define-z3-type _z3-symbol)
 
 (define-z3-type _z3-ast)
 (define-z3-type _z3-sort z3-ast-tag)
 (define-z3-type _z3-app z3-ast-tag)
-(define-z3-type _z3-func-decl z3-ast-tag)
+(define-z3-type _z3-func-decl z3-ast-tag z3-func-decl-pointer)
 
 (define-z3-type _z3-constructor)
 (define-z3-type _z3-pattern)
@@ -176,7 +181,7 @@
   (range : _z3-sort)
   -> _z3-func-decl)
 
-(defz3 mk-app : (ctx d args) ::
+(defz3 mk-app : (ctx d . args) ::
   (ctx : _z3-context)
   (d : _z3-func-decl)
   (_uint = (length args))

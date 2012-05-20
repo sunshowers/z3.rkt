@@ -56,16 +56,19 @@
 ;; Given an expr, convert it to a Z3 AST. This is a really simple recursive descent parser.
 (define (expr->_z3-ast expr)
   ;(displayln (format "IN: ~a" expr))
-  (define ast (match expr
-    ; Non-basic expressions
-    [(list '@app fn args ...) (apply (get-value fn) (ctx) (map expr->_z3-ast args))]
-    ; Numerals
-    [(? exact-integer?) (z3:mk-numeral (ctx) (number->string expr) (get-sort 'Int))]
-    [(? inexact-real?) (z3:mk-numeral (ctx) (number->string expr) (get-sort 'Real))]
-    ; Symbols
-    [(? symbol?) (get-value expr)]
-    ; Anything else
-    [_ expr]))
+  (define ast
+    (match expr
+      ; Non-basic expressions
+      [(list '@app (and fn-name (? symbol?)) args ...)
+       (apply (get-value fn-name) (ctx) (map expr->_z3-ast args))]
+      [(list '@app proc args ...) (apply proc (ctx) (map expr->_z3-ast args))]
+      ; Numerals
+      [(? exact-integer?) (z3:mk-numeral (ctx) (number->string expr) (get-sort 'Int))]
+      [(? inexact-real?) (z3:mk-numeral (ctx) (number->string expr) (get-sort 'Real))]
+      ; Symbols
+      [(? symbol?) (get-value expr)]
+      ; Anything else
+      [_ expr]))
   ;(displayln (format "Output: ~a ~a ~a" expr ast (z3:ast-to-string (ctx) ast)))
   ast)
 
@@ -120,7 +123,7 @@
      (lambda (constr-name constr)
        (let-values ([(constr-fn tester-fn accessor-fns)
                      (z3:query-constructor (ctx) constr 0)]) ; XXX handle > 0
-         (set-value constr-name (z3:mk-app (ctx) constr-fn '()))))
+         (set-value constr-name (z3:mk-app (ctx) constr-fn))))
      args constrs)))
 
 (define (assert expr)

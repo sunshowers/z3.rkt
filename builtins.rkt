@@ -31,7 +31,7 @@
     (define instance-fns (datatype-instance-fns (hash-ref (z3ctx-vals (current-context-info)) int-list-key)))
     (define func-decl (hash-ref instance-fns op))
     ;; Make an app out of it. (Drop the first argument since it'll be the context.)
-    (z3:mk-app (ctx) func-decl args)))
+    (apply z3:mk-app (ctx) func-decl args)))
 
 ;; Wraps a binary function so that arguments are processed
 ;; in a right-associative manner.
