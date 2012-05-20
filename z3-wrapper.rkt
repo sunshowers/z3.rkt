@@ -129,7 +129,7 @@
 (defz3 mk-false : _z3-context -> _z3-ast)
 (defz3 mk-eq : _z3-context _z3-ast _z3-ast -> _z3-ast)
 
-; Helper macro to define n-ary AST functions
+;; Helper macro to define n-ary AST functions
 (define-syntax define-nary
   (syntax-rules (: ->)
     [(_ fn : argtype -> rettype)
@@ -140,7 +140,7 @@
 
 (define-nary mk-distinct : _z3-ast -> _z3-ast)
 
-; Boolean operations
+;; Boolean operations
 (defz3 mk-not : _z3-context _z3-ast -> _z3-ast)
 (defz3 mk-ite : _z3-context _z3-ast _z3-ast _z3-ast -> _z3-ast)
 (defz3 mk-iff : _z3-context _z3-ast _z3-ast -> _z3-ast)
@@ -149,7 +149,7 @@
 (define-nary mk-and : _z3-ast -> _z3-ast)
 (define-nary mk-or : _z3-ast -> _z3-ast)
 
-; Arithmetic operations
+;; Arithmetic operations
 (define-nary mk-add : _z3-ast -> _z3-ast)
 (define-nary mk-mul : _z3-ast -> _z3-ast)
 (define-nary mk-sub : _z3-ast -> _z3-ast)
@@ -157,15 +157,16 @@
 (defz3 mk-mod : _z3-context _z3-ast _z3-ast -> _z3-ast)
 (defz3 mk-rem : _z3-context _z3-ast _z3-ast -> _z3-ast)
 
-; Comparisons
+;; Comparisons
 (defz3 mk-lt : _z3-context _z3-ast _z3-ast -> _z3-ast)
 (defz3 mk-le : _z3-context _z3-ast _z3-ast -> _z3-ast)
 (defz3 mk-gt : _z3-context _z3-ast _z3-ast -> _z3-ast)
 (defz3 mk-ge : _z3-context _z3-ast _z3-ast -> _z3-ast)
 
-; Numerals
+;; Numerals
 (defz3 mk-numeral : _z3-context _string _z3-sort -> _z3-ast)
 
+;; Uninterpreted constants, functions and applications
 (defz3 mk-fresh-func-decl :
   (ctx prefix domain range) ::
   (ctx : _z3-context)
@@ -231,18 +232,6 @@
       (if (equal? l1 (vector-length v2))
           l1
           (raise-user-error "vector lengths don't match")))]))
-
-(defz3 parse-smtlib2-string :
-  (ctx smtlib2-defn sort-names sorts decl-names decls) ::
-  (ctx : _z3-context)
-  (smtlib2-defn : _string)
-  (_uint = (vector-multilength sort-names sorts))
-  (sort-names : (_vector i _z3-symbol))
-  (sorts : (_vector i _z3-sort))
-  (_uint = (vector-multilength decl-names decls))
-  (decl-names : (_vector i _z3-symbol))
-  (decls : (_vector i _z3-func-decl))
-  -> _z3-ast)
 
 ;; -> string functions
 (defz3 context-to-string : _z3-context -> _string)
