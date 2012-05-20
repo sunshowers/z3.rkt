@@ -28,7 +28,7 @@
     (smt:new-context-info)
     (smt:declare-fun p () Bool)
     (smt:declare-fun q () Bool)
-    (smt:assert (implies/s p q))
+    (smt:assert (=>/s p q))
     (check-eq? (smt:check-sat) 'sat)
     (smt:assert (=/s p true/s))
     (check-eq? (smt:check-sat) 'sat)

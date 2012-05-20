@@ -56,7 +56,7 @@
 (define-builtin-proc not z3:mk-not)
 (define-builtin-proc ite z3:mk-ite)
 (define-builtin-proc iff z3:mk-iff)
-(define-builtin-proc implies z3:mk-implies rassoc)
+(define-builtin-proc => z3:mk-implies rassoc)
 (define-builtin-proc xor z3:mk-xor lassoc)
 ;; These functions already accept an arbitrary number of arguments
 (define-builtin-proc and z3:mk-and)
