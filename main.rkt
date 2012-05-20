@@ -1,5 +1,6 @@
 #lang racket/base
 
+(require racket/contract/base)
 (require (prefix-in z3: "z3-wrapper.rkt")
          "utils.rkt"
          "parser.rkt"
@@ -10,8 +11,10 @@
     (z3:set-param-value! config "MODEL" (if model? "true" "false"))
     config))
 
-(define (smt:new-context-info #:model? [model? #t])
+(define (smt:new-context-info #:model? [model? #t]
+                              #:logic [logic #f])
   (define ctx (z3:mk-context (make-config #:model? model?)))
+  (when logic (z3:set-logic ctx logic))
   (define vals (make-hash))
   (define sorts (make-hash))
   (define new-info (z3ctx ctx vals sorts (box #f)))
@@ -23,4 +26,5 @@
 (provide
  (all-from-out "parser.rkt"
                "builtins.rkt")
- smt:new-context-info)
+ (contract-out
+  [smt:new-context-info (->* () (#:model? boolean? #:logic string?) z3ctx?)]))
