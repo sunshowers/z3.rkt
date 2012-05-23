@@ -88,7 +88,7 @@
                 [name name-stx]
                 [fn fn-stx])
     #'(begin
-        (define (proc-stx . args) `(@app name ,@args))
+        (define (proc-stx . args) `(@app ,fn ,@args))
         (hash-set! builtin-vals 'name fn)
         (provide proc-stx))))
 
