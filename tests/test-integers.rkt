@@ -16,7 +16,7 @@
     (check-true (and (> a-eval 10) (< a-eval 20)))
     (smt:assert (=/s (+/s a 5) 14))
     (check-eq? (smt:check-sat) 'unsat)))
-  
+
   (test-case
    "Test a quantifier over integers"
    (smt:with-context
