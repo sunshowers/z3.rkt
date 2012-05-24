@@ -4,7 +4,8 @@
 (require (prefix-in z3: "z3-wrapper.rkt")
          "utils.rkt"
          "parser.rkt"
-         "builtins.rkt")
+         "builtins.rkt"
+         "derived.rkt")
 
 (define (make-config #:model? [model? #t]
                      #:mbqi? [mbqi? #f]
@@ -31,6 +32,7 @@
 
 (provide
  (all-from-out "parser.rkt"
-               "builtins.rkt")
+               "builtins.rkt"
+               "derived.rkt")
  (contract-out
   [smt:new-context-info (->* () (#:model? boolean? #:logic string? #:mbqi? boolean? #:macro-finder? boolean?) z3ctx?)]))

@@ -9,7 +9,7 @@
    "Test reverse"
    (smt:with-context
     (smt:new-context-info)
-    (define reverse (car (make-reverse 10)))
+    (define reverse (make-reverse 10))
     (smt:declare-fun v1 () IntList)
     (smt:assert (=/s v1 (reverse (nil/s) (nil/s))))
     (smt:declare-fun v2 () IntList)

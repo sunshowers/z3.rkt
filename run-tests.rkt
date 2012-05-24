@@ -4,11 +4,11 @@
 (require "tests/test-booleans.rkt"
          "tests/test-integers.rkt"
          "tests/test-datatypes.rkt"
+         "tests/test-list-helpers.rkt"
          "tests/test-arrays.rkt"
          "tests/test-sudoku.rkt"
          "tests/test-nqueens.rkt"
-         "tests/test-numbermind.rkt"
-         "tests/test-list-helpers.rkt")
+         "tests/test-numbermind.rkt")
 
 (define total-failures 0)
 
@@ -20,10 +20,10 @@
 (run-test-suite test-booleans)
 (run-test-suite test-integers)
 (run-test-suite test-datatypes)
+(run-test-suite test-list-helpers)
 (run-test-suite test-arrays)
 (run-test-suite test-sudoku)
 (run-test-suite test-nqueens)
 (run-test-suite test-numbermind)
-(run-test-suite test-list-helpers)
 
 (printf "Total failures: ~a~n" total-failures)

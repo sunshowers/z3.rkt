@@ -3,21 +3,16 @@
 (require "../main.rkt")
 (require racket/match)
 
-;; Returns a list of functions that can perform reverses. The head of the list can perform
-;; reverse for a list of up to n, and so on.
+;; Returns a function that can reverse lists up to length n.
 (define (make-reverse n)
-  (smt:declare-fun reverse (IntList IntList) IntList)
-  (if (zero? n)
-      (begin
-        (smt:assert (forall/s ((xs IntList) (accum IntList))
-                              (=/s (reverse xs accum) accum)))
-        (list reverse))
-      (let ([subreverse (make-reverse (sub1 n))])
-        (smt:assert (forall/s ((xs IntList) (accum IntList))
-                              (=/s (reverse xs accum) (ite/s (=/s xs (nil/s))
-                                                             accum
-                                                             ((car subreverse) (tail/s xs) (cons/s (head/s xs) accum))))))
-        (cons reverse subreverse))))
+  (smt:define-fun reverse ((xs IntList) (accum IntList)) IntList
+                  (if (zero? n)
+                      accum
+                      (let ([subreverse (make-reverse (sub1 n))])
+                        (ite/s (=/s xs (nil/s))
+                               accum
+                               (subreverse (tail/s xs) (cons/s (head/s xs) accum))))))
+  reverse)
 
 ;; Returns a function that can perform appends up to n.
 (define (make-append n)
@@ -36,7 +31,7 @@
                                             (subappend (tail/s xs) (cons/s (head/s xs) ys))))))
           append)))
   (define append-fn (make-append-internal n))
-  (define reverse-fn (car (make-reverse n)))
+  (define reverse-fn (make-reverse n))
   (λ (xs ys) (append-fn (reverse-fn xs (nil/s)) ys)))
 
 ;; Calculates length of a list, assuming the maximum possible length is n.
