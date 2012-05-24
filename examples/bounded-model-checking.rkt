@@ -31,11 +31,11 @@
                       (nil/s)
                       (ite/s (=/s xs (nil/s))
                              (nil/s)
-                             (let* ([subqsort (make-qsort (sub1 n))]
+                             (let* ([subqsort (make-qsort (sub1 n) lessop-fn greaterop-fn)]
                                     [pivot (head/s xs)]
                                     [rest (tail/s xs)]
-                                    [left-sorted (subqsort (((lessop-fn n) (sub1 n)) pivot rest))]
-                                    [right-sorted (subqsort (((greaterop-fn n) (sub1 n)) pivot rest))])
+                                    [left-sorted (subqsort ((lessop-fn (sub1 n)) pivot rest))]
+                                    [right-sorted (subqsort ((greaterop-fn (sub1 n)) pivot rest))])
                                ((make-append (sub1 n)) left-sorted (cons/s pivot right-sorted))))))
   qsort)
 
@@ -43,9 +43,9 @@
   (smt:with-context
    (smt:new-context-info)
    (define len (make-length 8))
-   (define qsort (make-qsort 6 make-le make-gt))
+   (define qsort (make-qsort 4 make-le make-gt))
    (smt:declare-fun unsorted () IntList)
-   (smt:assert (=/s (len unsorted) 6))
+   (smt:assert (<=/s (len unsorted) 4))
    (smt:assert (not/s (=/s (len (qsort unsorted)) (len unsorted))))
    (displayln (smt:check-sat))
    (displayln (smt:eval unsorted))))
