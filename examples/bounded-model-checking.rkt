@@ -24,20 +24,17 @@
 
 ;; Define quicksort for a list
 (define (make-qsort n)
-  (smt:declare-fun qsort (IntList) IntList)
-  (if (zero? n)
-      (smt:assert (forall/s ((xs IntList))
-                            (=/s (qsort xs) (nil/s))))
-      (smt:assert (forall/s ((xs IntList))
-                            (=/s (qsort xs)
-                                 (ite/s (=/s xs (nil/s))
-                                        (nil/s)
-                                        (let* ([subqsort (make-qsort (sub1 n))]
-                                               [pivot (head/s xs)]
-                                               [rest (tail/s xs)]
-                                               [left-sorted (subqsort ((make-lt (sub1 n)) pivot rest))]
-                                               [right-sorted (subqsort ((make-gt (sub1 n)) pivot rest))])
-                                          ((make-append (sub1 n)) left-sorted (cons/s pivot right-sorted))))))))
+  (smt:define-fun qsort ((xs IntList)) IntList
+                  (if (zero? n)
+                      (nil/s)
+                      (ite/s (=/s xs (nil/s))
+                             (nil/s)
+                             (let* ([subqsort (make-qsort (sub1 n))]
+                                    [pivot (head/s xs)]
+                                    [rest (tail/s xs)]
+                                    [left-sorted (subqsort ((make-lt (sub1 n)) pivot rest))]
+                                    [right-sorted (subqsort ((make-gt (sub1 n)) pivot rest))])
+                               ((make-append (sub1 n)) left-sorted (cons/s pivot right-sorted))))))
   qsort)
 
 (define (check-qsort-model)
