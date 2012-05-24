@@ -34,15 +34,13 @@
 
 ;; Calculates length of a list, assuming the maximum possible length is n.
 (define (make-length n)
-  (smt:declare-fun len (IntList) Int)
-  (if (zero? n)
-      (smt:assert (forall/s ((xs IntList))
-                            (=/s (len xs) 0)))
-      (smt:assert (forall/s ((xs IntList))
-                            (=/s (len xs) (ite/s (=/s xs (nil/s))
-                                                 0
-                                                 (let ([sublen (make-length (sub1 n))])
-                                                   (+/s 1 (sublen (tail/s xs)))))))))
+  (smt:define-fun len ((xs IntList)) Int
+                  (if (zero? n)
+                      0
+                      (ite/s (=/s xs (nil/s))
+                             0
+                             (let ([sublen (make-length (sub1 n))])
+                               (+/s 1 (sublen (tail/s xs)))))))
   len)
 
 (define (list->z3-list l)
