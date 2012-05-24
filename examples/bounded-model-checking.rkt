@@ -2,6 +2,7 @@
 
 (require "../main.rkt"
          "list-helpers.rkt")
+(require racket/function)
 
 ;; Calculate a relation (less than, greater than etc) for a list
 (define-syntax-rule (define-z3-list-relation fn op)
@@ -29,6 +30,7 @@
   (smt:define-fun qsort ((xs IntList)) IntList
                   (if (zero? n)
                       (nil/s)
+                      ; From here on is the usual definition of quicksort.
                       (ite/s (=/s xs (nil/s))
                              (nil/s)
                              (let* ([subqsort (make-qsort (sub1 n) lessop-fn greaterop-fn)]
@@ -39,15 +41,12 @@
                                ((make-append (sub1 n)) left-sorted (cons/s pivot right-sorted))))))
   qsort)
 
-(define (check-qsort-model)
-  (smt:with-context
-   (smt:new-context-info)
-   (define len (make-length 8))
-   (define qsort (make-qsort 4 make-le make-gt))
-   (smt:declare-fun unsorted () IntList)
-   (smt:assert (<=/s (len unsorted) 4))
-   (smt:assert (not/s (=/s (len (qsort unsorted)) (len unsorted))))
-   (displayln (smt:check-sat))
-   (displayln (smt:eval unsorted))))
+(define make-correct-qsort1 (curryr make-qsort make-le make-gt))
+(define make-correct-qsort2 (curryr make-qsort make-lt make-ge))
+(define make-buggy-qsort1 (curryr make-qsort make-lt make-gt))
+(define make-buggy-qsort2 (curryr make-qsort make-le make-ge))
 
-(check-qsort-model)
+(provide make-correct-qsort1
+         make-correct-qsort2
+         make-buggy-qsort1
+         make-buggy-qsort2)
