@@ -9,5 +9,5 @@
 *.bbl
 *.blg
 /z3
-compiled/*
+compiled/
 *.pdf
