@@ -7,7 +7,8 @@
          "tests/test-arrays.rkt"
          "tests/test-sudoku.rkt"
          "tests/test-nqueens.rkt"
-         "tests/test-numbermind.rkt")
+         "tests/test-numbermind.rkt"
+         "tests/test-list-helpers.rkt")
 
 (define total-failures 0)
 
@@ -23,5 +24,6 @@
 (run-test-suite test-sudoku)
 (run-test-suite test-nqueens)
 (run-test-suite test-numbermind)
+(run-test-suite test-list-helpers)
 
 (printf "Total failures: ~a~n" total-failures)
