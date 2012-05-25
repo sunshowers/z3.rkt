@@ -1,4 +1,4 @@
-`z3.rkt`: Z3 bindings for Racket
+`z3.rkt`: Racket bindings for Z3
 --------------------------------
 
 We aim to provide a reasonably complete and *easy-to-use* implementation of Z3
