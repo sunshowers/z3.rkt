@@ -10,12 +10,12 @@
                     (if (zero? n)
                         accum
                         (let ([subreverse (make-reverse-internal (sub1 n))])
-                          (ite/s (=/s xs (nil/s))
+                          (ite/s (=/s xs nil/s)
                                  accum
                                  (subreverse (tail/s xs) (insert/s (head/s xs) accum))))))
     reverse)
   (define reverse (make-reverse-internal n))
-  (λ (xs) (reverse xs (nil/s))))
+  (λ (xs) (reverse xs nil/s)))
 
 ;; Returns a function that can perform appends up to n.
 (define (make-append n)
@@ -24,7 +24,7 @@
                     (if (zero? n)
                         ys
                         (let ([subappend (make-append-internal (sub1 n))])
-                          (ite/s (=/s xs (nil/s))
+                          (ite/s (=/s xs nil/s)
                                             ys
                                             (subappend (tail/s xs) (insert/s (head/s xs) ys))))))
     append)
@@ -37,7 +37,7 @@
   (smt:define-fun len ((xs IntList)) Int
                   (if (zero? n)
                       0
-                      (ite/s (=/s xs (nil/s))
+                      (ite/s (=/s xs nil/s)
                              0
                              (let ([sublen (make-length (sub1 n))])
                                (+/s 1 (sublen (tail/s xs)))))))
@@ -45,7 +45,7 @@
 
 (define (list->z3-list l)
   (if (eq? '() l)
-      (nil/s)
+      nil/s
       (insert/s (car l) (list->z3-list (cdr l)))))
 
 ;; XXX This doesn't actually work for actual Z3 lists, only for evaluated ones.

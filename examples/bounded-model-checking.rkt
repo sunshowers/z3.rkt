@@ -9,10 +9,10 @@
   (define (fn n)
     (smt:define-fun fn-op ((x Int) (ys IntList)) IntList
                     (if (zero? n)
-                        (nil/s)
+                        nil/s
                         (let ([subfn (fn (sub1 n))])
-                          (ite/s (=/s ys (nil/s))
-                                 (nil/s)
+                          (ite/s (=/s ys nil/s)
+                                 nil/s
                                  (ite/s (op (head/s ys) x)
                                         (insert/s (head/s ys) (subfn x (tail/s ys)))
                                         (subfn x (tail/s ys)))))))
@@ -29,10 +29,10 @@
 (define (make-qsort n lessop-fn greaterop-fn)
   (smt:define-fun qsort ((xs IntList)) IntList
                   (if (zero? n)
-                      (nil/s)
+                      nil/s
                       ; From here on is the usual definition of quicksort.
-                      (ite/s (=/s xs (nil/s))
-                             (nil/s)
+                      (ite/s (=/s xs nil/s)
+                             nil/s
                              (let* ([subqsort (make-qsort (sub1 n) lessop-fn greaterop-fn)]
                                     [pivot (head/s xs)]
                                     [rest (tail/s xs)]
