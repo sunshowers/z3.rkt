@@ -65,6 +65,9 @@
       ; Numerals
       [(? exact-integer?) (z3:mk-numeral (ctx) (number->string expr) (get-sort 'Int))]
       [(? inexact-real?) (z3:mk-numeral (ctx) (number->string expr) (get-sort 'Real))]
+      ; Booleans
+      [#t (get-value 'true)]
+      [#f (get-value 'false)]
       ; Symbols
       [(? symbol?) (get-value expr)]
       ; Anything else

@@ -10,7 +10,7 @@
     (smt:new-context-info)
     (smt:declare-fun p () Bool)
     (check-eq? (smt:check-sat) 'sat)
-    (smt:assert (=/s p true/s))
+    (smt:assert (=/s p #t))
     (check-eq? (smt:check-sat) 'sat)
     (check-eq? (smt:eval p) 'true)))
   
@@ -30,10 +30,10 @@
     (smt:declare-fun q () Bool)
     (smt:assert (=>/s p q))
     (check-eq? (smt:check-sat) 'sat)
-    (smt:assert (=/s p true/s))
+    (smt:assert (=/s p #t))
     (check-eq? (smt:check-sat) 'sat)
     (check-eq? (smt:eval q) 'true)
-    (smt:assert (=/s q false/s))
+    (smt:assert (=/s q #f))
     (check-eq? (smt:check-sat) 'unsat)))
   
   (test-case
