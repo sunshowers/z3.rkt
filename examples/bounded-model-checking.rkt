@@ -14,7 +14,7 @@
                           (ite/s (=/s ys (nil/s))
                                  (nil/s)
                                  (ite/s (op (head/s ys) x)
-                                        (cons/s (head/s ys) (subfn x (tail/s ys)))
+                                        (insert/s (head/s ys) (subfn x (tail/s ys)))
                                         (subfn x (tail/s ys)))))))
     fn-op))
 
@@ -38,7 +38,7 @@
                                     [rest (tail/s xs)]
                                     [left-sorted (subqsort ((lessop-fn (sub1 n)) pivot rest))]
                                     [right-sorted (subqsort ((greaterop-fn (sub1 n)) pivot rest))])
-                               ((make-append (sub1 n)) left-sorted (cons/s pivot right-sorted))))))
+                               ((make-append (sub1 n)) left-sorted (insert/s pivot right-sorted))))))
   qsort)
 
 (define make-correct-qsort1 (curryr make-qsort make-le make-gt))

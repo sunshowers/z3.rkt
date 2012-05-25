@@ -10,7 +10,7 @@
     (smt:new-context-info)
     (smt:declare-fun a () IntList)
     (smt:declare-fun b () IntList)
-    (smt:assert (=/s a (cons/s 4 (cons/s 5 (nil/s)))))
+    (smt:assert (=/s a (insert/s 4 (insert/s 5 (nil/s)))))
     (smt:assert (not/s (=/s b (nil/s))))
     (smt:assert (</s (head/s b) (-/s (head/s a) 2)))
     (smt:assert (=/s (tail/s b) a))

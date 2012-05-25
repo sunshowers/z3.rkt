@@ -78,7 +78,7 @@
 (define-builtin-proc select z3:mk-select)
 (define-builtin-proc store z3:mk-store)
 ;; List operations
-(define-builtin-proc cons (get-list-op 'cons))
+(define-builtin-proc insert (get-list-op 'cons))
 (define-builtin-proc head (get-list-op 'head))
 (define-builtin-proc tail (get-list-op 'tail))
 (define-builtin-proc nil (get-list-op 'nil))

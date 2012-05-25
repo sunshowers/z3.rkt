@@ -12,7 +12,7 @@
                         (let ([subreverse (make-reverse-internal (sub1 n))])
                           (ite/s (=/s xs (nil/s))
                                  accum
-                                 (subreverse (tail/s xs) (cons/s (head/s xs) accum))))))
+                                 (subreverse (tail/s xs) (insert/s (head/s xs) accum))))))
     reverse)
   (define reverse (make-reverse-internal n))
   (λ (xs) (reverse xs (nil/s))))
@@ -26,7 +26,7 @@
                         (let ([subappend (make-append-internal (sub1 n))])
                           (ite/s (=/s xs (nil/s))
                                             ys
-                                            (subappend (tail/s xs) (cons/s (head/s xs) ys))))))
+                                            (subappend (tail/s xs) (insert/s (head/s xs) ys))))))
     append)
   (define append (make-append-internal n))
   (define reverse (make-reverse n))
@@ -46,10 +46,10 @@
 (define (list->z3-list l)
   (if (eq? '() l)
       (nil/s)
-      (cons/s (car l) (list->z3-list (cdr l)))))
+      (insert/s (car l) (list->z3-list (cdr l)))))
 
 ;; XXX This doesn't actually work for actual Z3 lists, only for evaluated ones.
-;; We use a hack right now to read in cons/s as "cons" and so on in parser.rkt.
+;; We use a hack right now to read in insert/s as "cons" and so on in parser.rkt.
 ;; Improve this.
 (define (z3-list->list zl)
   (match zl
