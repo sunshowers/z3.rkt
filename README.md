@@ -33,12 +33,6 @@ only work on Linux for now, though we would like to support all the platforms Z3
 and Racket support. For now, you'll need to extract the Z3 tarball into this
 directory, which should create a subdirectory called `z3`.
 
-If you see an error looking for "libgomp" or something similar, make sure you
-have this library installed. For Ubuntu running the following command should
-work:
-
-    sudo apt-get install libgomp1
-
 License
 =======
 
