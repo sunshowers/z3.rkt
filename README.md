@@ -8,7 +8,7 @@ working:
 * Basic assertions on integers, booleans, arrays and integer lists
 * Custom datatypes: only scalar datatypes supported right now
 * Extracting values from generated models
-* A few examples using the assertions, including Sudoku and n-queens
+* A few examples using the assertions, including Sudoku, n-queens, and bounded model checking for quicksort
 
 Check out the `tests` and `examples` subdirectories for examples. For a
 slightly more involved example, see [numbermind](https://github.com/sid0/numbermind),
