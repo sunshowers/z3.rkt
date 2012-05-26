@@ -7,7 +7,7 @@
   (test-case
    "Test basic list operations"
    (smt:with-context
-    (smt:new-context-info)
+    (smt:new-context)
     (smt:declare-fun a () IntList)
     (smt:declare-fun b () IntList)
     (smt:assert (=/s a (insert/s 4 (insert/s 5 nil/s))))
@@ -22,7 +22,7 @@
   (test-case
    "Test defining scalars"
    (smt:with-context
-    (smt:new-context-info)
+    (smt:new-context)
     (smt:declare-datatypes () ((S A B C)))
     (smt:declare-fun a () S)
     (smt:declare-fun b () S)

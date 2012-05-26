@@ -7,7 +7,7 @@
   (test-case
    "Test one constraint"
    (smt:with-context
-    (smt:new-context-info)
+    (smt:new-context)
     (smt:declare-fun p () Bool)
     (check-eq? (smt:check-sat) 'sat)
     (smt:assert (=/s p #t))
@@ -17,7 +17,7 @@
   (test-case
    "Test a basic contradiction"
    (smt:with-context
-    (smt:new-context-info)
+    (smt:new-context)
     (smt:declare-fun p () Bool)
     (smt:assert (and/s p (not/s p)))
     (check-eq? (smt:check-sat) 'unsat)))
@@ -25,7 +25,7 @@
   (test-case
    "Test implies"
    (smt:with-context
-    (smt:new-context-info)
+    (smt:new-context)
     (smt:declare-fun p () Bool)
     (smt:declare-fun q () Bool)
     (smt:assert (=>/s p q))
@@ -39,7 +39,7 @@
   (test-case
    "Test a quantifier over all booleans"
    (smt:with-context
-    (smt:new-context-info #:mbqi? #t)
+    (smt:new-context #:mbqi? #t)
     (smt:assert (forall/s ((x Bool)) x))
     (smt:declare-fun p () Bool)
     (smt:assert (not/s p))

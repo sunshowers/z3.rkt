@@ -8,7 +8,7 @@
 (define (solve-numbermind guesses)
   (define varcount (string-length (first (first guesses))))
   (smt:with-context
-   (smt:new-context-info)
+   (smt:new-context)
    (define vars (smt:make-fun/list varcount () Int))
    ;; Every variable is between 0 and 9
    (for ([var vars]) (smt:assert (and/s (>=/s var 0) (<=/s var 9))))

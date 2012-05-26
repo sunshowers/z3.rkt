@@ -8,7 +8,7 @@
   (test-case
    "Test reverse"
    (smt:with-context
-    (smt:new-context-info)
+    (smt:new-context)
     (define reverse (make-reverse 10))
     (smt:declare-fun v1 () IntList)
     (smt:assert (=/s v1 (reverse nil/s)))
@@ -24,7 +24,7 @@
   (test-case
    "Test append"
    (smt:with-context
-    (smt:new-context-info)
+    (smt:new-context)
     (define append (make-append 10))
     (smt:declare-fun v1 () IntList)
     (smt:assert (=/s v1 (append nil/s nil/s)))
@@ -40,7 +40,7 @@
   (test-case
    "Test length"
    (smt:with-context
-    (smt:new-context-info)
+    (smt:new-context)
     (define len (make-length 10))
     (smt:declare-fun v1 () Int)
     (smt:assert (=/s v1 (len nil/s)))
@@ -56,7 +56,7 @@
   (test-case
    "Test list unification"
    (smt:with-context
-    (smt:new-context-info)
+    (smt:new-context)
     (define append (make-append 10))
     (smt:declare-fun y1 () IntList)
     (smt:declare-fun y2 () IntList)

@@ -16,7 +16,7 @@
     (z3:set-param-value! config "MACRO_FINDER" (if macro-finder? "true" "false"))
     config))
 
-(define (smt:new-context-info #:model? [model? #t]
+(define (smt:new-context #:model? [model? #t]
                               #:logic [logic #f]
                               #:mbqi? [mbqi? #f]
                               #:macro-finder? [macro-finder? #t])
@@ -35,4 +35,4 @@
                "builtins.rkt"
                "derived.rkt")
  (contract-out
-  [smt:new-context-info (->* () (#:model? boolean? #:logic string? #:mbqi? boolean? #:macro-finder? boolean?) z3ctx?)]))
+  [smt:new-context (->* () (#:model? boolean? #:logic string? #:mbqi? boolean? #:macro-finder? boolean?) z3ctx?)]))

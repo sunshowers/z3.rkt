@@ -7,7 +7,7 @@
 
 (define (check-qsort-model make-qsort correct?)
   (smt:with-context
-   (smt:new-context-info)
+   (smt:new-context)
    (define len (make-length 8))
    ; Check lists of up to length 4
    (define qsort (make-qsort 4))

@@ -29,7 +29,7 @@
 ;; solutions are possible, and an 81-element list if a solution is possible.
 (define (solve-sudoku input-grid)
   (smt:with-context
-   (smt:new-context-info)
+   (smt:new-context)
    (smt:declare-datatypes () ((Sudoku S1 S2 S3 S4 S5 S6 S7 S8 S9)))
    (smt:declare-fun sudoku-grid () (Array Int Sudoku))
    (add-sudoku-grid-rules sudoku-grid) ; Plug in the grid rules (row, column, box)

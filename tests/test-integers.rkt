@@ -7,7 +7,7 @@
   (test-case
    "Test >, <, and +"
    (smt:with-context
-    (smt:new-context-info)
+    (smt:new-context)
     (smt:declare-fun a () Int)
     (smt:assert (>/s a 10))
     (smt:assert (</s a 20))
@@ -20,7 +20,7 @@
   (test-case
    "Test a quantifier over integers"
    (smt:with-context
-    (smt:new-context-info #:mbqi? #t)
+    (smt:new-context #:mbqi? #t)
     (smt:declare-fun f (Int Int) Int)
     (smt:declare-fun a () Int)
     (smt:declare-fun b () Int)

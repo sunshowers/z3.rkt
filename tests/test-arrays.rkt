@@ -7,7 +7,7 @@
   (test-case
    "Test basic array operations"
    (smt:with-context
-    (smt:new-context-info)
+    (smt:new-context)
     (smt:declare-fun a () (Array Int Int))
     (smt:assert (=/s (select/s a 0) 5))
     (smt:assert (</s (select/s a 1) (select/s a 0)))
@@ -19,7 +19,7 @@
    "Test array property assertions"
    ;; Example from Z3 guide at http://rise4fun.com/z3/tutorial/guide
    (smt:with-context
-    (smt:new-context-info #:mbqi? #t)
+    (smt:new-context #:mbqi? #t)
     ;; A0, A1, A2, A3, A4 are "arrays" from Integers to Integers.
     (smt:declare-fun A0 (Int) Int)
     (smt:declare-fun A1 (Int) Int)
@@ -71,7 +71,7 @@
    ;; Another example from the Z3 guide
    ;; f and g are "streams"
    (smt:with-context
-    (smt:new-context-info #:mbqi? #t)
+    (smt:new-context #:mbqi? #t)
     (smt:declare-fun f (Int) Int)
     (smt:declare-fun g (Int) Int)
 

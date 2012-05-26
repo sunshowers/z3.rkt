@@ -5,7 +5,7 @@
 
 (define (solve-nqueens n)
   (smt:with-context
-   (smt:new-context-info)
+   (smt:new-context)
    (define qs (smt:make-fun/list n () Int))
    (for ([q (in-list qs)])
      (smt:assert (and/s (>=/s q 0) (</s q n)))) ; columns are within bounds
