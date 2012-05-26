@@ -24,6 +24,7 @@ SMT-LIB standard, because most SMT-LIB names are already defined as functions
 by Racket and we want to avoid colliding with them.
 
 \subsection{Derived Abstractions}
+\label{sec:derived}
 
 Since the full power of Racket is available to us, we can define abstractions
 on top that allow consumers to simplify their code. For example, SMT-LIB
@@ -91,9 +92,9 @@ Options: \texttt{(set-option :foo true)} & Keyword arguments: \newline \texttt{(
 
 Logics: \texttt{(set-logic QF\_UF)} & The \texttt{\#:logic} keyword: \newline \texttt{(smt:new-context \#:logic "QF\_UF")} \\
 
-Commands: \texttt{declare-fun}, \texttt{assert}, \ldots & Prefix with \texttt{smt:} \\
+Commands: \texttt{declare-fun}, \texttt{assert}, \ldots & Prefixed with \texttt{smt:} \\
 
-Functions: \texttt{and}, \texttt{or}, \texttt{+}, \texttt{distinct} \ldots & Suffix with \texttt{/s} \\
+Functions: \texttt{and}, \texttt{or}, \texttt{+}, \texttt{distinct} \ldots & Suffixed with \texttt{/s} \\
 
 Boolean literals: \texttt{true} and \texttt{false} & \texttt{\#t} and \texttt{\#f} \\
 

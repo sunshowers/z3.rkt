@@ -1,1 +1,84 @@
 \section{Applications}
+
+We have successfully used \texttt{z3.rkt} in a number of applications, from
+constraint-solving puzzles as illustrated in Section~\ref{sec:interactive}, to
+bounded model checking and counterexample generation for functional programs.
+Along the way, we have been pleasantly surprised by how well the power of Z3
+and the expressiveness of Racket combine.
+
+\subsection{Quantified Formulas Are Hard}
+
+Z3 and other SMT solvers support lists and other recursive types. How would a
+recursive function that operates over the entire list (say, to calculate its
+length) be defined? Z3's macros are substitutions and do not support
+recursion, so we are forced to look for alternatives. Our first intuition
+might be to use a universal quantifier, as in Section~\ref{sec:derived}. Here
+is a first cut at defining a function that calculates the length of an integer
+list:
+
+\begin{verbatim}
+(declare-fun len ((List Int)) Int)
+(assert (forall ((xs (List Int)))
+  (ite (= xs nil)
+       (= (len xs) 0)
+       (= (len xs) (+ 1 (len (tail xs)))))))
+\end{verbatim}
+
+The problem with this is that solving assertions that use this requires model-
+based quantifier instantiation (MBQI)~\cite{mbqi}, which while powerful can
+also be quite slow. In our experience it is very easy to write a formula that
+Z3's MBQI engine fails to solve in reasonable time. In general, SMT solvers
+have a hard time dealing with quantified formulas containing linear
+arithmetic, because for logics containg them there is no sound and complete
+decision procedure~\cite{halpern91}.
+
+So avoiding quantified formulas altogether seems like a good idea, but how do
+we do that? The easiest way is to unroll and bound the recursion to a desired
+depth~\cite{sat-recursive}. One way to do this is to define macros
+\texttt{len-0}, \texttt{len-1}, \texttt{len-2}, \ldots \texttt{len-N}, where
+each \texttt{len-i} returns the length of the list if it is less than or equal
+to \texttt{i}, and \texttt{i} if it is greater than it.
+
+\begin{verbatim}
+(define-fun len-0 ((xs (List Int)))
+  0)
+
+(define-fun len-1 ((xs (List Int)))
+  (ite (= xs nil)
+       0
+       (+ 1 (len-0 (tail xs)))))
+
+(define-fun len-2 ((xs (List Int)))
+  (ite (= xs nil)
+       0
+       (+ 1 (len-1 (tail xs)))))
+...
+\end{verbatim}
+
+Our system makes defining a series of macros like this a cinch.
+
+\begin{verbatim}
+(define (make-length n)
+  (smt:define-fun len ((xs (List Int))) Int
+    (if (zero? n)
+        0
+        (ite/s (=/s xs nil/s)
+               0
+               (let ([sublen (make-length (sub1 n))])
+                 (+/s 1 (sublen (tail/s xs)))))))
+  len)
+\end{verbatim}
+
+\texttt{(make-length 5)} returns an SMT function that works for lists of up to
+length 5, and returns 5 for anything bigger than that. Note how freely the
+Racket \texttt{if} and \texttt{let} forms are mixed into the SMT body. These
+constructs are evaluated at definition time, meaning that this definition
+reduces to the series of macros defined above, except much more
+concisely\footnote{In some applications it might be useful to start with
+functions that handle small lists and then work our way up as Z3 keeps proving
+facts for bigger and bigger list lengths. Such cases can either be implemented
+by rewriting formulas as appropriate~\cite{sat-recursive}, or by incrementally
+adding macros to handle larger lengths.}
+
+Along the same lines, it is possible to define bounded recursive functions to
+reverse, append and filter lists based on a predicate.

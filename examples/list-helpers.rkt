@@ -25,8 +25,8 @@
                         ys
                         (let ([subappend (make-append-internal (sub1 n))])
                           (ite/s (=/s xs nil/s)
-                                            ys
-                                            (subappend (tail/s xs) (insert/s (head/s xs) ys))))))
+                                 ys
+                                 (subappend (tail/s xs) (insert/s (head/s xs) ys))))))
     append)
   (define append (make-append-internal n))
   (define reverse (make-reverse n))
