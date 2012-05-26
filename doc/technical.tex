@@ -65,9 +65,10 @@ following way.
                    (ite (> a b) a b))))
 \end{verbatim}
 
-We can thus provide a Racket macro named \texttt{smt:define-fun} that has the
-same syntax as the SMT-LIB \texttt{define-fun} and that performs precisely
-this transformation.
+Indeed, Z3 has a \textit{macro finder} component that identifies and
+eliminates universal quantifiers where possible. We can thus provide a Racket
+macro named \texttt{smt:define-fun} that has the same syntax as the SMT-LIB
+\texttt {define-fun} and that performs precisely this transformation.
 
 \subsection{Porting Existing SMT-LIB Code}
 \label{sec:porting-smt-lib}
