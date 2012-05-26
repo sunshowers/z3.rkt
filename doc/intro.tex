@@ -110,7 +110,8 @@ following:
   (smt:with-context
    (smt:new-context)
    ; Declare a scalar datatype (finite domain type) with 9 entries
-   (smt:declare-datatypes () ((Sudoku S1 S2 S3 S4 S5 S6 S7 S8 S9)))
+   (smt:declare-datatypes ()
+     ((Sudoku S1 S2 S3 S4 S5 S6 S7 S8 S9)))
    ; Represent the grid as an array from integers to this type
    (smt:declare-fun sudoku-grid () (Array Int Sudoku))
    ; Assert the standard grid rules (row, column, box)
