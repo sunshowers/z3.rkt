@@ -47,11 +47,8 @@ define a Racket function to do the same thing:
 \end{verbatim}
 
 This works for smaller macros like \texttt{max}, but in our experience this
-na\"{i}ve substitution can result in final expressions for deeply nested
-recursive functions becoming too large for Z3 to handle\footnote{In theory, we
-could merge common parts of expressions to reduce the number of nodes
-generated. In our experiments, this proved to be ineffective for most non-trivial
-expressions.}
+sort of na\"{i}ve substitution can result in final expressions for deeply
+nested recursive functions becoming too large for Z3 to handle.
 
 We note, however, that any macro can also be written as a universally
 quantified formula. For example, \texttt{max} can be rewritten in the
@@ -74,8 +71,8 @@ this transformation.
 One of our explicit goals is to enable existing SMT-LIB version 2 code to be
 ported with a small number of systematic changes. Table~\ref{table:smt-porting}
 lists the minimal set of changes that need to be made to port
-existing SMT-LIB code to \texttt{z3.rkt}. We expect that many SMT-LIB programs
-will become shorter as authors use Racket features wherever appropriate.
+existing SMT-LIB code to \texttt{z3.rkt}. We expect many SMT-LIB programs
+to become shorter as authors use Racket features wherever appropriate.
 
 \begin{table}[hbt]
 \caption{Differences between SMT-LIB and \texttt{z3.rkt}}
