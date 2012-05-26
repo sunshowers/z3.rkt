@@ -23,10 +23,11 @@ functions directly but add a \texttt{/s} suffix to their usual names in the
 SMT-LIB standard, because most SMT-LIB names are already defined as functions
 by Racket and we want to avoid colliding with them.
 
-\textbf{Derived abstractions.} Since the full power of Racket is available to
-us, we can define abstractions on top that allow consumers to simplify their
-code. For example, SMT-LIB allows users to define macros via the \texttt
-{define-fun} command.
+\subsection{Derived Abstractions}
+
+Since the full power of Racket is available to us, we can define abstractions
+on top that allow consumers to simplify their code. For example, SMT-LIB
+allows users to define macros via the \texttt {define-fun} command.
 
 \begin{verbatim}
 (define-fun max ((a Int) (b Int)) Int
@@ -45,9 +46,12 @@ define a Racket function to do the same thing:
 (smt:assert (=/s (smt-max 4 7) 7))
 \end{verbatim}
 
-This works for smaller macros, but in our experience this na\"{i}ve
-substitution can result in final expressions becoming too large for deeply
-nested recursive functions.
+This works for smaller macros like \texttt{max}, but in our experience this
+na\"{i}ve substitution can result in final expressions for deeply nested
+recursive functions becoming too large for Z3 to handle\footnote{In theory, we
+could merge common parts of expressions to reduce the number of nodes
+generated. In our experiments, this proved to be ineffective for most non-trivial
+expressions.}
 
 We note, however, that any macro can also be written as a universally
 quantified formula. For example, \texttt{max} can be rewritten in the
@@ -60,12 +64,41 @@ following way.
                    (ite (> a b) a b))))
 \end{verbatim}
 
-We can thus provide a Racket macro \texttt{smt:define-fun} that has the same
-syntax as the SMT-LIB \texttt{define-fun} and that performs precisely this
-transformation.
+We can thus provide a Racket macro named \texttt{smt:define-fun} that has the
+same syntax as the SMT-LIB \texttt{define-fun} and that performs precisely
+this transformation.
 
-\subsection{Porting existing SMT-LIB code}
+\subsection{Porting Existing SMT-LIB Code}
 \label{sec:porting-smt-lib}
 
 One of our explicit goals is to enable existing SMT-LIB version 2 code to be
-ported with minimal mechanical changes. Table~\ref{table:smt-}
+ported with a small number of systematic changes. Table~\ref{table:smt-porting}
+lists the minimal set of changes that need to be made to port
+existing SMT-LIB code to \texttt{z3.rkt}. We expect that many SMT-LIB programs
+will become shorter as authors use Racket features wherever appropriate.
+
+\begin{table}[hbt]
+\caption{Differences between SMT-LIB and \texttt{z3.rkt}}
+\label{table:smt-porting}
+\begin{center}
+\begin{tabularx}{\textwidth}{lX}
+\hline\noalign{\smallskip}
+SMT-LIB code & \texttt{z3.rkt} code \\
+\noalign{\smallskip}
+\hline
+\noalign{\smallskip}
+Options: \texttt{(set-option :foo true)} & Keyword arguments: \newline \texttt{(smt:new-context-info \#:foo \#t)} \\
+
+Logics: \texttt{(set-logic QF\_UF)} & The \texttt{\#:logic} keyword: \newline \texttt{(smt:new-context-info \#:logic "QF\_UF")} \\
+
+Commands: \texttt{declare-fun}, \texttt{assert}, \ldots & Prefix with \texttt{smt:} \\
+
+Functions: \texttt{and}, \texttt{or}, \texttt{+}, \texttt{distinct} \ldots & Suffix with \texttt{/s} \\
+
+Boolean literals: \texttt{true} and \texttt{false} & \texttt{\#t} and \texttt{\#f} \\
+
+Bit-vector literals: \texttt{\#b101}, \texttt{\#x4d56} & As strings: \texttt{"\#b101"}, \texttt{"\#x4d56"} \\
+\hline
+\end{tabularx}
+\end{center}
+\end{table}
