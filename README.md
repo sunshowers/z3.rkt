@@ -1,5 +1,5 @@
 `z3.rkt`: Racket bindings for Z3
---------------------------------
+================================
 
 We aim to provide a reasonably complete and *easy-to-use* implementation of Z3
 on Racket. The documentation is rather incomplete right now, but here's what's
@@ -24,7 +24,7 @@ Important things to do:
 Pull requests are always welcome!
 
 Installing
-==========
+----------
 
 `z3.rkt` requires Z3 4.0, which you can download for your platform from [the
 Microsoft Research
@@ -34,7 +34,7 @@ and Racket support. For now, you'll need to extract the Z3 tarball into this
 directory, which should create a subdirectory called `z3`.
 
 License
-=======
+-------
 
 Licensed under the Simplified BSD License. See the LICENSE file for more
 details.
