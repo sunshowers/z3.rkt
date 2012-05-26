@@ -56,9 +56,12 @@ language SMT-LIB~\cite{smtlib2:10}. SMT-LIB is \textit{significantly} easier to
 use in isolation. The same program in SMT-LIB would look something like
 
 \begin{verbatim}
+; Declare a variable we don't know the value of yet
 (declare-fun p () Bool)
+; Try to find a value satisfying a contradiction
 (assert (and p (not p)))
 (check-sat)
+; Prints "unsat", meaning "unsatisfiable"
 \end{verbatim}
 
 However, the SMT-LIB interfaces are generally hard to use directly from C
@@ -69,24 +72,24 @@ that \textit{interact} dynamically with the solver in some way, for example by
 adding assertions based on generated models, and therefore it is often difficult
 to build new abstractions on top.
 
-To overcome these difficulties, we decided to re-implement SMT-LIB in a way that
-allowed for the same power as the C version while appearing naturally integrated
-into a host language. Since SMT-LIB is {\em
-  S-expression}-based, a Lisp like implementation seemed like a
-natural choice for the host language. We chose Racket~\cite{racket} as the host
-language for our implementation, \texttt{z3.rkt}, because of its extensive
-facilities for implementing new languages~\cite{Tobin-Hochstadt:11}, not just
-for the interface to the solver, but also for the resulting program analysis
-tools that the solver would make possible.
+To overcome these difficulties, we decided to re-implement SMT-LIB in a way
+that allowed for the same power as the C version while appearing naturally
+integrated into a host language. Since SMT-LIB is {\em S-expression}-based, a
+Lisp seemed like a natural choice for the host language. We chose
+Racket~\cite{racket} for our implementation, \texttt{z3.rkt}, because of its
+extensive facilities for implementing new languages~\cite{Tobin-Hochstadt:11},
+not just for the interface to the solver, but also for the resulting program
+analysis tools that the solver would make possible.
 
 Using this system, the program above becomes almost as brief as the SMT-LIB
-version.
+version.\footnote{The names are slightly different; these differences are
+minor, systematic, and enumerated in Section~\ref{sec:porting-smt-lib}.}
 
 \begin{verbatim}
 (smt:with-context
  (smt:new-context-info)
  (smt:declare-fun p () Bool)
- (smt:assert (and p (not p)))
+ (smt:assert (and/s p (not/s p)))
  (smt:check-sat))
 \end{verbatim}
 
@@ -99,8 +102,8 @@ such that no row, column, or 3$\times$3 box has two instances of a number. This
 is a classic constraint satisfaction problem, and any constraint solver can
 handle it with ease.
 
-A Racket program using \texttt{z3.rkt} to solve Sudoku would
-look like the following:
+A Racket program using \texttt{z3.rkt} to solve Sudoku would look like the
+following:
 
 \begin{verbatim}
 (define (solve-sudoku grid)
@@ -119,7 +122,7 @@ look like the following:
    (if (eq? sat 'sat)
        ;; Retrieve the values from the model
        (for/list ([x (in-range 0 81)])
-         (smt:eval (select sudoku-grid ,x)))
+         (smt:eval (select/s sudoku-grid x)))
        #f)))
 \end{verbatim}
 
@@ -147,17 +150,18 @@ then becomes
        ;; Make sure no other solution exists
        (let ([result-grid
          (for/list ([x (in-range 0 81)])
-           (smt:eval (select sudoku-grid ,x)))])
+           (smt:eval (select/s sudoku-grid x)))])
+         ;; Assert that we want a brand new solution by asserting
+         ;; (not <current solution>)
          (smt:assert
-          (not (and
-                ,@(for/list ([(x i) (in-indexed result-grid)])
-                    `(= (select sudoku-grid ,i) ,x)))))
+          (not/s (apply and/s
+                        (for/list ([(x i) (in-indexed result-grid)])
+                          (=/s (select/s sudoku-grid i) x)))))
          (if (eq? (smt:check-sat) 'sat)
              #f ; Multiple solutions
              result-grid))
        #f)))
 \end{verbatim}
 
-This part can even be abstracted out into a function that returns a lazy stream
-of satisfying assignments for any given set of constraints. Racket is
-well-suited for such tasks.
+This part can even be abstracted out into a function that returns a lazily-
+generated sequence of satisfying assignments for any given set of constraints.
