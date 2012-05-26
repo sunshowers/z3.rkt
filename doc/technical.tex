@@ -50,7 +50,7 @@ This works for smaller macros like \texttt{max}, but in our experience this
 sort of na\"{i}ve substitution can result in final expressions for deeply
 nested functions becoming too large for Z3 to handle\footnote{In theory, we
 could merge common parts of expressions to reduce the number of AST nodes
-generated. In our experiments, this proved to be quite effective, yet still
+generated. In our experiments, this proved to be effective, yet still
 significantly slower than the equivalent universally quantified formula.}
 
 We note, however, that any macro can also be written as a universally
