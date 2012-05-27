@@ -4,18 +4,21 @@ We have successfully used \texttt{z3.rkt} in a number of applications, from
 constraint-solving puzzles as illustrated in Section~\ref{sec:interactive}, to
 verification and counterexample generation for functional programs. Along the
 way, we have been pleasantly surprised by how well the power of Z3 and the
-expressiveness of Racket combine.
+expressiveness of Racket combine. We could not possibly hope to cover all the
+uses of an SMT solver, but in this section we discuss a few ideas and starting
+points.
 
 \subsection{Quantified Formulas Are Hard}
 \label{sec:quantified}
 
-Z3 and other SMT solvers support lists and other recursive types. How would a
-recursive function that operates over the entire list (say, to calculate its
+Z3 and other SMT solvers support lists and other recursive types. Z3 only
+provides basic support for lists: an \texttt{insert} (cons) operation, a
+\texttt{head} operation and a \texttt{tail} operation. Using these, how would
+a recursive function that operates over the entire list (say, to calculate its
 length) be defined? Z3's macros are substitutions and do not support
-recursion, so we are forced to look for alternatives. Our first intuition
-might be to use a universal quantifier, as in Section~\ref{sec:derived}. Here
-is a first cut at defining a function that calculates the length of an integer
-list:
+recursion, so we must look for alternatives. Our first intuition might be to
+use a universal quantifier, as in Section~\ref{sec:derived}. Here is a first
+cut at defining a function that calculates the length of an integer list:
 
 \begin{verbatim}
 (declare-fun len ((List Int)) Int)
@@ -94,10 +97,11 @@ implementation of quicksort might look like the following:
 (define (qsort lst)
   (if (null? lst)
       null
-      (let* ([pivot (car lst)]
-             [rest (cdr lst)]
-             [left (qsort (filter (lambda (x) (<= x pivot))))]
-             [right (qsort (filter (lambda (x) (> x pivot))))])
+      (let*
+       ([pivot (car lst)]
+        [rest (cdr lst)]
+        [left (qsort (filter (lambda (x) (<= x pivot)) rest))]
+        [right (qsort (filter (lambda (x) (> x pivot)) rest))])
         (append left (cons pivot right))))
 \end{verbatim}
 
@@ -133,3 +137,8 @@ we can find a counterexample using \texttt{(smt:eval xs)} and
 \texttt{(smt:eval (qsort xs))} as before. For $n=4$ on a buggy quicksort with
 filters \texttt{<=} and \texttt{>=}, Z3 returned us the counterexample with
 input \texttt{'(-3 -2 -1 -2)}, which as expected contains a repeated element.
+
+There is nothing special about quicksort \textit{per se}: we expect this
+approach to easily generalise to other functions that operate on lists and
+other data structures, and to be able to prove more complex properties, such
+as whether a given sorting algorithm is stable.
