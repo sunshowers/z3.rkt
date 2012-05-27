@@ -28,7 +28,7 @@ The problem with this is that solving assertions that use this requires model-
 based quantifier instantiation (MBQI)~\cite{mbqi}, which while powerful can
 also be quite slow. In our experience it is very easy to write a formula that
 Z3's MBQI engine fails to solve in reasonable time. In general, SMT solvers
-have a hard time dealing with quantified formulas containing linear
+have a hard time dealing with quantified formulas containing even linear
 arithmetic, because for logics containg them there is no sound and complete
 decision procedure~\cite{halpern91}.
 
