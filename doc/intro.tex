@@ -129,11 +129,14 @@ following:
 \end{verbatim}
 
 Here we omit a couple of function definitions: \texttt{add-sudoku-grid-rules}
-asserts the standard Sudoku grid rules, and \texttt{add-grid} reads the grid in
-a particular format and creates assertions based on it. We note that the SMT-LIB
-function \texttt{(select arr x)} retrieves the value at \texttt{x} from the
+asserts the standard Sudoku grid rules, and \texttt{add-grid} reads the grid
+in a particular format and creates assertions based on it. We note that the
+function \texttt{(select/s arr x)} retrieves the value at \texttt{x} from the
 array \texttt{arr}, and that this can be used to add constraints on the array
-(for instance, \texttt{(assert (= (select arr x) y))}).
+(for instance, \texttt{(smt:assert (=/s (select/s arr x) y))}). We also note
+that if a set of constraints is satisfiable, Z3 can generate a \textit{model}
+showing this; values can be extracted out of this model using the
+\texttt{smt:eval} command.
 
 However, simply finding a solution isn't enough for a good Sudoku solver: it
 must also verify that there aren't any other solutions. The usual way to do that
