@@ -27,14 +27,15 @@ that developed it. The main disadvantage of this system is that the syntax is
 quite different from SMT-LIB, and is sometimes almost as verbose as using the
 C bindings.
 
-Z3Py~\cite{z3py} is a new Python interface bundled with Z3: it is much more
-pleasant to use than the C version and supports virtually all the features of
-Z3.
+Z3Py~\cite{z3py} is a new Python interface bundled with Z3 4.0: it is much
+more pleasant to use than the C interface and supports virtually all of Z3's
+features.
 
 Symbolic Bit Vectors (SBV)~\cite{sbv} is a Haskell package that can be used to
 prove properties about bit-precise Haskell programs. Given a constraint in a
 Haskell program, SBV generates SMT-LIB code that can be run against either
-Yices or Z3.
+Yices or Z3. SBV supports bit-vectors, integers, reals, and arrays, but not
+lists or other recursive datatypes.
 
 Yices-Painless~\cite{yices-painless} integrates Haskell with Yices via its C
 API. This project does not support arrays, tuples, lists and user defined data
@@ -44,3 +45,14 @@ time now (last change to the repository was in January 2011).
 The Z3 documentation page lists bindings to other languages like OCaml. These
 bindings correspond almost one-to-one with the C API, and thus they suffer
 from the same disadvantages.
+
+\subsubsection{Bounded verification.}
+
+The work ours is inspired from is the Leon verifier~\cite{sat-recursive},
+which goes further and alternately considers underapproximations and
+overapproximations: where in Section~\ref{sec:quantified} we simply return a
+default value if we've reached the boundary of our recursion, they alternately
+always satisfy or always reject once it gets to that point. We chose to
+simplify our implementation to avoid being mired in mechanics, since that
+wasn't the main focus of this paper; we do not foresee any problems in
+implementing the Leon algorithm directly or with a few enhancements.
