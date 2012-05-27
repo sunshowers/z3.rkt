@@ -2,9 +2,9 @@
 
 We have successfully used \texttt{z3.rkt} in a number of applications, from
 constraint-solving puzzles as illustrated in Section~\ref{sec:interactive}, to
-bounded model checking and counterexample generation for functional programs.
-Along the way, we have been pleasantly surprised by how well the power of Z3
-and the expressiveness of Racket combine.
+verification and counterexample generation for functional programs. Along the
+way, we have been pleasantly surprised by how well the power of Z3 and the
+expressiveness of Racket combine.
 
 \subsection{Quantified Formulas Are Hard}
 
@@ -29,8 +29,8 @@ based quantifier instantiation (MBQI)~\cite{mbqi}, which while powerful can
 also be quite slow. In our experience it is very easy to write a formula that
 Z3's MBQI engine fails to solve in reasonable time. In general, SMT solvers
 have a hard time dealing with quantified formulas containing even linear
-arithmetic, because for logics containg them there is no sound and complete
-decision procedure~\cite{halpern91}.
+arithmetic, because there is no sound and complete decision procedure for
+them~\cite{halpern91}.
 
 So avoiding quantified formulas altogether seems like a good idea, but how do
 we do that? The easiest way is to unroll and bound the recursion to a desired
@@ -76,9 +76,11 @@ constructs are evaluated at definition time, meaning that this definition
 reduces to the series of macros defined above, except much more
 concisely\footnote{In some applications it might be useful to start with
 functions that handle small lists and then work our way up as Z3 keeps proving
-facts for bigger and bigger list lengths. Such cases can either be implemented
-by rewriting formulas as appropriate~\cite{sat-recursive}, or by incrementally
-adding macros to handle bigger lengths.}
+facts for bigger and bigger list lengths. Such cases can be implemented by
+incrementally adding macros to handle bigger lengths.}
 
 It is easy to define bounded recursive functions along the same lines that
 reverse lists, concatenate them, and filter them on a predicate.
+
+\subsection{Verifying Recursive Functions}
+

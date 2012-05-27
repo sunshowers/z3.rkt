@@ -5,19 +5,19 @@
 that interface with the Z3 engine via the provided library. Since the system is
 still a work in progress, some of these details might change in the future.
 
-\textbf{The Z3 wrapper.} We use Racket's foreign interface \cite{racket/foreign}
+\subsubsection{The Z3 wrapper.} We use Racket's foreign interface \cite{racket/foreign}
 to map the Z3 library's C functions into Racket. The programmer interface
 communicates with Z3 by calling the Racket functions defined by the
 wrapper. While it is possible to use the Z3 wrapper directly, we highly
 recommend using the programmer interface instead.
 
-\textbf{The core commands.} This is a small set of Racket macros and functions
+\subsubsection{The core commands.} This is a small set of Racket macros and functions
 layered on top of the Z3 wrapper. As noted in Section~\ref{sec:motiv}, the aim
 here is to hide the complexities of the C wrapper and stay as close to SMT-LIB
 version 2 commands \cite{smtlib2:10} as possible. We prefix commands with
 \texttt{smt:} to avoid collisions.
 
-\textbf{Built-in functions.} Z3 comes with a number of built-in functions that
+\subsubsection{Built-in functions.} Z3 comes with a number of built-in functions that
 operate on booleans, numbers, and more complex values. We expose these
 functions directly but add a \texttt{/s} suffix to their usual names in the
 SMT-LIB standard, because most SMT-LIB names are already defined as functions
@@ -32,7 +32,7 @@ allows users to define macros via the \texttt {define-fun} command.
 
 \begin{verbatim}
 (define-fun max ((a Int) (b Int)) Int
-  (ite (> a b) a b))
+  (ite (> a b) a b)) ; ite is short for if-then-else
 ...
 (assert (= (max 4 7) 7))
 \end{verbatim}
