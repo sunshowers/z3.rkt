@@ -104,13 +104,13 @@ implementation of quicksort might look like the following:
 This definition is correct, but what if the programmer mistakenly types in
 \texttt{<} instead of \texttt{<=}, or perhaps uses \texttt{>=} instead of
 \texttt{>}? We note that in both cases the length of the output list will be
-different from that of the input list, so that seems like a good property to
-verify.
+different from that of the input list whenever a pivot is repeated in the rest
+of the list, so that seems like a good property to verify.
 
 Using the method discussed in Section~\ref{sec:quantified}, we can rewrite
 \texttt{qsort} as a bounded recursive function. Assuming we have \texttt
 {make-qsort}, we can now verify the length property for all lists up to a
-certain length \texttt{n}.
+certain length $n$.
 
 \begin{verbatim}
 (smt:with-context
@@ -127,7 +127,9 @@ certain length \texttt{n}.
 \end{verbatim}
 
 Proving a property is done by checking that its negation is unsatisfiable. A
-quicksort works \textit{correctly} for lists up to length \texttt{n} iff the
-above code returns \texttt{'unsat}. For quicksorts that are buggy
-(\texttt{'sat}), we can find a counterexample using \texttt{(smt:eval xs)} and
-\texttt{(smt:eval (qsort xs))} as before.
+quicksort works \textit{correctly} for lists up to length $n$ iff the above
+code returns \texttt{'unsat}. For quicksorts that are buggy (\texttt{'sat}),
+we can find a counterexample using \texttt{(smt:eval xs)} and
+\texttt{(smt:eval (qsort xs))} as before. For $n=4$ on a buggy quicksort with
+filters \texttt{<=} and \texttt{>=}, Z3 returned us the counterexample with
+input \texttt{'(-3 -2 -1 -2)}, which as expected contains a repeated element.

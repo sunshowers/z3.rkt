@@ -8,7 +8,7 @@
 (define (check-qsort-model make-qsort correct?)
   (smt:with-context
    (smt:new-context)
-   (define len (make-length 8))
+   (define len (make-length 5))
    ; Check lists of up to length 4
    (define qsort (make-qsort 4))
    (smt:declare-fun xs () IntList)
