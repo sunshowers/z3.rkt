@@ -7,6 +7,7 @@ way, we have been pleasantly surprised by how well the power of Z3 and the
 expressiveness of Racket combine.
 
 \subsection{Quantified Formulas Are Hard}
+\label{sec:quantified}
 
 Z3 and other SMT solvers support lists and other recursive types. How would a
 recursive function that operates over the entire list (say, to calculate its
@@ -84,3 +85,49 @@ reverse lists, concatenate them, and filter them on a predicate.
 
 \subsection{Verifying Recursive Functions}
 
+Using these building blocks we can now start verifying properties for
+recursive functions. For this section we will work with a simple but non-
+trivial example:~\textit{quicksort}. A simple functional implementation of
+quicksort might look like the following:
+
+\begin{verbatim}
+(define (qsort lst)
+  (if (null? lst)
+      null
+      (let* ([pivot (car lst)]
+             [rest (cdr lst)]
+             [left (qsort (filter (lambda (x) (<= x pivot))))]
+             [right (qsort (filter (lambda (x) (> x pivot))))])
+        (append left (cons pivot right))))
+\end{verbatim}
+
+This definition is correct, but what if the programmer mistakenly types in
+\texttt{<} instead of \texttt{<=}, or perhaps uses \texttt{>=} instead of
+\texttt{>}? We note that in both cases the length of the output list will be
+different from that of the input list, so that seems like a good property to
+verify.
+
+Using the method discussed in Section~\ref{sec:quantified}, we can rewrite
+\texttt{qsort} as a bounded recursive function. Assuming we have \texttt
+{make-qsort}, we can now verify the length property for all lists up to a
+certain length \texttt{n}.
+
+\begin{verbatim}
+(smt:with-context
+ (smt:new-context)
+ (define qsort (make-qsort n))
+ ; adding 1 to the maximum length is enough to show inequality
+ (define len (make-length (add1 n)))
+ (smt:declare-fun xs () (List Int))
+ ; set a bound on the length
+ (smt:assert (<=/s (len xs) n))
+ ; prove the length property by asserting its negation
+ (smt:assert (not/s (=/s (len xs) (len (qsort xs)))))
+ (smt:check-sat))
+\end{verbatim}
+
+Proving a property is done by checking that its negation is unsatisfiable.
+Hence if a quicksort works \textit{correctly} for lists up to length
+\texttt{n}, the above code returns \texttt{'unsat}, otherwise it returns
+\texttt{'sat}. For quicksorts that are buggy, we can find a counterexample
+using \texttt{(smt:eval xs)} as before.
