@@ -126,8 +126,8 @@ certain length \texttt{n}.
  (smt:check-sat))
 \end{verbatim}
 
-Proving a property is done by checking that its negation is unsatisfiable.
-Hence if a quicksort works \textit{correctly} for lists up to length
-\texttt{n}, the above code returns \texttt{'unsat}, otherwise it returns
-\texttt{'sat}. For quicksorts that are buggy, we can find a counterexample
-using \texttt{(smt:eval xs)} as before.
+Proving a property is done by checking that its negation is unsatisfiable. A
+quicksort works \textit{correctly} for lists up to length \texttt{n} iff the
+above code returns \texttt{'unsat}. For quicksorts that are buggy
+(\texttt{'sat}), we can find a counterexample using \texttt{(smt:eval xs)} and
+\texttt{(smt:eval (qsort xs))} as before.
