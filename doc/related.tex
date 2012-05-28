@@ -31,9 +31,9 @@ Z3Py~\cite{z3py} is a new Python interface bundled with Z3 4.0: it is much
 more pleasant to use than the C interface and supports virtually all of Z3's
 features.
 
-Symbolic Bit Vectors (SBV)~\cite{sbv} is a Haskell package that can be used to
-prove properties about bit-precise Haskell programs. Given a constraint in a
-Haskell program, SBV generates SMT-LIB code that can be run against either
+SMT Based Verification (SBV)~\cite{sbv} is a Haskell package that can be used
+to prove properties about bit-precise Haskell programs. Given a constraint in
+a Haskell program, SBV generates SMT-LIB code that can be run against either
 Yices or Z3. SBV supports bit-vectors, integers, reals, and arrays, but not
 lists or other recursive datatypes.
 
@@ -45,6 +45,15 @@ time now (last change to the repository was in January 2011).
 The Z3 documentation page lists bindings to other languages like OCaml. These
 bindings correspond almost one-to-one with the C API, and thus they suffer
 from the same disadvantages.
+
+\subsubsection{Logic programming.}
+
+Many of the problems SMT solvers can solve can also be solved within the logic
+programming paradigm, where programs are written as first-order logic
+predicates. However, logic programming languages like Prolog typically have
+well-defined and transparent search strategies, preventing the sorts of
+automatic heuristics that allow SMT solvers to be fast. Instead, programmers
+need to manually bound the search space with cuts in the appropriate places.
 
 \subsubsection{Bounded verification.}
 
