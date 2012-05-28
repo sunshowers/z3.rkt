@@ -59,14 +59,18 @@ Racket supports logic programming via Racklog~\cite{racklog}, which works in
 much the same way as Prolog.
 
 Many languages, including most Prolog variants, have access to libraries that
-allow some form of constraint solving. Typically these are limited to problems
-traditionally associated with constraint programming: booleans, finite
-domains, integers and perhaps real numbers.
+allow some form of constraint solving. Advanced toolkits include
+Gecode~\cite{gecode} for C++ and JaCoP~\cite{JaCoP} for Java and Scala.
+Typically these are limited to problems traditionally associated with
+constraint programming: booleans, finite domains, integers and perhaps real
+numbers. However, they also have built-in support for \textit{optimisation}
+problems, something that usually has to be emulated in an SMT solver with a
+binary search on the cost function.
 
 One last example deserves a mention here: SICP describes an \texttt{amb} macro
 for Scheme~\cite[Section~4.3]{sicp}, which can choose for a variable one out
-of a set of values given \textit{ambiguously}, so as to satisfy given constraints.
-\texttt{amb} is a simple, lightweight form of logic programming.
+of a set of values given \textit{ambiguously}, so as to satisfy given
+constraints. \texttt{amb} is a simple, lightweight form of logic programming.
 
 \subsubsection{Bounded verification.}
 

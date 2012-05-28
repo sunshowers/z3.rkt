@@ -1,32 +1,25 @@
 \section{Conclusions and Future Work}
 
-In this paper, we have presented \texttt{z3.rkt}, which lets users interact with
-an SMT solver programmatically. We have demonstrated through an example the
-simplicity and usefulness of such an interaction. The power of \texttt{z3.rkt}
-comes from the facilities provided by Racket to build abstractions on top of the
-SMT-solving capabilities of Z3. From the user's perspective, the integration is
-seamless and fully transparent.
+In this paper, we have presented \texttt{z3.rkt}, which lets users interact
+with an SMT solver programmatically. We have demonstrated through multiple
+examples the simplicity and usefulness of such an interaction. The power of
+\texttt{z3.rkt} comes from the facilities provided by Racket to build
+abstractions on top of the SMT-solving capabilities of Z3. From the user's
+perspective, the integration is seamless and fully transparent.
 
 Our implementation is open source and freely available at
 \begin{center}
 \url{http://www.cse.iitk.ac.in/users/karkare/code/z3/}
 \end{center}
 
-\texttt{z3.rkt} is still a work in progress, and in the near term we plan to
-achieve the following:
+\texttt{z3.rkt} is still a work in progress, and we hope to soon achieve the
+following:
 
 \begin{itemize}
-\item Support for more of Z3 constructs, including external theories and procedure abstractions
-\item New abstractions, guided by practical use cases
-\item Work on model checking and debugging functional programs
-\item Possible integration with other SMT solvers
+\item Support more Z3 constructs, including external theories
+\item Derive new abstractions guided by practical use cases
+\item Possibly integrate with other SMT solvers
 \end{itemize}
 
-The current interface requires expression-based manipulations like
-\texttt{unquote} for programmatic use. We wish to experiment with moving Racket
-and Z3 bindings into the same namespace, cleaning up the syntax further and
-allowing higher-order functions like \texttt{map} and \texttt{apply} to be used
-instead.
-
-In the long term, we hope the community will find this system useful and
-will contribute to the project to solve large practical problems.
+In the long term, we hope the community will find this system useful and will
+contribute to the project to solve large practical problems.

@@ -40,3 +40,5 @@ Licensed under the Simplified BSD License. See the LICENSE file for more
 details.
 
 Please note that this license does not apply to Z3, only to these bindings.
+This license also does not apply to the `doc` directory, which we reserve all
+rights to.
