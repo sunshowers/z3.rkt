@@ -46,7 +46,7 @@ The Z3 documentation page lists bindings to other languages like OCaml. These
 bindings correspond almost one-to-one with the C API, and thus they suffer
 from the same disadvantages.
 
-\subsubsection{Logic programming.}
+\subsubsection{Logic programming and constraint programming.}
 
 Many of the problems SMT solvers can solve can also be solved within the logic
 programming paradigm, where programs are written as first-order logic
@@ -55,12 +55,25 @@ well-defined and transparent search strategies, preventing the sorts of
 automatic heuristics that allow SMT solvers to be fast. Instead, programmers
 need to manually bound the search space with cuts in the appropriate places.
 
+Racket supports logic programming via Racklog~\cite{racklog}, which works in
+much the same way as Prolog.
+
+Many languages, including most Prolog variants, have access to libraries that
+allow some form of constraint solving. Typically these are limited to problems
+traditionally associated with constraint programming: booleans, finite
+domains, integers and perhaps real numbers.
+
+One last example deserves a mention here: SICP describes an \texttt{amb} macro
+for Scheme~\cite[Section~4.3]{sicp}, which can choose a value for a variable
+\textit{ambiguously} from a set of values so as to satisfy given constraints.
+\texttt{amb} is a simple, lightweight form of logic programming.
+
 \subsubsection{Bounded verification.}
 
-The work ours is inspired by is the Leon verifier~\cite{sat-recursive},
-which goes further and alternately considers underapproximations and
+The work ours is inspired by is the Leon verifier~\cite{sat-recursive}, which
+goes further and alternately considers underapproximations and
 overapproximations: where in Section~\ref{sec:quantified} we simply return a
-default value if we've reached the boundary of our recursion, they alternately
+default value if we've reached the limit of our recursion, they alternately
 always satisfy or always reject once it gets to that point. We chose to
 simplify our implementation to avoid being mired in mechanics, since that
 wasn't the main focus of this paper; we do not foresee any problems in
