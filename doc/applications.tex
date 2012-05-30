@@ -34,7 +34,12 @@ powerful, can also be very slow. In our experience, it is very easy to write a
 quantified formula that Z3's MBQI engine fails to solve in reasonable
 time\footnote{In general, it is hard to deal with quantified formulas
 containing even linear arithmetic, because there is no sound and complete
-decision procedure for them\cite{halpern91}.}.
+decision procedure for them\cite{halpern91}.
+
+Z3 has another way to solve quantified assertions, called
+\textit{E-matching}~\cite{e-matching}. E-matching uses patterns based on
+ground terms to instantiate quantifiers. We have not yet explored this
+approach.}.
 
 So avoiding quantified formulas altogether seems like a good idea, but how do
 we do that? The easiest way is to unroll and bound the recursion to a desired
