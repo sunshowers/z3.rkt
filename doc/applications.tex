@@ -1,4 +1,4 @@
-\section{Applications}
+\section{applications}
 
 We have successfully used \texttt{z3.rkt} in a number of applications, from
 constraint-solving puzzles as illustrated in Section~\ref{sec:interactive}, to
@@ -40,8 +40,8 @@ So avoiding quantified formulas altogether seems like a good idea, but how do
 we do that? The easiest way is to unroll and bound the recursion to a desired
 depth~\cite{sat-recursive}. One way to do this is to define macros
 \texttt{len-0}, \texttt{len-1}, \texttt{len-2}, \ldots \texttt{len-N}, where
-each \texttt{len-i} returns the length of the list if it is less than or equal
-to \texttt{i}, and \texttt{i} if it is greater than it.
+each \texttt{len-k} returns the length of the list if it is less than or equal
+to \texttt{k}, and \texttt{k} otherwise.
 
 \begin{verbatim}
 (define-fun len-0 ((xs (List Int)))
