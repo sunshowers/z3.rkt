@@ -14,7 +14,7 @@ language, the interface, and the constructs they support.
 As most languages support some form of interaction with C functions, they can
 be said to be already integrated with Z3 (or other SMT solvers) through the C
 API. However, we do not consider this to be true integration because it
-doesn't actually simplify the job of the programmer and, as noted in
+doesn't simplify the job of the programmer and, as noted in
 Section~\ref{sec:motiv}, it requires her to deal with the internals of the
 solver.
 
@@ -27,9 +27,10 @@ that developed it. The main disadvantage of this system is that the syntax is
 quite different from SMT-LIB, and is sometimes almost as verbose as using the
 C bindings.
 
-Z3Py~\cite{z3py} is a new Python interface bundled with Z3 4.0: it is much
-more pleasant to use than the C interface and supports virtually all of Z3's
-features.
+Z3Py~\cite{z3py} is a new Python interface bundled with Z3 4.0: it has its own
+domain-specific language that is different from SMT-LIB; however, it is
+much more pleasant to use than the C interface and supports virtually all of
+Z3's features.
 
 SMT Based Verification (SBV)~\cite{sbv} is a Haskell package that can be used
 to prove properties about bit-precise Haskell programs. Given a constraint in
@@ -53,7 +54,8 @@ logic programming paradigm, where programs are written as first-order logic
 predicates. However, logic programming languages like Prolog typically have
 well-defined and transparent search strategies, preventing the sorts of
 automatic heuristics that allow SMT solvers to be fast. Instead, programmers
-need to manually bound the search space with cuts in the appropriate places.
+need to manually bound the search space with goals and cuts in the appropriate
+places.
 
 Racket supports logic programming via Racklog~\cite{racklog}, which works in
 much the same way as Prolog.
@@ -61,24 +63,24 @@ much the same way as Prolog.
 Many languages, including most Prolog variants, have access to libraries that
 allow some form of constraint solving. Advanced toolkits include
 Gecode~\cite{gecode} for C++ and JaCoP~\cite{JaCoP} for Java and Scala.
-Typically these are limited to problems traditionally associated with
+Typically, these are limited to problems traditionally associated with
 constraint programming: booleans, finite domains, integers and perhaps real
 numbers. However, they also have built-in support for \textit{optimisation}
-problems, something that usually has to be emulated in an SMT solver with a
-binary search on the cost function.
+problems, something that is lacking in SMT solvers but can be with a binary
+search on the cost function.
 
-One last example deserves a mention here: SICP describes an \texttt{amb} macro
-for Scheme~\cite[Section~4.3]{sicp}, which can choose for a variable one out
-of a set of values given \textit{ambiguously}, so as to satisfy given
+A classic example deserves a mention here: SICP~\cite[Section~4.3]{sicp}
+describes an \texttt{amb} macro for Scheme, which can choose for a variable
+one out of a set of values given \textit{ambiguously}, so as to satisfy given
 constraints. \texttt{amb} is a simple, lightweight form of logic programming.
 
 \subsubsection{Bounded verification.}
 
-The work ours is inspired by is the Leon verifier~\cite{sat-recursive}, which
-goes further and alternately considers underapproximations and
-overapproximations: where in Section~\ref{sec:quantified} we simply return a
-default value if we've reached the limit of our recursion, they alternately
-always satisfy or always reject once it gets to that point. We chose to
-simplify our implementation to avoid being mired in mechanics, since that
-wasn't the main focus of this paper; we do not foresee any problems in
-implementing the Leon algorithm directly or with a few enhancements.
+Our work is inspired by the Leon verifier~\cite{sat-recursive}, which goes
+further and alternately considers underapproximations and overapproximations.
+Where in Section~\ref{sec:quantified} we simply return a default value if
+we've reached the limit of our recursion, the Leon verifier alternately always
+satisfies or always rejects once it gets to that point. We chose to simplify
+our implementation to avoid being mired in mechanics, since that wasn't the
+main focus of this paper. In the future, we plan to extend our method with
+ideas from the Leon verifier.
