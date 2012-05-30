@@ -64,7 +64,7 @@ to \texttt{k}, and \texttt{k} otherwise.
 ...
 \end{verbatim}
 
-Our system makes defining a series of macros like this a cinch.
+Our system makes defining a series of macros like this very easy.
 
 \begin{verbatim}
 (define (make-length n)
@@ -83,10 +83,7 @@ length 5, and returns 5 for anything bigger than that. Note how freely the
 Racket \texttt{if} and \texttt{let} forms are mixed into the SMT body. These
 constructs are evaluated at definition time, meaning that this definition
 reduces to the series of macros defined above, except much more
-concisely\footnote{In some applications it might be useful to start with
-functions that handle small lists and then work our way up as Z3 keeps proving
-facts for bigger and bigger list lengths. Such cases can be implemented by
-incrementally adding macros to handle bigger lengths.}
+concisely.
 
 It is easy to define bounded recursive functions along the same lines that
 reverse lists, concatenate them, and filter them on a predicate.
