@@ -82,18 +82,18 @@ Our system makes defining a series of macros like this very easy.
 length 5, and returns 5 for anything bigger than that. Note how freely the
 Racket \texttt{if} and \texttt{let} forms are mixed into the SMT body. These
 constructs are evaluated at definition time, meaning that this definition
-reduces to the series of macros defined above, except much more
-concisely.
+reduces to the series of macros defined above, and is much more concise.
 
-It is easy to define bounded recursive functions along the same lines that
-reverse lists, concatenate them, and filter them on a predicate.
+It is easy to define other bounded recursive functions along the same lines
+that reverse lists, concatenate them, filter them on a predicate and much
+more. Using these building blocks we can now verify properties of recursive
+functions.
 
-\subsection{Verifying Recursive Functions}
+\subsection{Verifying Recursive Functions is Not That Hard}
 
-Using these building blocks we can now start verifying properties for
-recursive functions. For this section we will work with a simple but
-non-trivial example:~\textit{quicksort}. A simple functional
-implementation of quicksort might look like the following:
+For this section we will work with a simple but non-trivial
+example:~\textit{quicksort}. A simple functional implementation of quicksort
+might look like the following:
 
 \begin{verbatim}
 (define (qsort lst)
@@ -104,19 +104,21 @@ implementation of quicksort might look like the following:
         [rest (cdr lst)]
         [left (qsort (filter (lambda (x) (<= x pivot)) rest))]
         [right (qsort (filter (lambda (x) (> x pivot)) rest))])
-        (append left (cons pivot right))))
+        (append left (cons pivot right)))))
 \end{verbatim}
 
 This definition is correct, but what if the programmer mistakenly types in
 \texttt{<} instead of \texttt{<=}, or perhaps uses \texttt{>=} instead of
-\texttt{>}? We note that in both cases the length of the output list will be
-different from that of the input list whenever a pivot is repeated in the rest
-of the list, so that seems like a good property to verify.
+\texttt{>}? We note that (a) for a correct implementation, the length of the
+output will always be the same as that of the input, and that (b) in either
+buggy case, the length of the output will be different whenever a pivot is
+repeated in the rest of the list. So comparing the two lengths is a good
+property to verify.
 
-Using the method discussed in Section~\ref{sec:quantified}, we can rewrite
-\texttt{qsort} as a bounded recursive function. Assuming we have \texttt
-{make-qsort}, we can now verify the length property for all lists up to a
-certain length \texttt{n}.
+Using the method discussed in Section~\ref{sec:quantified}, we can write
+\texttt{make-qsort} that generates bounded recursive versions of
+\texttt{qsort}. Then we can verify the length property for all input lists up
+to a certain length \texttt{n}.
 
 \begin{verbatim}
 (smt:with-context
@@ -133,14 +135,17 @@ certain length \texttt{n}.
 \end{verbatim}
 
 Proving a property is done by checking that its negation is unsatisfiable. A
-quicksort works \textit{correctly} for lists up to length \texttt{n} iff the above
-code returns \texttt{'unsat}. For quicksorts that are buggy (\texttt{'sat}),
-we can find a counterexample using \texttt{(smt:eval xs)} and
-\texttt{(smt:eval (qsort xs))} as before. For $\mathtt{n}=4$ on a buggy quicksort with
-filters \texttt{<=} and \texttt{>=}, Z3 returned us the counterexample with
-input \texttt{'(-3 -2 -1 -2)}, which as expected contains a repeated element.
+quicksort works \textit{correctly}\footnote{Here correctness is in the context
+of the property we are considering, i.e. the length of the output.} for lists
+up to length \texttt{n} iff the above code returns \texttt{'unsat}. For
+quicksorts that are buggy (\texttt{'sat}), we can find a counterexample using
+\texttt{(smt:eval xs)} and \texttt{(smt:eval (qsort xs))}. For $\mathtt{n}=4$
+on a buggy quicksort with filters \texttt{<=} and \texttt{>=}, Z3 returned us
+the counterexample with input \texttt{'(-3 -2 -1 -2)}, which as expected
+contains a repeated element.
 
-There is nothing special about quicksort \textit{per se}: we expect this
-approach to easily generalise to other functions that operate on lists and
-other data structures, and to be able to prove more complex properties, such
-as whether a given sorting algorithm is stable.
+In this approach, there is nothing specific to quicksort: this can be easily
+generalised to other functions that operate on lists and other data
+structures. The properties to prove can be more complex, such as whether a
+given sorting algorithm is stable. The only limits are computational
+constraints and the user's imagination.
