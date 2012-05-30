@@ -66,24 +66,23 @@ use in isolation. The same program in SMT-LIB would look something like
 
 However, the SMT-LIB interfaces are generally hard to use directly from C
 programs and often not as full-featured\footnote{Z3, for instance, supports
-  plugging in external theories via the C API, but not via the textual SMT-LIB
-  interface.}  or extensible. Importantly, it is difficult to write programs
-that \textit{interact} dynamically with the solver in some way, for example by
-adding assertions based on generated models, and therefore it is often difficult
-to build new abstractions on top.
+plugging in external theories via the C API, but not via the textual SMT-LIB
+interface.}  or extensible. Importantly, it is difficult to write programs
+that \textit{interact} with the solver in some way, for example by adding
+assertions based on generated models. This makes it difficult to build new
+abstractions to enhance functionality.
 
-To overcome these difficulties, we decided to re-implement SMT-LIB in a way
-that allowed for the same power as the C version while appearing naturally
-integrated into a host language. Since SMT-LIB is {\em s-expression}-based, a
-Lisp seemed like a natural choice for the host language. We chose
-Racket~\cite{racket} for our implementation, \texttt{z3.rkt}, because of its
-extensive facilities for implementing new languages~\cite{Tobin-Hochstadt:11},
-not just for the interface to the solver, but also for the resulting program
-analysis tools that the solver would make possible.
+To overcome these difficulties, we decided to implement an SMT-LIB-like
+interface in a way that allowed for the same power as the C interface while
+appearing naturally integrated into a host language. Since SMT-LIB is {\em
+s-expression}-based, for the host language a Lisp dialect was a natural
+choice. We chose Racket~\cite{racket} for our implementation, \texttt{z3.rkt},
+because of its extensive facilities for implementing new languages~\cite
+{Tobin-Hochstadt:11}, not just for the interface to the solver, but also for
+the resulting tools that the solver would make possible.
 
 Using this system, the program above becomes almost as brief as the SMT-LIB
-version.\footnote{The names are slightly different; these differences are
-minor, systematic, and enumerated in Section~\ref{sec:porting-smt-lib}.}
+version.
 
 \begin{verbatim}
 (smt:with-context
@@ -129,25 +128,25 @@ following:
 \end{verbatim}
 
 Here we omit a couple of function definitions: \texttt{add-sudoku-grid-rules}
-asserts the standard Sudoku grid rules, and \texttt{add-grid} reads the grid
-in a particular format and creates assertions based on it. We note that the
-function \texttt{(select/s arr x)} retrieves the value at \texttt{x} from the
-array \texttt{arr}, and that this can be used to add constraints on the array
-(for instance, \texttt{(smt:assert (=/s (select/s arr x) y))}). We also note
-that if a set of constraints is satisfiable, Z3 can generate a \textit{model}
-showing this; values can be extracted out of this model using the
-\texttt{smt:eval} command.
+asserts the standard Sudoku grid rules, and \texttt{add-grid} reads a
+partially filled grid in a particular format and creates assertions based on
+it. We note that the function \texttt{(select/s arr x)} retrieves the value at
+\texttt{x} from the array \texttt{arr}, and that this can be used to add
+constraints on the array (for instance, \texttt{(smt:assert (=/s (select/s arr
+x) y))}). We also note that if a set of constraints is satisfiable, Z3 can
+generate a \textit{model} showing this; values can be extracted out of this
+model using the \texttt{smt:eval} command.
 
 However, simply finding a solution isn't enough for a good Sudoku solver: it
-must also verify that there aren't any other solutions. The usual way to do that
-for a constraint solver is by retrieving a generated model, adding assertions
-such that this model cannot be generated, and then asking the solver whether the
-system of assertions is still satisfiable. If they are, a second solution
-exists and the puzzle is considered invalid.
+must also verify that there aren't any other solutions. The usual way to do
+that for a constraint solver is by retrieving a generated model, adding
+assertions such that this model cannot be generated again, and then asking the
+solver whether the system of assertions is still satisfiable. If it is, a
+second solution exists and the puzzle is considered invalid.
 
-This is where the interactivity offered by \texttt{z3.rkt} becomes useful, since
-it lets the programmer add assertions on the fly. The last part of the program
-then becomes
+In such situations, the interactivity offered by \texttt{z3.rkt} becomes
+useful: it lets the programmer add dynamically discovered constraints on the
+fly. The last part of the program then becomes
 
 \begin{verbatim}
    ...

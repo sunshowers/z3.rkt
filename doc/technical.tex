@@ -11,24 +11,24 @@ communicates with Z3 by calling the Racket functions defined by the
 wrapper. While it is possible to use the Z3 wrapper directly, we highly
 recommend using the programmer interface instead.
 
-\subsubsection{The core commands.} This is a small set of Racket macros and functions
-layered on top of the Z3 wrapper. As noted in Section~\ref{sec:motiv}, the aim
-here is to hide the complexities of the C wrapper and stay as close to SMT-LIB
-version 2 commands \cite{smtlib2:10} as possible. We prefix commands with
-\texttt{smt:} to avoid collisions.
-
 \subsubsection{Built-in functions.} Z3 comes with a number of built-in functions that
 operate on booleans, numbers, and more complex values. We expose these
 functions directly but add a \texttt{/s} suffix to their usual names in the
 SMT-LIB standard, because most SMT-LIB names are already defined as functions
 by Racket and we want to avoid colliding with them.
 
+\subsubsection{The core commands.} This is a small set of Racket macros and functions
+layered on top of the Z3 wrapper. As noted in Section~\ref{sec:motiv}, the aim
+here is to hide the complexities of the C wrapper and stay as close to SMT-LIB
+version 2 commands \cite{smtlib2:10} as possible. We prefix commands with
+\texttt{smt:} to avoid collisions with Racket functions.
+
 \subsection{Derived Abstractions}
 \label{sec:derived}
 
 Since the full power of Racket is available to us, we can define abstractions
-on top that allow consumers to simplify their code. For example, SMT-LIB
-allows users to define macros via the \texttt {define-fun} command.
+that allow users to simplify their code. For example, SMT-LIB allows users to
+define macros via the \texttt {define-fun} command.
 
 \begin{verbatim}
 (define-fun max ((a Int) (b Int)) Int
@@ -37,8 +37,8 @@ allows users to define macros via the \texttt {define-fun} command.
 (assert (= (max 4 7) 7))
 \end{verbatim}
 
-However, Z3's API exposes no such command. One's first thought might be to
-define a Racket function to do the same thing:
+However, Z3's API exposes no such command. Our first attempt was to define a
+Racket function to do the same thing:
 
 \begin{verbatim}
 (define (smt-max a b)
@@ -52,7 +52,7 @@ sort of na\"{i}ve substitution can result in final expressions for deeply
 nested functions becoming too large for Z3 to handle\footnote{In theory, we
 could merge common parts of expressions to reduce the number of AST nodes
 generated. In our experiments, this proved to be effective, yet still
-significantly slower than the equivalent universally quantified formula.}
+significantly slower than the solution we finally adopted.}
 
 We note, however, that any macro can also be written as a universally
 quantified formula. For example, \texttt{max} can be rewritten in the
