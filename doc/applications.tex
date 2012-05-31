@@ -82,7 +82,7 @@ Our system makes defining a series of macros like this very easy.
 length 5, and returns 5 for anything bigger than that. Note how freely the
 Racket \texttt{if} and \texttt{let} forms are mixed into the SMT body. These
 constructs are evaluated at definition time, meaning that this definition
-reduces to the series of macros defined above, and is much more concise.
+reduces to the series of macros defined above up to length \texttt{n}.
 
 It is easy to define other bounded recursive functions along the same lines
 that reverse lists, concatenate them, filter them on a predicate and much
