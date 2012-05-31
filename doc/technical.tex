@@ -66,9 +66,10 @@ following way.
 \end{verbatim}
 
 Indeed, Z3 has a \textit{macro finder} component that identifies and
-eliminates universal quantifiers that are macros in disguise. We can now
-provide a Racket macro, \texttt{smt:define-fun}, that has the same syntax as
-the SMT-LIB command and that performs precisely this transformation.
+eliminates universal quantifiers that are macros in disguise. We finally
+solved the problem by providing a Racket macro, \texttt{smt:define-fun}, that
+has the same syntax as the SMT-LIB command and that performs precisely this
+transformation.
 
 \subsection{Porting Existing SMT-LIB Code}
 \label{sec:porting-smt-lib}
