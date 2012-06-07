@@ -1,0 +1,194 @@
+\documentclass{beamer}
+
+\usepackage{minted}
+\usemintedstyle{trac}
+
+\usepackage{fontspec}
+\setsansfont{Liberation Sans}
+\setmonofont[Scale=0.9]{DejaVu Sans Mono}
+
+\usetheme{Copenhagen}
+
+\title[Functional SMT solving]{Functional SMT solving with Z3 and Racket}
+
+\author{\textbf{Siddharth Agarwal} \and Amey Karkare}
+\institute{IIT Kanpur}
+\date{June, 2012}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{SMT solvers}
+Generalise SAT to more than just booleans
+
+\begin{itemize}
+\item Integers, reals, arrays, lists, first-order predicates...
+\end{itemize}
+
+SAT is NP-complete \pause ... but so what? Heuristics!
+\end{frame}
+
+\begin{frame}{SMT solvers}
+\begin{center}
+\textbf{A disruptive technology}
+\end{center}
+\pause
+\begin{itemize}
+\item Program analysis
+\item Bounded model checking
+\item Scheduling
+\item Automated planning
+\item ...
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Using SMT solvers}
+
+\begin{center}
+Is $p \wedge \neg p$ satisfiable?
+\end{center}
+
+\end{frame}
+
+\begin{frame}[fragile]{Using SMT solvers: C interface}
+\begin{minted}{c}
+Z3_config cfg = Z3_mk_config();
+Z3_context ctx = Z3_mk_context(cfg);
+Z3_del_config(cfg);
+
+Z3_sort bool_sort = Z3_mk_bool_sort(ctx);
+Z3_symbol symbol_p = Z3_mk_int_symbol(ctx, 0);
+Z3_ast p = Z3_mk_const(ctx, symbol_p, bool_sort);
+Z3_ast not_p = Z3_mk_not(ctx, p);
+
+Z3_ast args[2] = {p, not_p};
+Z3_ast conjecture = Z3_mk_and(ctx, 2, args);
+Z3_assert_cnstr(ctx, conjecture);
+Z3_lbool sat = Z3_check(ctx);
+
+Z3_del_context(ctx);
+return sat;
+\end{minted}
+
+\end{frame}
+
+\begin{frame}{Using SMT solvers: C interface}
+\begin{center}
+The C interface is \textit{really} hard to use
+
+\pause
+\textbf{Can we do better?}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]{Using SMT solvers: SMT-LIB interface}
+\begin{minted}{scheme}
+(declare-fun p () Bool)
+(assert (and p (not p)))
+(check-sat)
+\end{minted}
+\end{frame}
+
+\begin{frame}{Using SMT solvers: SMT-LIB interface}
+\begin{itemize}
+\item Easy to use
+\item Standard, supported by most SMT solvers
+\pause
+\item Solver implementations not designed for programmability
+\pause
+\item Hard to create abstractions
+\item Hard to use interactively
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Reimplementing SMT-LIB}
+\begin{itemize}
+\item \textbf{Z3} as the SMT solver
+\pause
+\item \textbf{Racket} as the host language
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Reimplementing SMT-LIB}
+\begin{center}
+\LARGE \texttt{\textbf{z3.rkt}} 
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]{Using SMT solvers: \texttt{z3.rkt}}
+\begin{minted}{scheme}
+(smt:with-context
+ (smt:new-context)
+ (smt:declare-fun p () Bool)
+ (smt:assert (and/s p (not/s p)))
+ (smt:check-sat))
+\end{minted}
+\end{frame}
+
+\begin{frame}{A few concessions to Racket}
+\begin{itemize}
+\item Avoid name collisions (\texttt{smt:} prefix, \texttt{/s} suffix)
+\item \texttt{true} and \texttt{false} become \texttt{\#t} and \texttt{\#f}
+\item ...
+\end{itemize}
+\pause
+\textit{Minor} and \textit{systematic} changes
+\pause
+(can we add raw SMT-LIB?)
+\end{frame}
+
+\begin{frame}{Deriving abstractions}
+\begin{itemize}
+\item Full power of Racket and Z3 combined
+\item Freely mix Racket and Z3 forms
+\pause
+\item Use Racket macros to define new forms for Z3
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Using \texttt{z3.rkt} to verify programs}
+\begin{itemize}
+\item Bounded verification for recursive functions
+\item Define bounded recursive versions for \texttt{length}, \texttt{reverse}, \texttt{append}...
+\pause
+\item Verify or find bugs in quicksort for lists of length <= \texttt{n}
+\pause
+\item \texttt{z3.rkt} makes it \textit{easy}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Other SMT integration projects}
+\begin{itemize}
+\item Scala\textasciicircum Z3 (Scala)
+\item Z3Py (Python)
+\item SBV (Haskell)
+\end{itemize}
+\pause
+The tech is there, now let everyday programmers use it
+\end{frame}
+
+\begin{frame}{Questions?}
+\begin{center}
+Thank you!
+\end{center}
+\end{frame}
+
+\begin{frame}
+Backup slides
+\end{frame}
+
+\begin{frame}{Using \texttt{z3.rkt} for fun}
+\begin{center}
+\textbf{Demo:} Number Mind web app \url{http://numbermind.less-broken.com}
+\end{center}
+\pause
+\begin{itemize}
+\item Core code is 30 lines, server written in an afternoon
+\item Continuations to save state on the server
+\end{itemize}
+\end{frame}
+
+\end{document}
