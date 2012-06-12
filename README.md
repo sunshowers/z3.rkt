@@ -30,7 +30,7 @@ Installing
 Microsoft Research
 site](http://research.microsoft.com/en-us/um/redmond/projects/z3/download.html). We
 only work on Linux for now, though we would like to support all the platforms Z3
-and Racket support. For now, you'll need to copy or create a symlink to `bin/libz3.so`
+and Racket support. For now, you'll need to copy or create a symlink to `lib/libz3.so`
 in this directory as `libz3.so`.
 
 License
