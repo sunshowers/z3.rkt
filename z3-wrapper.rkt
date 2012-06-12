@@ -21,7 +21,7 @@
                  pre:  (list->cblock x t)
                  post: (x => (cblock->list x t n)))]))
 
-(define-runtime-path libz3-path (build-path "z3" "lib" "libz3.so"))
+(define-runtime-path libz3-path "libz3.so")
 (define libz3-without-suffix (path-replace-suffix libz3-path ""))
 (define libz3 (ffi-lib libz3-without-suffix))
 
