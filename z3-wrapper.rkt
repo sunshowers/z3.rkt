@@ -5,6 +5,8 @@
          ffi/vector
          ffi/unsafe/alloc)
 (require racket/runtime-path
+         racket/match
+         (for-syntax racket/match)
          (for-syntax racket/base))
 (require "utils.rkt")
 
@@ -21,7 +23,11 @@
                  pre:  (list->cblock x t)
                  post: (x => (cblock->list x t n)))]))
 
-(define-runtime-path libz3-path "libz3.so")
+(define-runtime-path libz3-path
+  (match (system-type 'os)
+    ['linux "libz3.so"]
+    ['windows "z3.dll"]))
+
 (define libz3-without-suffix (path-replace-suffix libz3-path ""))
 (define libz3 (ffi-lib libz3-without-suffix))
 
