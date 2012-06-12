@@ -2,7 +2,7 @@
 
 (require "../main.rkt"
          "../examples/list-helpers.rkt"
-         "../examples/bounded-model-checking.rkt")
+         "../examples/bounded-verification.rkt")
 (require rackunit)
 
 (define (check-qsort-model make-qsort correct?)
@@ -18,7 +18,7 @@
    (smt:assert (not/s (=/s (len (qsort xs)) (len xs))))
    (check-eq? (smt:check-sat) (if correct? 'unsat 'sat))))
 
-(define/provide-test-suite test-bounded-model-checking
+(define/provide-test-suite test-bounded-verification
   (test-case
    "Quick sort: correct (<=, >)"
    (check-qsort-model make-correct-qsort1 #t))
