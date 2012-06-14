@@ -28,10 +28,9 @@ Installing
 
 `z3.rkt` requires Z3 4.0, which you can download for your platform from [the
 Microsoft Research
-site](http://research.microsoft.com/en-us/um/redmond/projects/z3/download.html). We
-only work on Linux for now, though we would like to support all the platforms Z3
-and Racket support. For now, you'll need to copy or create a symlink to `lib/libz3.so`
-in this directory as `libz3.so`.
+site](http://research.microsoft.com/en-us/um/redmond/projects/z3/download.html).
+We work on Windows, Mac and Linux. You need to copy or create a symlink to `z3.dll`,
+`libz3.so` or `libz3.dylib` in this directory.
 
 License
 -------

@@ -26,7 +26,8 @@
 (define-runtime-path libz3-path
   (match (system-type 'os)
     ['linux "libz3.so"]
-    ['windows "z3.dll"]))
+    ['windows "z3.dll"]
+    ['macosx "libz3.dylib"]))
 
 (define libz3-without-suffix (path-replace-suffix libz3-path ""))
 (define libz3 (ffi-lib libz3-without-suffix))
