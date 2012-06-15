@@ -25,7 +25,7 @@
 
 (define-runtime-path libz3-path
   (match (system-type 'os)
-    ['linux "libz3.so"]
+    ['unix "libz3.so"]
     ['windows "z3.dll"]
     ['macosx "libz3.dylib"]))
 
