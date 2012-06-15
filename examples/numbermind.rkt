@@ -1,12 +1,14 @@
-#lang racket
+#lang racket/base
 
 (require "../main.rkt")
+(require racket/function
+         racket/match)
 
 ;; A solution to Project Euler problem 185.
 ;; http://projecteuler.net/index.php?section=problems&id=185
 
 (define (solve-numbermind guesses)
-  (define varcount (string-length (first (first guesses))))
+  (define varcount (string-length (car (car guesses))))
   (smt:with-context
    (smt:new-context)
    (define vars (smt:make-fun/list varcount () Int))
