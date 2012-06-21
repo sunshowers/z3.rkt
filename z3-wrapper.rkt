@@ -67,7 +67,6 @@
 (define-z3-type _z3-pattern)
 (define-z3-type _z3-model)
 
-
 ;; Enumerations
 (define _z3-lbool (_enum '(false = -1 undef true) _int32))
 (define _z3-sat-lbool (_enum '(unsat = -1 unknown sat) _int32))
@@ -110,6 +109,19 @@
 
 (defz3-wrapped mk-config (allocator del-config) : -> _z3-config)
 (defz3 set-param-value! : _z3-config _string _string -> _void)
+
+(define (keyword-arg->_z3-param kw kw-arg)
+  (define kw-str (regexp-replaces (string-upcase (keyword->string kw))
+                                  '((#rx"-" "_")
+                                    (#rx"\\?$" ""))))
+  (define kw-arg-str (match kw-arg
+                       [#t "true"]
+                       [#f "false"]
+                       [(? number?) (number->string kw-arg)]
+                       [_ kw-arg]))
+  (values kw-str kw-arg-str))
+(provide keyword-arg->_z3-param)
+                                                                         
 (defz3-wrapped mk-context (allocator del-context) : _z3-config -> _z3-context)
 
 (defz3 set-logic : _z3-context _string -> _bool)
