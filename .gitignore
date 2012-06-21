@@ -8,6 +8,12 @@
 *.nav
 *.bbl
 *.blg
-/z3
+*.fdb_latexmk
+*.fls
+*.vrb
+/libz3.so
+/libz3.dylib
+/z3.dll
 compiled/
 *.pdf
+*.sublime-workspace
