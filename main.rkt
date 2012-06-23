@@ -33,6 +33,10 @@
    (init-builtins))
   new-info)
 
+; For a list of keyword arguments smt:new-context accepts, see
+; http://research.microsoft.com/en-us/um/redmond/projects/z3/config.html.
+; All keywords are in standard Racket form, with the words lowercased, the
+; underscores changed to hyphens, and a ? suffixed to boolean arguments.
 (define smt:new-context (make-keyword-procedure new-context-proc))
 
 (provide
