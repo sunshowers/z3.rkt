@@ -9,7 +9,9 @@
 
 (define z3-default-overrides #hasheq((#:macro-finder? . #t)))
 
-(define (new-context-proc kws kw-args)
+(define (new-context-proc kws kw-args . rest)
+  (unless (null? rest)
+    (apply raise-arity-error 'smt:new-context 0 rest))
   (define config (z3:mk-config))
   (define params (hash-copy z3-default-overrides))
   (for ([kw (in-list kws)]
@@ -37,5 +39,4 @@
  (all-from-out "parser.rkt"
                "builtins.rkt"
                "derived.rkt")
- (contract-out
-  [smt:new-context (->* () (#:model? boolean? #:logic string? #:mbqi? boolean? #:macro-finder? boolean?) z3ctx?)]))
+ smt:new-context)
