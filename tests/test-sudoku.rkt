@@ -22,6 +22,11 @@
   (check-sudoku
    "85___24__72______9__4_________1_7__23_5___9___4___________8__7__17__________36_4_"
    "859612437723854169164379528986147352375268914241593786432981675617425893598736241")
+  ; The next problem is the hardest known Sudoku problem, the Platinum Blonde.
+  ; z3.rkt solves this problem in a few hundred milliseconds
+  (check-sudoku
+   "_______12________3__23__4____18____5_6__7_8_______9_____85_____9___4_5__47___6___"
+   "839465712146782953752391486391824675564173829287659341628537194913248567475916238")
   (check-sudoku
    (make-string 81 #\_) ; Empty grid: has multiple solutions
    #f))
